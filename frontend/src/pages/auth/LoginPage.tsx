@@ -76,7 +76,7 @@ export default function LoginPage() {
     return (
         <div className="flex h-screen w-full flex-row overflow-hidden bg-background-light dark:bg-background-dark font-display antialiased text-text-main">
             {/* Left Side - Visual */}
-            <div className="relative hidden lg:flex w-5/12 flex-col justify-between overflow-hidden p-12">
+            <div className="relative hidden lg:flex lg:w-1/2 flex-col justify-between overflow-hidden p-12">
                 <div
                     className="absolute inset-0 z-0 h-full w-full bg-cover bg-center"
                     style={{ backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuBmkyI_dKsTY0DF1gG8r9L918N9dcZpgZaHPQ8hzD0DjLKbnZtdN5f0dV9NBzC3BKstlA7t57wlZC8BDpgoCG2iP9ToCHYKsfgQtCtFo3hk4WIx6xY3RPfc6KeNweuiR1LWm6BqgGzxC-qyPSNFhptUtIhZwS1LIt-KXjNJ5R4qDSud8v3gPfLYoWOUVboUNYWqQMTzOdUrcQQSwC-x2aRMPJP3tp3ZSs6nwnUYLE_uABVLpjLCIt83zUTJrIcqzzWG6dx_z5SmtDA')" }}
@@ -87,9 +87,9 @@ export default function LoginPage() {
                 <div className="absolute inset-0 z-10 bg-black/10"></div>
 
                 <div className="relative z-20 flex h-full flex-col justify-center text-white">
-                    <div className="mb-6 size-12 bg-white/20 backdrop-blur-md rounded-xl flex items-center justify-center border border-white/30 shadow-xl">
+                    <Link to="/" className="mb-6 size-12 bg-white/20 backdrop-blur-md rounded-xl flex items-center justify-center border border-white/30 shadow-xl hover:scale-105 transition-transform">
                         <img src="/images/logo.svg" alt="UniFlow Logo" className="w-7 h-7 object-contain brightness-0 invert" />
-                    </div>
+                    </Link>
 
                     <div className="min-h-[220px] lg:min-h-[200px] transition-all duration-500 ease-in-out">
                         <h1 className="text-5xl font-extrabold leading-tight tracking-tight mb-6 animate-in fade-in slide-in-from-bottom-4 duration-500" key={`title-${currentSlide}`}>
@@ -115,18 +115,18 @@ export default function LoginPage() {
             </div>
 
             {/* Right Side - Form */}
-            <div className="flex flex-1 flex-col items-center justify-center overflow-y-auto overflow-x-hidden bg-background-light dark:bg-background-dark p-6 relative">
+            <div className="flex w-full lg:w-1/2 flex-col items-center justify-center overflow-y-auto overflow-x-hidden bg-background-light dark:bg-background-dark p-6 sm:p-12 lg:p-16 relative">
                 {/* Decorative Blurs - Kept Template Colors as requested */}
                 <div className="pointer-events-none absolute -top-20 -right-20 h-96 w-96 rounded-full bg-[#26d99d]/5 blur-3xl"></div>
                 <div className="pointer-events-none absolute bottom-0 left-0 h-64 w-64 rounded-full bg-[#759FDD]/5 blur-3xl"></div>
 
                 <div className="w-full max-w-[440px] z-10">
                     <div className="mb-10 text-center lg:text-left">
-                        <div className="lg:hidden mb-6 flex justify-center">
+                        <Link to="/" className="lg:hidden mb-6 flex justify-center hover:scale-105 transition-transform inline-block">
                             <div className="size-12 bg-gradient-to-br from-primary to-[#259694] rounded-lg flex items-center justify-center text-white shadow-lg shadow-primary/20">
                                 <img src="/images/logo.svg" alt="UniFlow Logo" className="w-7 h-7 object-contain brightness-0 invert" />
                             </div>
-                        </div>
+                        </Link>
                         <h2 className="text-3xl font-bold tracking-tight text-text-main dark:text-white mb-2">Log in to your account</h2>
                         <p className="text-text-sub text-base">Welcome back! Please enter your details.</p>
                     </div>
@@ -142,7 +142,7 @@ export default function LoginPage() {
                             <div className="relative">
                                 {/* Input: Reverted to Primary Brand Color */}
                                 <input
-                                    className="w-full rounded-lg border border-gray-200 bg-white dark:bg-[#252a30] dark:border-gray-700 dark:text-white pl-4 pr-12 py-3.5 text-base font-normal shadow-sm placeholder:text-gray-400 focus:border-primary focus:ring-4 focus:ring-primary/20 outline-none transition-all disabled:opacity-50"
+                                    className="w-full h-12 pl-4 pr-12 rounded-xl border border-[#d3e4e4] dark:border-[#3a4b4b] bg-[#f9fbfb] dark:bg-[#131f1f] text-text-main dark:text-white placeholder-[#94b3b2] dark:placeholder-[#4a6b6a] focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-normal shadow-sm disabled:opacity-50"
                                     id="email"
                                     placeholder="student@example.com"
                                     type="email"
@@ -160,7 +160,7 @@ export default function LoginPage() {
                             <div className="relative">
                                 {/* Input: Reverted to Primary Brand Color */}
                                 <input
-                                    className="w-full rounded-lg border border-gray-200 bg-white dark:bg-[#252a30] dark:border-gray-700 dark:text-white pl-4 pr-12 py-3.5 text-base font-normal shadow-sm placeholder:text-gray-400 focus:border-primary focus:ring-4 focus:ring-primary/20 outline-none transition-all disabled:opacity-50"
+                                    className="w-full h-12 pl-4 pr-12 rounded-xl border border-[#d3e4e4] dark:border-[#3a4b4b] bg-[#f9fbfb] dark:bg-[#131f1f] text-text-main dark:text-white placeholder-[#94b3b2] dark:placeholder-[#4a6b6a] focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-normal shadow-sm disabled:opacity-50"
                                     id="password"
                                     placeholder="••••••••"
                                     type={showPassword ? "text" : "password"}

@@ -59,12 +59,12 @@ export default function SignupPage() {
                 <div className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-[#FFD933]/20 rounded-full blur-[100px]"></div>
 
                 <div className="relative z-10 max-w-lg text-white space-y-8">
-                    <div className="flex items-center gap-3">
+                    <Link to="/" className="flex items-center gap-3 hover:opacity-90 transition-opacity w-fit">
                         <div className="size-10 bg-white/20 backdrop-blur-md rounded-xl flex items-center justify-center border border-white/30 shadow-xl">
                             <img src="/images/logo.svg" alt="UniFlow Logo" className="w-6 h-6 object-contain brightness-0 invert" />
                         </div>
                         <span className="text-3xl font-bold tracking-tight">UniFlow</span>
-                    </div>
+                    </Link>
                     <div className="space-y-4">
                         <h2 className="text-4xl xl:text-5xl font-extrabold leading-tight">Master your finances,<br />ace your semester.</h2>
                         <p className="text-lg text-white/80 font-normal leading-relaxed max-w-md">Join over 50,000 students managing their budget, tasks, and tuition planning in one secure workspace.</p>
@@ -93,12 +93,12 @@ export default function SignupPage() {
             {/* Right Side - Form */}
             <main className="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-12 lg:p-16 relative bg-white dark:bg-[#1a2828] overflow-y-auto">
                 <div className="w-full max-w-[440px] flex flex-col gap-8">
-                    <div className="lg:hidden flex items-center gap-2 text-primary mb-2">
+                    <Link to="/" className="lg:hidden flex items-center gap-2 text-primary mb-2 w-fit hover:opacity-90 transition-opacity">
                         <div className="size-8 bg-gradient-to-br from-primary to-[#259694] rounded-lg flex items-center justify-center text-white shadow-lg shadow-primary/20">
                             <img src="/images/logo.svg" alt="UniFlow Logo" className="w-5 h-5 object-contain brightness-0 invert" />
                         </div>
                         <span className="text-xl font-bold tracking-tight text-text-main dark:text-white">UniFlow</span>
-                    </div>
+                    </Link>
 
                     <div className="space-y-2">
                         <h1 className="text-3xl font-extrabold tracking-tight text-text-main dark:text-white">Create an account</h1>
@@ -220,7 +220,7 @@ export default function SignupPage() {
 
                         {/* Button - Reverted to Template Gradient (Teal to Yellow) */}
                         <button
-                            className="mt-4 relative w-full h-12 rounded-xl bg-gradient-to-r from-primary to-[#FFD933] text-white font-bold text-base shadow-lg shadow-primary/25 hover:shadow-primary/40 hover:scale-[1.01] active:scale-[0.98] transition-all duration-200 overflow-hidden group disabled:opacity-70 disabled:grayscale disabled:cursor-not-allowed"
+                            className="mt-4 relative w-full h-12 rounded-xl bg-gradient-to-r from-primary to-[#259694] text-white font-bold text-base shadow-lg shadow-primary/25 hover:shadow-primary/40 hover:scale-[1.01] active:scale-[0.98] transition-all duration-200 overflow-hidden group disabled:opacity-70 disabled:grayscale disabled:cursor-not-allowed"
                             type="submit"
                             disabled={isLoading}
                         >
