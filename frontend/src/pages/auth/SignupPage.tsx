@@ -133,7 +133,7 @@ export default function SignupPage() {
                         </div>
 
                         <div className="space-y-1.5">
-                            <label className="text-text-main dark:text-[#e0eaea] text-sm font-semibold ml-1" htmlFor="email">University Email</label>
+                            <label className="text-text-main dark:text-[#e0eaea] text-sm font-semibold ml-1" htmlFor="email">Email Address</label>
                             <div className="relative group">
                                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                                     <span className="material-symbols-outlined text-gray-400 group-focus-within:text-primary transition-colors text-[20px]">mail</span>
@@ -142,17 +142,13 @@ export default function SignupPage() {
                                     className="w-full h-12 pl-11 pr-4 rounded-xl border border-[#d3e4e4] dark:border-[#3a4b4b] bg-[#f9fbfb] dark:bg-[#131f1f] text-text-main dark:text-white placeholder-[#94b3b2] dark:placeholder-[#4a6b6a] focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-normal shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
                                     id="email"
                                     name="email"
-                                    placeholder="jane@university.edu"
+                                    placeholder="student@example.com"
                                     required
                                     type="email"
                                     value={formData.email}
                                     onChange={handleChange}
                                     disabled={isLoading}
                                 />
-                            </div>
-                            <div className="flex items-center gap-1.5 px-1">
-                                <span className="material-symbols-outlined text-primary text-[16px]">info</span>
-                                <p className="text-primary text-xs font-medium">Please use your .edu address for student verification</p>
                             </div>
                         </div>
 

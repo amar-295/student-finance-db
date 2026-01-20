@@ -144,7 +144,7 @@ export default function LoginPage() {
                                 <input
                                     className="w-full rounded-lg border border-gray-200 bg-white dark:bg-[#252a30] dark:border-gray-700 dark:text-white pl-4 pr-12 py-3.5 text-base font-normal shadow-sm placeholder:text-gray-400 focus:border-primary focus:ring-4 focus:ring-primary/20 outline-none transition-all disabled:opacity-50"
                                     id="email"
-                                    placeholder="student@university.edu"
+                                    placeholder="student@example.com"
                                     type="email"
                                     required
                                     value={formData.email}
