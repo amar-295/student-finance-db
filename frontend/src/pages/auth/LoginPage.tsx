@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { authService } from '../../services/auth.service';
 
@@ -12,6 +12,30 @@ export default function LoginPage() {
     const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
+
+    const slides = [
+        {
+            title: "Welcome Back!",
+            description: "Your path to financial freedom and organized studies starts here. Manage your budget, track assignments, and stay ahead."
+        },
+        {
+            title: "Smart Analytics",
+            description: "Visualize your spending habits with intuitive charts. Identify where your money goes and save smarter with personalized insights."
+        },
+        {
+            title: "Stay Organized",
+            description: "Never miss a deadline again. Keep track of tuition payments, recurring bills, and assignment due dates in one secure place."
+        }
+    ];
+
+    const [currentSlide, setCurrentSlide] = useState(0);
+
+    useEffect(() => {
+        const timer = setInterval(() => {
+            setCurrentSlide((prev) => (prev + 1) % slides.length);
+        }, 5000);
+        return () => clearInterval(timer);
+    }, []);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { id, value, type, checked } = e.target;
@@ -63,26 +87,35 @@ export default function LoginPage() {
                 <div className="absolute inset-0 z-10 bg-black/10"></div>
 
                 <div className="relative z-20 flex h-full flex-col justify-center text-white">
-                    <div className="mb-6 h-12 w-12 rounded-lg bg-white/20 backdrop-blur-md flex items-center justify-center">
-                        <img src="/images/logo.svg" alt="UniFlow Logo" className="w-8 h-8 object-contain" />
+                    <div className="mb-6 size-12 bg-white/20 backdrop-blur-md rounded-xl flex items-center justify-center border border-white/30 shadow-xl">
+                        <img src="/images/logo.svg" alt="UniFlow Logo" className="w-7 h-7 object-contain brightness-0 invert" />
                     </div>
-                    <h1 className="text-5xl font-extrabold leading-tight tracking-tight mb-6">
-                        Welcome Back!
-                    </h1>
-                    <p className="text-lg font-medium text-white/90 max-w-md leading-relaxed">
-                        Your path to financial freedom and organized studies starts here. Manage your budget, track assignments, and stay ahead.
-                    </p>
+
+                    <div className="min-h-[220px] lg:min-h-[200px] transition-all duration-500 ease-in-out">
+                        <h1 className="text-5xl font-extrabold leading-tight tracking-tight mb-6 animate-in fade-in slide-in-from-bottom-4 duration-500" key={`title-${currentSlide}`}>
+                            {slides[currentSlide].title}
+                        </h1>
+                        <p className="text-lg font-medium text-white/90 max-w-md leading-relaxed animate-in fade-in slide-in-from-bottom-4 duration-700" key={`desc-${currentSlide}`}>
+                            {slides[currentSlide].description}
+                        </p>
+                    </div>
                 </div>
 
-                <div className="relative z-20 flex gap-2">
-                    <div className="h-1.5 w-8 rounded-full bg-white"></div>
-                    <div className="h-1.5 w-2 rounded-full bg-white/40"></div>
-                    <div className="h-1.5 w-2 rounded-full bg-white/40"></div>
+                <div className="relative z-20 flex gap-2 mb-12">
+                    {slides.map((_, index) => (
+                        <button
+                            key={index}
+                            onClick={() => setCurrentSlide(index)}
+                            className={`h-1.5 rounded-full transition-all duration-300 ${index === currentSlide ? "w-8 bg-white" : "w-2 bg-white/40 hover:bg-white/60"
+                                }`}
+                            aria-label={`Go to slide ${index + 1}`}
+                        />
+                    ))}
                 </div>
             </div>
 
             {/* Right Side - Form */}
-            <div className="flex flex-1 flex-col items-center justify-center overflow-y-auto bg-background-light dark:bg-background-dark p-6 relative">
+            <div className="flex flex-1 flex-col items-center justify-center overflow-y-auto overflow-x-hidden bg-background-light dark:bg-background-dark p-6 relative">
                 {/* Decorative Blurs - Kept Template Colors as requested */}
                 <div className="pointer-events-none absolute -top-20 -right-20 h-96 w-96 rounded-full bg-[#26d99d]/5 blur-3xl"></div>
                 <div className="pointer-events-none absolute bottom-0 left-0 h-64 w-64 rounded-full bg-[#759FDD]/5 blur-3xl"></div>
@@ -90,8 +123,8 @@ export default function LoginPage() {
                 <div className="w-full max-w-[440px] z-10">
                     <div className="mb-10 text-center lg:text-left">
                         <div className="lg:hidden mb-6 flex justify-center">
-                            <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
-                                <img src="/images/logo.svg" alt="UniFlow Logo" className="w-8 h-8 object-contain" />
+                            <div className="size-12 bg-gradient-to-br from-primary to-[#259694] rounded-lg flex items-center justify-center text-white shadow-lg shadow-primary/20">
+                                <img src="/images/logo.svg" alt="UniFlow Logo" className="w-7 h-7 object-contain brightness-0 invert" />
                             </div>
                         </div>
                         <h2 className="text-3xl font-bold tracking-tight text-text-main dark:text-white mb-2">Log in to your account</h2>
