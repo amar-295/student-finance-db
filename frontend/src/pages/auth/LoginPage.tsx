@@ -12,6 +12,10 @@ export default function LoginPage() {
     const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
+    const [touched, setTouched] = useState({
+        email: false,
+        password: false
+    });
 
     const slides = [
         {
@@ -39,12 +43,23 @@ export default function LoginPage() {
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { id, value, type, checked } = e.target;
-        // id matches formData keys (email, password)
         setFormData(prev => ({
             ...prev,
             [id]: type === 'checkbox' ? checked : value
         }));
     };
+
+    const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+        const { id } = e.target;
+        setTouched(prev => ({
+            ...prev,
+            [id]: true
+        }));
+    };
+
+    // Simple frontend validation to match backend requirements
+    const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email);
+    const isPasswordValid = formData.password.length > 0; // Backend handles complexity, frontend just checks presence for login
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -65,7 +80,7 @@ export default function LoginPage() {
             localStorage.setItem('refreshToken', response.refreshToken);
             localStorage.setItem('user', JSON.stringify(response.user));
 
-            navigate('/'); // Redirect to Home/Dashboard
+            navigate('/dashboard'); // Redirect to Home/Dashboard
         } catch (err: any) {
             setError(err.message || 'Login failed. Please check your credentials.');
         } finally {
@@ -78,8 +93,7 @@ export default function LoginPage() {
             {/* Left Side - Visual */}
             <div className="relative hidden lg:flex lg:w-1/2 flex-col justify-between overflow-hidden p-12">
                 <div
-                    className="absolute inset-0 z-0 h-full w-full bg-cover bg-center"
-                    style={{ backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuBmkyI_dKsTY0DF1gG8r9L918N9dcZpgZaHPQ8hzD0DjLKbnZtdN5f0dV9NBzC3BKstlA7t57wlZC8BDpgoCG2iP9ToCHYKsfgQtCtFo3hk4WIx6xY3RPfc6KeNweuiR1LWm6BqgGzxC-qyPSNFhptUtIhZwS1LIt-KXjNJ5R4qDSud8v3gPfLYoWOUVboUNYWqQMTzOdUrcQQSwC-x2aRMPJP3tp3ZSs6nwnUYLE_uABVLpjLCIt83zUTJrIcqzzWG6dx_z5SmtDA')" }}
+                    style={{ backgroundImage: "url('/images/auth-bg.png')" }}
                 >
                 </div>
                 {/* Abstract Background - Kept Template Colors as requested */}
@@ -149,10 +163,17 @@ export default function LoginPage() {
                                     required
                                     value={formData.email}
                                     onChange={handleChange}
+                                    onBlur={handleBlur}
                                     disabled={isLoading}
                                 />
                                 <span className="material-symbols-outlined absolute right-4 top-3.5 text-gray-400 pointer-events-none text-[20px]">mail</span>
                             </div>
+                            {touched.email && !isEmailValid && formData.email && (
+                                <p className="text-xs text-red-500 mt-1 flex items-center gap-1">
+                                    <span className="material-symbols-outlined text-[14px]">error</span>
+                                    Please enter a valid email address
+                                </p>
+                            )}
                         </div>
 
                         <div className="flex flex-col gap-2">
@@ -169,6 +190,7 @@ export default function LoginPage() {
                                     onChange={handleChange}
                                     disabled={isLoading}
                                 />
+
                                 <span
                                     className="material-symbols-outlined absolute right-4 top-3.5 text-gray-400 cursor-pointer hover:text-gray-600 transition-colors text-[20px] select-none"
                                     onClick={() => setShowPassword(!showPassword)}
@@ -176,6 +198,12 @@ export default function LoginPage() {
                                     {showPassword ? 'visibility_off' : 'visibility'}
                                 </span>
                             </div>
+                            {touched.password && !isPasswordValid && (
+                                <p className="text-xs text-red-500 mt-1 flex items-center gap-1">
+                                    <span className="material-symbols-outlined text-[14px]">error</span>
+                                    Please enter your password
+                                </p>
+                            )}
                         </div>
 
                         <div className="flex items-center justify-between">
@@ -191,15 +219,19 @@ export default function LoginPage() {
                                 />
                                 <span className="text-sm text-text-sub group-hover:text-text-main transition-colors select-none">Remember me</span>
                             </label>
-                            <a className="text-sm font-semibold text-secondary hover:text-secondary/80 transition-colors" href="#">Forgot Password?</a>
+                            <Link className="text-sm font-semibold text-secondary hover:text-secondary/80 transition-colors" to="/forgot-password">Forgot Password?</Link>
                         </div>
 
                         {/* Button: Reverted to Primary Brand Color (No Gradient) */}
                         <button
-                            className="bg-primary hover:bg-primary-dark hover:translate-y-[-2px] hover:shadow-lg hover:shadow-primary/25 transition-all duration-200 mt-2 w-full rounded-lg py-3.5 text-base font-bold text-white mb-2"
-                            type="button"
+                            className="mt-2 relative w-full h-12 rounded-xl bg-gradient-to-r from-primary to-[#259694] text-white font-bold text-base shadow-lg shadow-primary/25 hover:shadow-primary/40 hover:scale-[1.01] active:scale-[0.98] transition-all duration-200 overflow-hidden group disabled:opacity-70 disabled:grayscale disabled:cursor-not-allowed"
+                            type="submit"
+                            disabled={isLoading || !isEmailValid || !isPasswordValid}
                         >
-                            Log In
+                            <span className="relative z-10 flex items-center justify-center gap-2">
+                                {isLoading ? 'Logging In...' : 'Log In'}
+                                {!isLoading && <span className="material-symbols-outlined text-[20px] group-hover:translate-x-1 transition-transform">arrow_forward</span>}
+                            </span>
                         </button>
 
                         <div className="relative flex items-center gap-4 py-2">

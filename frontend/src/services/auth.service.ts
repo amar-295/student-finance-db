@@ -55,7 +55,8 @@ export const authService = {
             throw new Error(errorData.message || 'Registration failed');
         }
 
-        return response.json();
+        const json = await response.json();
+        return json.data;
     },
 
     async login(data: LoginInput): Promise<AuthResponse> {
@@ -72,7 +73,8 @@ export const authService = {
             throw new Error(errorData.message || 'Login failed');
         }
 
-        return response.json();
+        const json = await response.json();
+        return json.data;
     },
 
     logout() {

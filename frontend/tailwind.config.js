@@ -5,14 +5,19 @@ export default {
   theme: {
     extend: {
       colors: {
-        primary: '#14adb8',
-        'primary-dark': '#0e8a94',
+        primary: '#2eb8b5',
+        'primary-dark': '#259694',
         secondary: '#4F46E5',
         'secondary-light': '#E0E7FF',
-        'background-light': '#f9fafa',
-        'background-dark': '#1f242e',
-        'text-main': '#111718',
-        'text-muted': '#638688',
+        'background-light': '#f6f8f8',
+        'background-dark': '#131f1f',
+        'text-main': '#101919',
+        'text-muted': '#578e8d',
+        'slate-text-main': '#1e293b',
+        'slate-text-muted': '#64748b',
+        'accent-coral': '#F27B66',
+        'accent-pink': '#F56B9E',
+        'card-white': '#FFFFFF',
       },
       fontFamily: {
         display: ['Plus Jakarta Sans', 'sans-serif'],
