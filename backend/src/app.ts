@@ -9,6 +9,8 @@ import { errorHandler, notFoundHandler } from './middleware';
 // Import routes
 import authRoutes from './routes/auth.routes';
 import healthRoutes from './routes/health.routes';
+import transactionRoutes from './routes/transaction.routes';
+import accountRoutes from './routes/account.routes';
 
 const app: Application = express();
 
@@ -54,6 +56,8 @@ app.use('/health', healthRoutes);
 
 // API routes
 app.use('/api/auth', authRoutes);
+app.use('/api/accounts', accountRoutes);
+app.use('/api/transactions', transactionRoutes);
 
 // 404 handler
 app.use(notFoundHandler);

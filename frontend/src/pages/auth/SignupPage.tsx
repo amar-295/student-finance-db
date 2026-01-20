@@ -1,11 +1,50 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { authService } from '../../services/auth.service';
 
 export default function SignupPage() {
-    const [password, setPassword] = useState('');
+    const navigate = useNavigate();
+    const [formData, setFormData] = useState({
+        fullname: '',
+        email: '',
+        password: '',
+        terms: false
+    });
     const [showPassword, setShowPassword] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState('');
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value, type, checked } = e.target;
+        setFormData(prev => ({
+            ...prev,
+            [name]: type === 'checkbox' ? checked : value
+        }));
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setError('');
+        setIsLoading(true);
+
+        try {
+            await authService.register({
+                email: formData.email,
+                password: formData.password,
+                name: formData.fullname
+            });
+            // On success, redirect to login (or dashboard if auto-login logic added)
+            navigate('/');
+            // Note: Ideally show a success message or toast "Account created! Please log in."
+        } catch (err: any) {
+            setError(err.message || 'Registration failed. Please try again.');
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     // Mock validation for visuals
+    const password = formData.password;
     const hasMinLength = password.length >= 8;
     const hasNumber = /\d/.test(password);
     const hasUpper = /[A-Z]/.test(password);
@@ -66,14 +105,30 @@ export default function SignupPage() {
                         <p className="text-text-sub dark:text-[#8ba7a6] text-base font-normal">Start your 30-day free trial. Cancel anytime.</p>
                     </div>
 
-                    <form className="flex flex-col gap-5" onSubmit={(e) => e.preventDefault()}>
+                    <form className="flex flex-col gap-5" onSubmit={handleSubmit}>
+                        {error && (
+                            <div className="p-3 rounded-lg bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-sm font-medium">
+                                {error}
+                            </div>
+                        )}
+
                         <div className="space-y-1.5">
                             <label className="text-text-main dark:text-[#e0eaea] text-sm font-semibold ml-1" htmlFor="fullname">Full Name</label>
                             <div className="relative group">
                                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                                     <span className="material-symbols-outlined text-gray-400 group-focus-within:text-primary transition-colors text-[20px]">person</span>
                                 </div>
-                                <input className="w-full h-12 pl-11 pr-4 rounded-xl border border-[#d3e4e4] dark:border-[#3a4b4b] bg-[#f9fbfb] dark:bg-[#131f1f] text-text-main dark:text-white placeholder-[#94b3b2] dark:placeholder-[#4a6b6a] focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-normal shadow-sm" id="fullname" name="fullname" placeholder="Jane Doe" required type="text" />
+                                <input
+                                    className="w-full h-12 pl-11 pr-4 rounded-xl border border-[#d3e4e4] dark:border-[#3a4b4b] bg-[#f9fbfb] dark:bg-[#131f1f] text-text-main dark:text-white placeholder-[#94b3b2] dark:placeholder-[#4a6b6a] focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-normal shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                                    id="fullname"
+                                    name="fullname"
+                                    placeholder="Jane Doe"
+                                    required
+                                    type="text"
+                                    value={formData.fullname}
+                                    onChange={handleChange}
+                                    disabled={isLoading}
+                                />
                             </div>
                         </div>
 
@@ -83,7 +138,17 @@ export default function SignupPage() {
                                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                                     <span className="material-symbols-outlined text-gray-400 group-focus-within:text-primary transition-colors text-[20px]">mail</span>
                                 </div>
-                                <input className="w-full h-12 pl-11 pr-4 rounded-xl border border-[#d3e4e4] dark:border-[#3a4b4b] bg-[#f9fbfb] dark:bg-[#131f1f] text-text-main dark:text-white placeholder-[#94b3b2] dark:placeholder-[#4a6b6a] focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-normal shadow-sm" id="email" name="email" placeholder="jane@university.edu" required type="email" />
+                                <input
+                                    className="w-full h-12 pl-11 pr-4 rounded-xl border border-[#d3e4e4] dark:border-[#3a4b4b] bg-[#f9fbfb] dark:bg-[#131f1f] text-text-main dark:text-white placeholder-[#94b3b2] dark:placeholder-[#4a6b6a] focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-normal shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                                    id="email"
+                                    name="email"
+                                    placeholder="jane@university.edu"
+                                    required
+                                    type="email"
+                                    value={formData.email}
+                                    onChange={handleChange}
+                                    disabled={isLoading}
+                                />
                             </div>
                             <div className="flex items-center gap-1.5 px-1">
                                 <span className="material-symbols-outlined text-primary text-[16px]">info</span>
@@ -98,14 +163,15 @@ export default function SignupPage() {
                                     <span className="material-symbols-outlined text-gray-400 group-focus-within:text-primary transition-colors text-[20px]">lock</span>
                                 </div>
                                 <input
-                                    className="w-full h-12 pl-11 pr-11 rounded-xl border border-[#d3e4e4] dark:border-[#3a4b4b] bg-[#f9fbfb] dark:bg-[#131f1f] text-text-main dark:text-white placeholder-[#94b3b2] dark:placeholder-[#4a6b6a] focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-normal shadow-sm"
+                                    className="w-full h-12 pl-11 pr-11 rounded-xl border border-[#d3e4e4] dark:border-[#3a4b4b] bg-[#f9fbfb] dark:bg-[#131f1f] text-text-main dark:text-white placeholder-[#94b3b2] dark:placeholder-[#4a6b6a] focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-normal shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
                                     id="password"
                                     name="password"
                                     placeholder="••••••••"
                                     required
                                     type={showPassword ? "text" : "password"}
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
+                                    value={formData.password}
+                                    onChange={handleChange}
+                                    disabled={isLoading}
                                 />
                                 <button
                                     aria-label="Toggle password visibility"
@@ -138,7 +204,16 @@ export default function SignupPage() {
 
                         <div className="flex items-start gap-3 mt-2">
                             <div className="flex items-center h-5">
-                                <input className="w-4 h-4 rounded border-[#d3e4e4] dark:border-[#3a4b4b] text-primary focus:ring-primary/25 bg-[#f9fbfb] dark:bg-[#131f1f] cursor-pointer transition-colors" id="terms" name="terms" required type="checkbox" />
+                                <input
+                                    className="w-4 h-4 rounded border-[#d3e4e4] dark:border-[#3a4b4b] text-primary focus:ring-primary/25 bg-[#f9fbfb] dark:bg-[#131f1f] cursor-pointer transition-colors"
+                                    id="terms"
+                                    name="terms"
+                                    required
+                                    type="checkbox"
+                                    checked={formData.terms}
+                                    onChange={handleChange}
+                                    disabled={isLoading}
+                                />
                             </div>
                             <div className="text-sm leading-5 -mt-0.5">
                                 <label className="font-normal text-text-sub dark:text-[#8ba7a6]" htmlFor="terms">
@@ -148,10 +223,14 @@ export default function SignupPage() {
                         </div>
 
                         {/* Button - Reverted to Template Gradient (Teal to Yellow) */}
-                        <button className="mt-4 relative w-full h-12 rounded-xl bg-gradient-to-r from-primary to-[#FFD933] text-white font-bold text-base shadow-lg shadow-primary/25 hover:shadow-primary/40 hover:scale-[1.01] active:scale-[0.98] transition-all duration-200 overflow-hidden group" type="submit">
+                        <button
+                            className="mt-4 relative w-full h-12 rounded-xl bg-gradient-to-r from-primary to-[#FFD933] text-white font-bold text-base shadow-lg shadow-primary/25 hover:shadow-primary/40 hover:scale-[1.01] active:scale-[0.98] transition-all duration-200 overflow-hidden group disabled:opacity-70 disabled:grayscale disabled:cursor-not-allowed"
+                            type="submit"
+                            disabled={isLoading}
+                        >
                             <span className="relative z-10 flex items-center justify-center gap-2">
-                                Create Account
-                                <span className="material-symbols-outlined text-[20px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
+                                {isLoading ? 'Creating Account...' : 'Create Account'}
+                                {!isLoading && <span className="material-symbols-outlined text-[20px] group-hover:translate-x-1 transition-transform">arrow_forward</span>}
                             </span>
                         </button>
                     </form>

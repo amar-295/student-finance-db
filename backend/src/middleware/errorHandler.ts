@@ -15,7 +15,7 @@ export const errorHandler = (
 ) => {
   // Log error for debugging
   if (config.env === 'development') {
-    console.error('❌ Error:', err);
+    console.error('❌ Error:', err.message, err.stack);
   }
 
   // Handle known API errors

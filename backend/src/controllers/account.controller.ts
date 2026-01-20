@@ -1,0 +1,81 @@
+import { Request, Response } from 'express';
+import {
+  createAccount,
+  getUserAccounts,
+  getAccountById,
+  updateAccount,
+  deleteAccount,
+} from '../services/account.service';
+import {
+  createAccountSchema,
+  updateAccountSchema,
+} from '../types/account.types';
+
+/**
+ * Create account
+ * POST /api/accounts
+ */
+export const create = async (req: Request, res: Response) => {
+  const input = createAccountSchema.parse(req.body);
+  const account = await createAccount(req.user!.userId, input);
+
+  res.status(201).json({
+    success: true,
+    message: 'Account created successfully',
+    data: account,
+  });
+};
+
+/**
+ * Get all accounts
+ * GET /api/accounts
+ */
+export const getAll = async (req: Request, res: Response) => {
+  const accounts = await getUserAccounts(req.user!.userId);
+
+  res.status(200).json({
+    success: true,
+    data: accounts,
+  });
+};
+
+/**
+ * Get single account
+ * GET /api/accounts/:id
+ */
+export const getOne = async (req: Request, res: Response) => {
+  const account = await getAccountById(req.user!.userId, req.params.id);
+
+  res.status(200).json({
+    success: true,
+    data: account,
+  });
+};
+
+/**
+ * Update account
+ * PUT /api/accounts/:id
+ */
+export const update = async (req: Request, res: Response) => {
+  const input = updateAccountSchema.parse(req.body);
+  const account = await updateAccount(req.user!.userId, req.params.id, input);
+
+  res.status(200).json({
+    success: true,
+    message: 'Account updated successfully',
+    data: account,
+  });
+};
+
+/**
+ * Delete account
+ * DELETE /api/accounts/:id
+ */
+export const remove = async (req: Request, res: Response) => {
+  const result = await deleteAccount(req.user!.userId, req.params.id);
+
+  res.status(200).json({
+    success: true,
+    message: result.message,
+  });
+};

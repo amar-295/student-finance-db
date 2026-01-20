@@ -1,6 +1,7 @@
 import prisma from '../config/database';
 import { hashPassword, comparePassword, generateTokenPair } from '../utils';
-import { ConflictError, UnauthorizedError, NotFoundError } from '../utils';
+import { ConflictError, UnauthorizedError, NotFoundError, ForbiddenError } from '../utils';
+import config from '../config/env';
 import type { RegisterInput, LoginInput, UpdateProfileInput } from '../types/auth.types';
 
 /**
@@ -59,10 +60,10 @@ export const registerUser = async (input: RegisterInput) => {
 };
 
 /**
- * Login user
+ * Login user with account lockout protection
  */
 export const loginUser = async (input: LoginInput) => {
-  // Find user
+  // Find user including lockout fields
   const user = await prisma.user.findUnique({
     where: { email: input.email },
     select: {
@@ -74,6 +75,8 @@ export const loginUser = async (input: LoginInput) => {
       baseCurrency: true,
       emailVerified: true,
       deletedAt: true,
+      failedLoginAttempts: true,
+      lockedUntil: true,
     },
   });
 
@@ -81,11 +84,52 @@ export const loginUser = async (input: LoginInput) => {
     throw new UnauthorizedError('Invalid email or password');
   }
 
+  // Check if account is locked
+  if (user.lockedUntil && user.lockedUntil > new Date()) {
+    const remainingMinutes = Math.ceil(
+      (user.lockedUntil.getTime() - Date.now()) / (1000 * 60)
+    );
+    throw new ForbiddenError(
+      `Account is locked. Please try again in ${remainingMinutes} minute(s).`
+    );
+  }
+
   // Verify password
   const isPasswordValid = await comparePassword(input.password, user.passwordHash);
 
   if (!isPasswordValid) {
+    // Increment failed attempts
+    const newFailedAttempts = user.failedLoginAttempts + 1;
+    const shouldLock = newFailedAttempts >= config.lockout.threshold;
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        failedLoginAttempts: newFailedAttempts,
+        lockedUntil: shouldLock
+          ? new Date(Date.now() + config.lockout.durationMinutes * 60 * 1000)
+          : null,
+      },
+    });
+
+    if (shouldLock) {
+      throw new ForbiddenError(
+        `Too many failed attempts. Account locked for ${config.lockout.durationMinutes} minutes.`
+      );
+    }
+
     throw new UnauthorizedError('Invalid email or password');
+  }
+
+  // Reset failed attempts on successful login
+  if (user.failedLoginAttempts > 0 || user.lockedUntil) {
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        failedLoginAttempts: 0,
+        lockedUntil: null,
+      },
+    });
   }
 
   // Generate tokens
@@ -94,11 +138,11 @@ export const loginUser = async (input: LoginInput) => {
     email: user.email,
   });
 
-  // Remove passwordHash from response
-  const { passwordHash, deletedAt, ...userWithoutPassword } = user;
+  // Remove sensitive fields from response
+  const { passwordHash, deletedAt, failedLoginAttempts, lockedUntil, ...userWithoutSensitive } = user;
 
   return {
-    user: userWithoutPassword,
+    user: userWithoutSensitive,
     ...tokens,
   };
 };

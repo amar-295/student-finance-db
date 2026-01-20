@@ -17,16 +17,18 @@ datasource db {
 // =============================================================================
 
 model User {
-  id            String    @id @default(uuid())
-  email         String    @unique
-  passwordHash  String    @map("password_hash")
-  name          String
-  university    String?
-  baseCurrency  String    @default("USD") @map("base_currency")
-  emailVerified Boolean   @default(false) @map("email_verified")
-  createdAt     DateTime  @default(now()) @map("created_at")
-  updatedAt     DateTime  @updatedAt @map("updated_at")
-  deletedAt     DateTime? @map("deleted_at")
+  id                  String    @id @default(uuid())
+  email               String    @unique
+  passwordHash        String    @map("password_hash")
+  name                String
+  university          String?
+  baseCurrency        String    @default("USD") @map("base_currency")
+  emailVerified       Boolean   @default(false) @map("email_verified")
+  failedLoginAttempts Int       @default(0) @map("failed_login_attempts")
+  lockedUntil         DateTime? @map("locked_until")
+  createdAt           DateTime  @default(now()) @map("created_at")
+  updatedAt           DateTime  @updatedAt @map("updated_at")
+  deletedAt           DateTime? @map("deleted_at")
 
   // Relations
   accounts             Account[]

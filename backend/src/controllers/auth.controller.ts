@@ -12,6 +12,7 @@ import {
   updateProfileSchema,
 } from '../types/auth.types';
 import { verifyRefreshToken, generateAccessToken } from '../utils';
+import { blacklistTokenPair } from '../services/tokenBlacklist.service';
 
 /**
  * Register a new user
@@ -106,17 +107,23 @@ export const updateMe = async (req: Request, res: Response) => {
 };
 
 /**
- * Logout user (client-side token removal)
+ * Logout user - blacklists the current token
  * POST /api/auth/logout
  */
 export const logout = async (req: Request, res: Response) => {
-  // In a simple JWT implementation, logout is handled client-side
-  // by removing the tokens. For added security, you could:
-  // - Implement token blacklisting with Redis
-  // - Track active sessions in database
-  
+  // Get access token from request (attached by auth middleware)
+  const accessToken = req.token;
+
+  // Get refresh token from body if provided
+  const refreshToken = req.body.refreshToken;
+
+  // Blacklist both tokens
+  if (accessToken) {
+    await blacklistTokenPair(accessToken, refreshToken);
+  }
+
   res.status(200).json({
     success: true,
-    message: 'Logout successful',
+    message: 'Logout successful. Tokens have been invalidated.',
   });
 };

@@ -16,6 +16,9 @@ const envSchema = z.object({
   FRONTEND_URL: z.string().url().default('http://localhost:3000'),
   RATE_LIMIT_WINDOW_MS: z.string().default('900000'),
   RATE_LIMIT_MAX_REQUESTS: z.string().default('100'),
+  REDIS_URL: z.string().optional(),
+  LOCKOUT_THRESHOLD: z.string().default('5'),
+  LOCKOUT_DURATION_MINUTES: z.string().default('15'),
 });
 
 // Validate and parse environment variables
@@ -54,6 +57,13 @@ export const config = {
   rateLimit: {
     windowMs: parseInt(env.RATE_LIMIT_WINDOW_MS, 10),
     max: parseInt(env.RATE_LIMIT_MAX_REQUESTS, 10),
+  },
+  redis: {
+    url: env.REDIS_URL,
+  },
+  lockout: {
+    threshold: parseInt(env.LOCKOUT_THRESHOLD, 10),
+    durationMinutes: parseInt(env.LOCKOUT_DURATION_MINUTES, 10),
   },
 } as const;
 
