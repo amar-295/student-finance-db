@@ -18,6 +18,11 @@ export default {
         'accent-coral': '#F27B66',
         'accent-pink': '#F56B9E',
         'card-white': '#FFFFFF',
+        // New colors from Accounts HTML
+        rose: '#EF6F8F',
+        alert: '#DC2626',
+        'surface-light': '#FFFFFF',
+        'surface-dark': '#222b36',
       },
       fontFamily: {
         display: ['Plus Jakarta Sans', 'sans-serif'],

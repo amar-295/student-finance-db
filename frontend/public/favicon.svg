@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" width="64" height="64"><svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" width="64" height="64"><svg width="64" height="64" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="logoGradient" x1="56" y1="456" x2="456" y2="56" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#3B82F6"></stop>
+      <stop offset="1" stop-color="#06B6D4"></stop>
+    </linearGradient>
+  </defs>
+  
+  <!-- Left Vertical of U -->
+  <path d="M128 96 V320 C128 390.7 185.3 448 256 448 C326.7 448 384 390.7 384 320 V256" stroke="url(#logoGradient)" stroke-width="80" stroke-linecap="round" stroke-linejoin="round"></path>
+        
+  <!-- The Arrow connecting from the right side -->
+  <path d="M384 256 L456 184" stroke="url(#logoGradient)" stroke-width="80" stroke-linecap="round"></path>
+        
+  <!-- Arrow Head -->
+  <path d="M336 128 L464 128 L464 256" stroke="url(#logoGradient)" stroke-width="80" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg></svg><style>@media (prefers-color-scheme: light) { :root { filter: none; } }
+@media (prefers-color-scheme: dark) { :root { filter: none; } }
+</style></svg>
