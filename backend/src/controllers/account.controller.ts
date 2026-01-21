@@ -27,8 +27,8 @@ export const create = async (req: Request, res: Response) => {
     action: 'create_account',
     entityType: 'account',
     entityId: account.id,
-    ipAddress: req.ip,
-    userAgent: req.headers['user-agent'] as string,
+    ipAddress: (req.ip as string) || undefined,
+    userAgent: Array.isArray(req.headers['user-agent']) ? req.headers['user-agent'][0] : req.headers['user-agent'],
     metadata: { name: account.name, type: account.accountType }
   });
 
@@ -99,9 +99,9 @@ export const remove = async (req: Request, res: Response) => {
     userId: req.user!.userId,
     action: 'delete_account',
     entityType: 'account',
-    entityId: id,
-    ipAddress: req.ip,
-    userAgent: req.headers['user-agent'] as string
+    entityId: id as string,
+    ipAddress: (req.ip as string) || undefined,
+    userAgent: Array.isArray(req.headers['user-agent']) ? req.headers['user-agent'][0] : req.headers['user-agent']
   });
 
   res.status(200).json({

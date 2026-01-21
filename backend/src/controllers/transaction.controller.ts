@@ -29,8 +29,8 @@ export const create = async (req: Request, res: Response) => {
     action: 'create_transaction',
     entityType: 'transaction',
     entityId: transaction.id,
-    ipAddress: req.ip,
-    userAgent: req.headers['user-agent'] as string,
+    ipAddress: (req.ip as string) || undefined,
+    userAgent: (req.headers['user-agent'] as string) || undefined,
     metadata: {
       amount: transaction.amount,
       category: transaction.category?.name,
@@ -107,9 +107,9 @@ export const remove = async (req: Request, res: Response) => {
     userId: req.user!.userId,
     action: 'delete_transaction',
     entityType: 'transaction',
-    entityId: req.params.id,
-    ipAddress: req.ip,
-    userAgent: Array.isArray(req.headers['user-agent']) ? req.headers['user-agent'][0] : (req.headers['user-agent'] as string) || undefined
+    entityId: (req.params.id as string) || undefined,
+    ipAddress: (req.ip as string) || undefined,
+    userAgent: (req.headers['user-agent'] as string) || undefined
   });
 
   res.status(200).json({
