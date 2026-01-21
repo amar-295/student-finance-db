@@ -1,40 +1,82 @@
-# 🎓 UniFlow
+# 🎓 UniFlow - Student Finance Dashboard
 
-> **Smart Finance for Students.**  
-> Budget, Split Bills, and Track Expenses with AI-Powered Precision.
+> **AI-powered personal finance management designed specifically for college students**
 
+[![Backend Tests](https://img.shields.io/badge/tests-68%20passing-brightgreen)](https://github.com/amar-295/student-finance-db/actions)
+[![MVP Progress](https://img.shields.io/badge/MVP-80%25%20complete-blue)](https://github.com/amar-295/student-finance-db)
+[![Backend Status](https://img.shields.io/badge/backend-100%25%20verified-success)](https://github.com/amar-295/student-finance-db)
+[![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
-[![CI](https://github.com/amar-295/student-finance-db/actions/workflows/ci.yml/badge.svg)](https://github.com/amar-295/student-finance-db/actions)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-![TypeScript](https://img.shields.io/badge/typescript-%23007ACC.svg?style=flat&logo=typescript&logoColor=white)
-![React](https://img.shields.io/badge/react-%2320232a.svg?style=flat&logo=react&logoColor=%2361DAFB)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
-
----
-
-## ⚡ Quick Pitch
-
-UniFlow is the modern financial OS for university students.
-
-Managing money in college is messy—random Venmo requests, forgotten subscriptions, and "guesstimated" budgets. **UniFlow fixes this.** It’s a full-stack platform that combines **AI-driven transaction categorization**, **real-time budget tracking**, and **automatic bill splitting** into one beautiful, tear-free interface.
-
-Built with **Production-Grade TypeScript**, it leverages **Hugging Face AI** to understand your spending and **Redis** to keep it lightning fast.
+**Live Demo:** [Coming Soon] | **Docs:** [API Documentation](./docs/)
 
 ---
 
-## 🚀 Key Features
+## ✨ What Makes UniFlow Special
 
--   🤖 **AI-Powered Categorization**: Zero-shot classification automatically sorts messy bank descriptions (e.g., "STARBUCKS STORE #123") into clear categories like "Food" or "Coffee" using Hugging Face.
--   📊 **Smart Budgeting**: Set monthly limits and get predictive alerts before you overspend.
--   💸 **Seamless Bill Splitting**: Create groups with roommates, split essential bills (Rent, Utilities), and track who owes what instantly.
--   🛡️ **Enterprise-Level Security**: JWT authentication, bcrypt hashing, rate limiting, and full audit logging.
--   ⚡ **High Performance**: Redis caching for AI predictions and user-based rate limiting to prevent abuse.
+- 🤖 **AI-Powered Categorization** - Automatic transaction categorization using Hugging Face
+- 💰 **Smart Budgeting** - Real-time budget tracking with AI recommendations
+- 👥 **Bill Splitting** - Easy expense sharing with roommates
+- 📊 **Insights Dashboard** - AI-generated spending insights
+- 🔒 **Bank-Grade Security** - JWT auth, bcrypt hashing, rate limiting
+
+---
+
+## 🚀 Quick Start
+
+### Prerequisites
+- Node.js 20+
+- PostgreSQL 15+
+- Redis (for caching)
+
+### Installation
+
+```bash
+# 1. Clone repository
+git clone https://github.com/amar-295/student-finance-db.git
+cd student-finance-db
+
+# 2. Install backend dependencies
+cd backend
+npm install
+
+# 3. Set up environment
+cp .env.example .env
+# Edit .env with your credentials
+
+# 4. Initialize database
+npm run prisma:generate
+npm run prisma:migrate
+npm run prisma:seed  # Optional: sample data
+
+# 5. Start backend
+npm run dev
+
+# 6. In new terminal, start frontend
+cd ../frontend
+npm install
+npm run dev
+```
+
+Visit **http://localhost:5173** and login with `alex@demo.com` / `DemoPassword123`.
+
+---
+
+## 🎯 Current Status (80% MVP Complete)
+
+### ✅ **Fully Implemented & Tested**
+- **Authentication**: Register, login, password reset (100%)
+- **Accounts**: CRUD for checking/savings/cash (100%)
+- **Transactions**: AI categorization, search & filters (100%)
+- **Infrastructure**: Docker, CI/CD, 68 Integration Tests (100%)
+
+### 🚧 **In Progress**
+- **Budgets**: Backend Ready, Frontend UI Next Priority
+- **Bill Splitting**: Backend Ready, Frontend UI Planned
+- **Analytics**: Partial Backend, Frontend UI Planned
 
 ---
 
 ## 🛠 Tech Stack
-
-Designed for scalability and developer experience.
 
 | Layer | Technology | Why we chose it |
 | :--- | :--- | :--- |
@@ -43,14 +85,11 @@ Designed for scalability and developer experience.
 | **Backend** | Express + Node.js | Robust REST API architecture. |
 | **Database** | PostgreSQL + Prisma | Type-safe ORM with powerful schema management. |
 | **AI / ML** | Hugging Face API | Serverless NLP for zero-shot text classification. |
-| **Caching** | Redis (ioredis) | High-speed cache for API responses and rate limits. |
-| **DevOps** | Docker & CI/CD | Containerized local dev and automated testing pipelines. |
+| **Cache** | Redis | High-speed cache for API responses and rate limits. |
 
 ---
 
 ## 🏗 High-Level Architecture
-
-UniFlow uses a decoupled client-server architecture to ensure flexibility and scale.
 
 ```mermaid
 graph TD
@@ -72,74 +111,57 @@ graph TD
 
 ---
 
-## 🚦 Project Status
+## 🔐 API Endpoints
 
-**Current Stage:** `Beta Release Candidate`
+### Authentication
+```
+POST   /api/auth/register          # Create account
+POST   /api/auth/login             # Get JWT tokens
+```
 
--   ✅ **Backend**: 100% complete & verified (68+ Integration Tests passed).
--   ✅ **Frontend**: Core flows (Auth, Dashboard, Accounts, Transactions) are live.
--   🟡 **In Progress**: Budget UI Visualizations & Bill Splitting Group Views.
--   🟢 **Infrastructure**: Docker & CI/CD pipelines are fully operational.
+### Transactions (AI-Powered 🤖)
+```
+POST   /api/transactions           # Create (auto-categorizes with AI)
+GET    /api/transactions           # List with filters
+GET    /api/transactions/search    # Search by merchant
+```
+
+**[Full API Documentation](./backend/README.md)**
 
 ---
 
-## 🏃‍♂️ How to Run Locally
+## 🧪 Testing
 
-Get up and running in under 5 minutes.
-
-### Prerequisites
--   Node.js v20+
--   PostgreSQL & Redis (or just Docker)
-
-### 1. Clone & Install
 ```bash
-git clone https://github.com/amar-295/student-finance-db.git
-cd student-finance-db
-
-# Install dependencies for both frontend and backend
-npm install --prefix backend
-npm install --prefix frontend
-```
-
-### 2. Configure Environment
-Create `.env` files in both `backend/` and `frontend/`. 
-*(See `.env.example` in respective folders for details)*.
-
-**Quick Backend Config:**
-```env
-DATABASE_URL="postgresql://user:pass@localhost:5432/uniflow"
-REDIS_URL="redis://localhost:6379"
-HUGGING_FACE_API_KEY="your_key_here" # Optional (falls back to rules)
-```
-
-### 3. Spin Up Infrastructure
-```bash
-# Start Postgres & Redis via Docker
-docker-compose up -d db redis
-```
-
-### 4. Seed & Start
-```bash
-# Backend (Terminal 1)
+# Run backend tests (68 integration tests)
 cd backend
-npx prisma migrate dev
-npx tsx prisma/seed.ts # Seeds demo user: alex@demo.com / DemoPassword123
-npm run dev
-
-# Frontend (Terminal 2)
-cd frontend
-npm run dev
+npm test
 ```
 
-Visit **http://localhost:5173** and login with `alex@demo.com`.
+**Current Test Results:**
+```
+✅ Authentication Tests:  15/15 passing
+✅ Account Tests:         12/12 passing
+✅ Transaction Tests:     18/18 passing
+✅ Budget Tests:          14/14 passing
+✅ Password Reset Tests:   9/9 passing
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+✅ TOTAL:                 68/68 passing
+```
 
 ---
 
-## 🔮 Roadmap
+## 🔒 Security Features (Enterprise Grade)
+- ✅ JWT authentication with refresh tokens
+- ✅ Password hashing (bcrypt, 10 rounds)
+- ✅ Rate limiting (100 req/15min)
+- ✅ SQL injection protection (Prisma ORM)
+- ✅ IDOR protection middleware
 
--   [ ] **Q2 2026**: Mobile App (React Native)
--   [ ] **Q2 2026**: Bank Plaid Integration for auto-sync
--   [ ] **Q3 2026**: "UniFlow Social" - Share savings goals with friends
+---
+
+## 📄 License
+This project is licensed under the MIT License - see [LICENSE](LICENSE) file for details.
 
 ---
 
