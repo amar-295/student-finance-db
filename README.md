@@ -126,6 +126,14 @@ backend/src/
 ├── utils/
 │   └── Various helper functions
 │
+├── tests/                     # Jest Test Suite
+│   ├── integration/               - API integration tests (68 tests)
+│   ├── payloads/                  - JSON test data
+│   └── setup.ts                   - Test environment setup
+│
+├── docs/                      # Documentation
+│   └── database-schema.sql        - SQL reference schema
+│
 ├── app.ts                     (1.8 KB) - Express app configuration
 └── server.ts                  (2.5 KB) - Server startup
 ```
