@@ -15,6 +15,8 @@ CREATE TABLE users (
     university VARCHAR(150),
     base_currency VARCHAR(3) DEFAULT 'USD', -- ISO 4217 code
     email_verified BOOLEAN DEFAULT FALSE,
+    failed_login_attempts INTEGER DEFAULT 0, -- Rate limiting
+    locked_until TIMESTAMP WITH TIME ZONE, -- Account lockout
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP WITH TIME ZONE -- Soft delete
@@ -31,6 +33,8 @@ CREATE TABLE accounts (
     account_type VARCHAR(50) NOT NULL, -- 'checking', 'savings', 'cash', 'credit_card'
     balance DECIMAL(12, 2) DEFAULT 0.00,
     currency VARCHAR(3) DEFAULT 'USD',
+    institution VARCHAR(100),
+    account_number VARCHAR(100),
     is_active BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
@@ -83,6 +87,7 @@ CREATE TABLE transactions (
     category_id UUID REFERENCES categories(id) ON DELETE SET NULL,
     amount DECIMAL(12, 2) NOT NULL,
     currency VARCHAR(3) DEFAULT 'USD',
+    tags TEXT[] DEFAULT '{}', -- Array of tags
     converted_amount DECIMAL(12, 2), -- Amount in user's base currency
     exchange_rate DECIMAL(10, 6), -- Exchange rate used for conversion
     merchant VARCHAR(255), -- "Starbucks", "Amazon", etc.
@@ -117,6 +122,7 @@ CREATE TABLE budgets (
     start_date DATE NOT NULL,
     end_date DATE, -- NULL for ongoing budgets
     alert_threshold DECIMAL(3, 2) DEFAULT 0.80, -- Alert at 80% spent
+    rollover BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     UNIQUE(user_id, category_id, start_date) -- One budget per category per period
