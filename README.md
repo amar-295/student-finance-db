@@ -22,18 +22,22 @@ student-finance-db/
 ├── backend/           # Express.js REST API
 │   ├── src/
 │   │   ├── controllers/    # Request handlers
-│   │   ├── services/       # Business logic
+│   │   ├── services/       # Business logic (AuditService added)
 │   │   ├── routes/         # API endpoints
-│   │   ├── middleware/     # Auth, error handling
+│   │   ├── middleware/     # Auth, Error, Audit, OptionalAuth
 │   │   ├── types/          # TypeScript types & Zod schemas
 │   │   ├── config/         # Environment config
 │   │   ├── utils/          # Helper functions
-│   │   ├── app.ts          # Express app setup
+│   │   ├── app.ts          # Express app setup (Rate limiting)
 │   │   └── server.ts       # Server entry point
 │   ├── prisma/
-│   │   └── schema.prisma   # Database schema (18 tables)
+│   │   └── schema.prisma   # Database schema (AuditLog added)
+│   ├── Dockerfile          # Production container config ✨ NEW
 │   └── package.json
 │
+├── .github/worklows/       # CI/CD Pipeline ✨ NEW
+│   └── ci.yml              # Automated testing & linting
+├── docker-compose.yml      # Local stack orchestration ✨ NEW
 └── frontend/          # React + Vite SPA
     ├── src/
     │   ├── pages/          # Route components
@@ -61,8 +65,10 @@ student-finance-db/
 | **Validation** | Zod | Schema validation |
 | **Auth** | JWT (jsonwebtoken) | Authentication tokens |
 | **Security** | bcryptjs, helmet, cors | Password hashing, security headers |
-| **AI** | Hugging Face API | Transaction categorization (facebook/bart-large-mnli) |
-| **Logging** | Morgan | HTTP request logging |
+| **AI** | Hugging Face API | Transaction categorization |
+| **Logging** | Audit & Audit Service | Per-action DB logging ✨ NEW |
+| **Infrastructure**| Docker & Docker Compose| Containerization ✨ NEW |
+| **CI/CD** | GitHub Actions | Automated tests & linting ✨ NEW |
 
 ### **Frontend**
 | Category | Technology | Purpose |
@@ -121,6 +127,8 @@ backend/src/
 │
 ├── middleware/
 │   ├── auth.middleware.ts         - JWT verification
+│   ├── audit.middleware.ts        - Request logging ✨ NEW
+│   ├── optionalAuthenticate.ts    - Rate limit helper ✨ NEW
 │   ├── errorHandler.middleware.ts - Global error handling
 │   └── index.ts                   - Middleware exports
 │
@@ -135,9 +143,7 @@ backend/src/
 │   ├── payloads/                  - JSON test data
 │   └── setup.ts                   - Test environment setup
 │
-├── docs/                      # Documentation
-│   └── database-schema.sql        - SQL reference schema
-│
+├── Dockerfile                  # Multi-stage production build ✨ NEW
 ├── app.ts                     (1.8 KB) - Express app configuration
 └── server.ts                  (2.5 KB) - Server startup
 ```
@@ -227,6 +233,9 @@ prisma/schema.prisma
 | **AI Insights** | ✅ Complete | 🟡 Partial | 🟡 Backend Ready |
 | **Bill Splitting** | ✅ Complete | ⏳ Pending | 🟡 Backend Ready |
 | **Email Notifications** | ✅ Complete | ⏳ Pending | 🟡 Backend Ready |
+| **Audit Logging** | ✅ Complete | ✅ Complete | 🟢 Infrastructure |
+| **Dockerization** | ✅ Complete | ✅ Complete | 🟢 Infrastructure |
+| **CI/CD Pipeline** | ✅ Complete | ✅ Complete | 🟢 Infrastructure |
 | **Reports & Analytics** | ⏳ Pending | ⏳ Pending | 🔴 Not Started |
 
 ---
@@ -336,9 +345,11 @@ Background: #f6f8f8  (Light Gray)
 3. **Token Blacklist:** Logout invalidation via Redis
 4. **CORS Protection:** Configured origins
 5. **Helmet.js:** Security headers
-6. **Rate Limiting:** API request throttling
+6. **Rate Limiting:** User-based request throttling ✨ UPGRADED
 7. **Input Validation:** Zod schema validation
 8. **SQL Injection Protection:** Prisma parameterized queries
+9. **Audit Logging:** Action tracking in PostgreSQL ✨ NEW
+10. **CI/CD Security:** Automated security scans & tests ✨ NEW
 
 ---
 
@@ -389,6 +400,10 @@ Background: #f6f8f8  (Light Gray)
 - Favicon implementation
 - Password Reset Flow (Full verification)
 - Backend System Stabilization (Type safety, Schema Sync)
+- **User-Based Rate Limiting** ✨ NEW
+- **Database Audit Logging** (Auth, Accounts, Transactions) ✨ NEW
+- **Dockerization** (Dockerfile, Compose) ✨ NEW
+- **CI/CD Pipeline Integration** ✨ NEW
 
 ### 🟡 **In Progress**
 - Budget UI (Backend ready, Frontend pending)

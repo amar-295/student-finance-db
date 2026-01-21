@@ -59,7 +59,11 @@ npm run prisma:seed
 npm run dev
 ```
 
-The API will be running at `http://localhost:5000`
+6. **Run with Docker (Recommended):**
+```bash
+docker-compose up -d
+```
+The API will be running at `http://localhost:5000` with PostgreSQL and Redis automatically configured.
 
 ---
 
@@ -68,8 +72,6 @@ The API will be running at `http://localhost:5000`
 ```
 src/
 ├── config/           # Configuration files
-│   ├── database.ts   # Prisma client
-│   └── env.ts        # Environment validation
 ├── controllers/      # Route controllers
 │   ├── auth.controller.ts
 │   ├── password-reset.controller.ts
@@ -79,16 +81,13 @@ src/
 │   └── group.controller.ts
 ├── middleware/       # Express middleware
 │   ├── auth.middleware.ts
+│   ├── audit.middleware.ts  # Automatic request logging ✨ NEW
 │   ├── validateOwnership.ts # IDOR protection
 │   └── errorHandler.middleware.ts
 ├── routes/           # API routes
-│   ├── auth.routes.ts
-│   ├── account.routes.ts
-│   ├── transaction.routes.ts
-│   ├── budget.routes.ts
-│   └── group.routes.ts
 ├── services/         # Business logic
 │   ├── auth.service.ts
+│   ├── audit.service.ts      # Action logging ✨ NEW
 │   ├── password-reset.service.ts
 │   ├── account.service.ts
 │   ├── transaction.service.ts
@@ -97,10 +96,7 @@ src/
 │   ├── email.service.ts
 │   └── group.service.ts
 ├── types/            # TypeScript types & Zod schemas
-│   ├── auth.types.ts
-│   ├── password-reset.types.ts
-│   └── ... types for all models
-├── app.ts            # Express app setup
+├── app.ts            # Express app (User-based rate limiting)
 └── server.ts         # Server entry point
 ```
 
@@ -124,25 +120,6 @@ Content-Type: application/json
 }
 ```
 
-**Response:**
-```json
-{
-  "success": true,
-  "message": "User registered successfully",
-  "data": {
-    "user": {
-      "id": "uuid",
-      "email": "student@university.edu",
-      "name": "John Doe",
-      "university": "State University",
-      "baseCurrency": "USD"
-    },
-    "accessToken": "eyJhbGci...",
-    "refreshToken": "eyJhbGci..."
-  }
-}
-```
-
 #### Login
 ```http
 POST /api/auth/login
@@ -154,44 +131,10 @@ Content-Type: application/json
 }
 ```
 
-#### Refresh Token
-```http
-POST /api/auth/refresh
-Content-Type: application/json
-
-{
-  "refreshToken": "eyJhbGci..."
-}
-```
-
-#### Get Current User
-```http
-GET /api/auth/me
-Authorization: Bearer <access_token>
-```
-
-#### Update Profile
-```http
-PUT /api/auth/me
-Authorization: Bearer <access_token>
-Content-Type: application/json
-
-{
-  "name": "Jane Doe",
-  "university": "New University"
-}
-```
-
-#### Logout
-```http
-POST /api/auth/logout
-Authorization: Bearer <access_token>
-```
-
 #### Password Reset Flow
-*   `POST /api/auth/forgot-password` - Send reset token to email (Prevention against user enumeration)
-*   `POST /api/auth/verify-reset-token` - Validate if a hashed token is still valid/not expired
-*   `POST /api/auth/reset-password` - Finalize password change (Invalidates all active sessions)
+*   `POST /api/auth/forgot-password` - Send reset token to email
+*   `POST /api/auth/verify-reset-token` - Validate if a hashed token is valid
+*   `POST /api/auth/reset-password` - Finalize password change
 
 ### Accounts (`/api/accounts`)
 *   `GET /api/accounts/summary` - Net balance across all accounts
@@ -206,15 +149,23 @@ Authorization: Bearer <access_token>
 *   `GET /api/budgets/status` - Real-time budget health (safe/warning/danger)
 *   `GET /api/budgets/recommend` - AI-generated recommended spending limits
 
-### Bill Splitting (`/api/groups`)
-*   `POST /api/groups` - Create a group for roommates/shared expenses
-*   `POST /api/groups/:id/splits` - Create a new bill split among members
+### Audit Logging (`AuditService`) ✨ **NEW**
+The application tracks all critical actions in the `AuditLog` table.
+*   **Tracked Actions**: Login, Logout, Profile Update, Account Create/Delete, Transaction Create/Delete.
+*   **Data Captured**: User ID, Action, IP Address, User Agent, Metadata.
+*   **Implementation**: `auditMiddleware` for requests + Controller logging for events.
 
-### Email Integration (`/api/auth`)
-The system uses **Nodemailer** for email delivery.
-*   **Development**: Configured with **Ethereal Email** (mock service).
-*   **Verification**: All emails sent in dev can be viewed at [ethereal.email/messages](https://ethereal.email/messages).
-*   **Production**: Set `NODE_ENV=production` or `ENABLE_EMAIL=true` and provide real SMTP credentials.
+### Docker & Infrastructure ✨ **NEW**
+The backend is containerized for consistent deployment.
+*   **Dockerfile**: Multi-stage build for small, secure production images.
+*   **Docker Compose**: Orchestrates `backend`, `postgres`, and `redis`.
+*   **Commands**:
+    *   `docker-compose up -d`: Start all services (detached)
+    *   `docker-compose down`: Stop all services
+
+### CI/CD Pipeline ✨ **NEW**
+Automated workflows via **GitHub Actions** (`.github/workflows/ci.yml`).
+*   **Checks**: Linting, Type-checking, and Integration Testing on every PR.
 
 ---
 
@@ -223,27 +174,6 @@ The system uses **Nodemailer** for email delivery.
 Run the test suite:
 ```bash
 npm test
-```
-
-Run tests in watch mode:
-```bash
-npm run test:watch
-```
-
----
-
-## 📝 Available Scripts
-
-```bash
-npm run dev          # Start development server with hot reload
-npm run build        # Build for production
-npm start            # Start production server
-npm test             # Run tests
-npm run lint         # Lint code
-npm run format       # Format code with Prettier
-npm run prisma:generate  # Generate Prisma Client
-npm run prisma:migrate   # Run database migrations
-npm run prisma:studio    # Open Prisma Studio (database GUI)
 ```
 
 ---
@@ -255,87 +185,30 @@ npm run prisma:studio    # Open Prisma Studio (database GUI)
 - **Language**: TypeScript
 - **Database**: PostgreSQL 15+
 - **ORM**: Prisma
-- **Authentication**: JWT (jsonwebtoken)
-- **Validation**: Zod
-- **Password Hashing**: bcryptjs
-- **Security**: Helmet, CORS, Rate Limiting
-- **Testing**: Jest, Supertest
-- **Logging**: Morgan
+- **Auth**: JWT (AccessToken + RefreshToken)
+- **Containerization**: Docker, Docker Compose ✨ NEW
+- **CI/CD**: GitHub Actions ✨ NEW
+- **Logging**: Morgan, Audit Logger ✨ NEW
 
 ---
 
 ## 🔒 Security Features
 
+- ✅ User-Based Rate Limiting ✨ UPGRADED
+- ✅ Database Audit Logging ✨ NEW
 - ✅ JWT-based authentication with refresh tokens
-- ✅ Password hashing with bcrypt (10 rounds)
-- ✅ Rate limiting on API endpoints
-- ✅ Helmet for security headers
-- ✅ CORS configuration
+- ✅ Password hashing with bcrypt
+- ✅ IDOR Protection (Resource Ownership Validation)
 - ✅ Input validation with Zod
-- ✅ SQL injection protection (Prisma ORM)
-- ✅ XSS protection
-- ✅ Environment variable validation
-
----
-
-## 🐛 Error Handling
-
-The API uses consistent error responses:
-
-```json
-{
-  "success": false,
-  "message": "Error message here",
-  "errors": [
-    {
-      "field": "email",
-      "message": "Invalid email address"
-    }
-  ]
-}
-```
-
-**HTTP Status Codes:**
-- `200` - Success
-- `201` - Created
-- `400` - Bad Request
-- `401` - Unauthorized
-- `403` - Forbidden
-- `404` - Not Found
-- `409` - Conflict (duplicate resource)
-- `422` - Validation Error
-- `500` - Internal Server Error
-
----
-
-## 📚 Next Steps
-
-1. **Budget Frontend UI** - Build progress bars and status indicators
-2. **Bill Splitting UI** - Group management and debt settlement screens
-3. **AI Insights UI** - Display spending patterns and saving tips
-4. **Recurring Transactions** - Implementation of automated scheduled tracking
-5. **PDF Reports** - Generation of monthly/semester spending summaries
+- ✅ SQL injection protection (Prisma)
 
 ---
 
 ## 🤝 Contributing
 
 1. Create a feature branch
-2. Write tests for new features
-3. Ensure all tests pass
-4. Submit a pull request
-
----
-
-## 📄 License
-
-MIT License - see LICENSE file for details
-
----
-
-## 💬 Support
-
-For issues or questions, please open a GitHub issue.
+2. Ensure all tests pass (`npm test`)
+3. Submit a pull request (verified by CI/CD)
 
 ---
 
