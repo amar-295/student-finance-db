@@ -102,6 +102,7 @@ async function main() {
       currency: 'USD',
     },
   });
+  console.log('   Stats:', savings.name, 'balance:', savings.balance);
 
   const creditCard = await prisma.account.create({
     data: {
@@ -240,7 +241,7 @@ async function main() {
       }
     }
   });
-  console.log('✅ Group seeded');
+  console.log('✅ Group seeded:', group.name, 'ID:', group.id);
 
 
   console.log('🎉 Seeding completed!');
