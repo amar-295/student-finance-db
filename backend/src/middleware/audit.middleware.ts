@@ -29,7 +29,7 @@ export const auditMiddleware = (action: string, entityType?: string) => {
             userId,
             action: action || `${req.method} ${req.originalUrl}`,
             entityType,
-            entityId: req.params.id,
+            entityId: (req.params.id as string) || undefined,
             metadata,
             ipAddress: (ipAddress as string) || undefined,
             userAgent: Array.isArray(userAgent) ? userAgent[0] : (userAgent as string) || undefined
