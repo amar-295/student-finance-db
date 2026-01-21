@@ -51,7 +51,8 @@ npm run prisma:generate
 npm run prisma:migrate
 
 # (Optional) Seed with sample data
-npm run prisma:seed
+# Creates Demo User: alex@demo.com / DemoPassword123
+npx tsx prisma/seed.ts
 ```
 
 5. **Start development server:**

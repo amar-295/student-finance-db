@@ -480,6 +480,7 @@ npm run prisma:generate  # Generate Prisma client
 npm run prisma:migrate   # Run migrations
 npm run prisma:studio    # Open Prisma Studio GUI
 npm test                 # Run tests
+npx tsx prisma/seed.ts   # Seed DB (User: alex@demo.com / DemoPassword123)
 ```
 
 ### **Frontend**
