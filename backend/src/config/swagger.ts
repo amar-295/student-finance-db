@@ -27,6 +27,37 @@ const options: swaggerJsdoc.Options = {
                     bearerFormat: 'JWT',
                 },
             },
+            schemas: {
+                User: {
+                    type: 'object',
+                    properties: {
+                        id: { type: 'string', format: 'uuid' },
+                        email: { type: 'string', format: 'email' },
+                        name: { type: 'string' },
+                        createdAt: { type: 'string', format: 'date-time' },
+                    },
+                },
+                Transaction: {
+                    type: 'object',
+                    properties: {
+                        id: { type: 'string', format: 'uuid' },
+                        description: { type: 'string' },
+                        amount: { type: 'number' },
+                        date: { type: 'string', format: 'date-time' },
+                        categoryId: { type: 'string', format: 'uuid' },
+                        type: { type: 'string', enum: ['INCOME', 'EXPENSE'] },
+                        accountId: { type: 'string', format: 'uuid' },
+                        createdAt: { type: 'string', format: 'date-time' },
+                    },
+                },
+                Error: {
+                    type: 'object',
+                    properties: {
+                        status: { type: 'string', example: 'fail' },
+                        message: { type: 'string' },
+                    },
+                },
+            },
         },
         security: [
             {

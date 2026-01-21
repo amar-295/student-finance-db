@@ -15,44 +15,194 @@ const router = express.Router();
 router.use(authenticate);
 
 /**
- * @route   GET /api/transactions/summary
- * @desc    Get transaction summary
- * @access  Private
+ * @swagger
+ * tags:
+ *   name: Transactions
+ *   description: Financial transaction management
+ */
+
+/**
+ * @swagger
+ * /transactions/summary:
+ *   get:
+ *     summary: Get transaction summary statistics
+ *     tags: [Transactions]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Summary statistics retrieved
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 totalIncome: { type: number }
+ *                 totalExpense: { type: number }
+ *                 balance: { type: number }
+ *                 recentTransactions:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Transaction'
  */
 router.get('/summary', asyncHandler(getSummary));
 
 /**
- * @route   POST /api/transactions
- * @desc    Create a new transaction
- * @access  Private
+ * @swagger
+ * /transactions:
+ *   post:
+ *     summary: Create a new transaction
+ *     description: Automatically triggers AI categorization based on description.
+ *     tags: [Transactions]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [amount, description, date, accountId, type]
+ *             properties:
+ *               description:
+ *                 type: string
+ *                 example: "Starbucks Coffee"
+ *               amount:
+ *                 type: number
+ *                 example: 5.50
+ *               date:
+ *                 type: string
+ *                 format: date-time
+ *               type:
+ *                 type: string
+ *                 enum: [INCOME, EXPENSE]
+ *               accountId:
+ *                 type: string
+ *                 format: uuid
+ *     responses:
+ *       201:
+ *         description: Transaction created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Transaction'
+ *       400:
+ *         description: Invalid input
  */
 router.post('/', asyncHandler(create));
 
 /**
- * @route   GET /api/transactions
- * @desc    Get all transactions with filters
- * @access  Private
+ * @swagger
+ * /transactions:
+ *   get:
+ *     summary: Get all transactions
+ *     tags: [Transactions]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema: { type: integer, default: 1 }
+ *       - in: query
+ *         name: limit
+ *         schema: { type: integer, default: 10 }
+ *       - in: query
+ *         name: startDate
+ *         schema: { type: string, format: date }
+ *       - in: query
+ *         name: endDate
+ *         schema: { type: string, format: date }
+ *     responses:
+ *       200:
+ *         description: List of transactions with pagination
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Transaction'
+ *                 pagination:
+ *                   type: object
+ *                   properties:
+ *                     page: { type: number }
+ *                     limit: { type: number }
+ *                     total: { type: number }
+ *                     pages: { type: number }
  */
 router.get('/', asyncHandler(getAll));
 
 /**
- * @route   GET /api/transactions/:id
- * @desc    Get single transaction
- * @access  Private
+ * @swagger
+ * /transactions/{id}:
+ *   get:
+ *     summary: Get single transaction
+ *     tags: [Transactions]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: string, format: uuid }
+ *     responses:
+ *       200:
+ *         description: Transaction details
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Transaction'
+ *       404:
+ *         description: Transaction not found
  */
 router.get('/:id', asyncHandler(getOne));
 
 /**
- * @route   PUT /api/transactions/:id
- * @desc    Update transaction
- * @access  Private
+ * @swagger
+ * /transactions/{id}:
+ *   put:
+ *     summary: Update transaction
+ *     tags: [Transactions]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: string, format: uuid }
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/Transaction'
+ *     responses:
+ *       200:
+ *         description: Transaction updated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Transaction'
  */
 router.put('/:id', asyncHandler(update));
 
 /**
- * @route   DELETE /api/transactions/:id
- * @desc    Delete transaction
- * @access  Private
+ * @swagger
+ * /transactions/{id}:
+ *   delete:
+ *     summary: Delete transaction
+ *     tags: [Transactions]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: string, format: uuid }
+ *     responses:
+ *       200:
+ *         description: Transaction deleted
  */
 router.delete('/:id', asyncHandler(remove));
 
