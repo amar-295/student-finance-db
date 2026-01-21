@@ -1,0 +1,180 @@
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
+import Modal from '../common/Modal';
+import { useCategories } from '../../hooks/useCategories';
+import { useBudgets } from '../../hooks/useBudgets';
+import { useEffect } from 'react';
+
+const createBudgetSchema = z.object({
+    categoryId: z.string().min(1, 'Category is required'),
+    amount: z.number().min(0.01, 'Amount must be positive'),
+    periodType: z.enum(['monthly', 'semester', 'yearly']),
+    alertThreshold: z.number().min(0).max(100),
+    rollover: z.boolean(),
+});
+
+type CreateBudgetForm = z.infer<typeof createBudgetSchema>;
+
+interface CreateBudgetModalProps {
+    isOpen: boolean;
+    onClose: () => void;
+}
+
+export default function CreateBudgetModal({ isOpen, onClose }: CreateBudgetModalProps) {
+    const { categories, isLoading: categoriesLoading } = useCategories();
+    // Pass isActive: true to invalidate the right query logic, but simpler to just invalidate 'budgets' key globally which the mutation does
+    const { createBudget, isCreating } = useBudgets();
+
+    const {
+        register,
+        handleSubmit,
+        reset,
+        watch,
+        formState: { errors },
+    } = useForm<CreateBudgetForm>({
+        resolver: zodResolver(createBudgetSchema),
+        defaultValues: {
+            periodType: 'monthly',
+            alertThreshold: 80,
+            rollover: false,
+        },
+    });
+
+    const threshold = watch('alertThreshold');
+
+    useEffect(() => {
+        if (isOpen) {
+            reset();
+        }
+    }, [isOpen, reset]);
+
+
+    // Calculate dates based on period for submission
+    const handleFormSubmit = (data: CreateBudgetForm) => {
+        const now = new Date();
+        let start = new Date(now.getFullYear(), now.getMonth(), 1);
+        let end = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+
+        if (data.periodType === 'yearly') {
+            start = new Date(now.getFullYear(), 0, 1);
+            end = new Date(now.getFullYear(), 11, 31);
+        } else if (data.periodType === 'semester') {
+            // Simplified semester logic
+            const month = now.getMonth();
+            if (month < 6) {
+                start = new Date(now.getFullYear(), 0, 1);
+                end = new Date(now.getFullYear(), 5, 30);
+            } else {
+                start = new Date(now.getFullYear(), 6, 1);
+                end = new Date(now.getFullYear(), 11, 31);
+            }
+        }
+
+        createBudget({
+            ...data,
+            startDate: start.toISOString(),
+            endDate: end.toISOString()
+        }, {
+            onSuccess: () => {
+                onClose();
+                reset();
+            }
+        });
+    };
+
+    return (
+        <Modal isOpen={isOpen} onClose={onClose} title="Create New Budget">
+            <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6">
+
+                {/* Amount Input */}
+                <div className="space-y-2">
+                    <label className="text-sm font-bold text-[#1e293b] dark:text-white">Budget Amount</label>
+                    <div className="relative">
+                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold">$</span>
+                        <input
+                            type="number"
+                            step="0.01"
+                            {...register('amount', { valueAsNumber: true })}
+                            className="w-full pl-8 pr-4 py-3 bg-gray-50 dark:bg-[#0f172a] border border-gray-200 dark:border-gray-800 rounded-xl focus:ring-2 focus:ring-[#10b981] outline-none transition-all font-bold text-lg text-[#1e293b] dark:text-white"
+                            placeholder="0.00"
+                        />
+                    </div>
+                    {errors.amount && <p className="text-red-500 text-xs font-bold">{errors.amount.message}</p>}
+                </div>
+
+                {/* Category Select */}
+                <div className="space-y-2">
+                    <label className="text-sm font-bold text-[#1e293b] dark:text-white">Category</label>
+                    <div className="relative">
+                        <select
+                            {...register('categoryId')}
+                            className="w-full px-4 py-3 bg-gray-50 dark:bg-[#0f172a] border border-gray-200 dark:border-gray-800 rounded-xl focus:ring-2 focus:ring-[#10b981] outline-none appearance-none text-[#1e293b] dark:text-white"
+                            disabled={categoriesLoading}
+                        >
+                            <option value="">Select Category</option>
+                            {categories.map(cat => (
+                                <option key={cat.id} value={cat.id}>
+                                    {cat.name}
+                                </option>
+                            ))}
+                        </select>
+                        <span className="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">expand_more</span>
+                    </div>
+                    {errors.categoryId && <p className="text-red-500 text-xs font-bold">{errors.categoryId.message}</p>}
+                </div>
+
+                {/* Period Select */}
+                <div className="space-y-2">
+                    <label className="text-sm font-bold text-[#1e293b] dark:text-white">Period</label>
+                    <div className="grid grid-cols-3 gap-2">
+                        {['monthly', 'semester', 'yearly'].map((p) => (
+                            <label key={p} className={`cursor-pointer border rounded-xl p-2 text-center text-sm font-semibold transition-all ${watch('periodType') === p
+                                ? 'bg-[#10b981]/10 border-[#10b981] text-[#10b981]'
+                                : 'bg-white dark:bg-[#0f172a] border-gray-200 dark:border-gray-800 text-gray-500 hover:border-gray-300'
+                                }`}>
+                                <input
+                                    type="radio"
+                                    value={p}
+                                    {...register('periodType')}
+                                    className="hidden"
+                                />
+                                <span className="capitalize">{p}</span>
+                            </label>
+                        ))}
+                    </div>
+                </div>
+
+                {/* Alert Threshold */}
+                <div className="space-y-4 pt-2">
+                    <div className="flex justify-between items-center">
+                        <label className="text-sm font-bold text-[#1e293b] dark:text-white">Alert Threshold</label>
+                        <span className={`text-xs font-bold px-2 py-1 rounded-lg ${threshold >= 90 ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'
+                            }`}>
+                            {threshold}%
+                        </span>
+                    </div>
+                    <input
+                        type="range"
+                        min="50"
+                        max="100"
+                        step="5"
+                        {...register('alertThreshold', { valueAsNumber: true })}
+                        className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-[#10b981]"
+                    />
+                    <p className="text-xs text-gray-400">You'll be notified when spending exceeds {threshold}% of budget.</p>
+                </div>
+
+                {/* Submit Button */}
+                <button
+                    type="submit"
+                    disabled={isCreating}
+                    className="w-full bg-[#1e293b] dark:bg-white text-white dark:text-[#1e293b] py-3.5 rounded-xl font-bold hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center gap-2"
+                >
+                    {isCreating && <span className="material-symbols-outlined animate-spin text-sm">progress_activity</span>}
+                    {isCreating ? 'Creating Budget...' : 'Create Budget'}
+                </button>
+            </form>
+        </Modal>
+    );
+}
