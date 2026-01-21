@@ -13,6 +13,7 @@ import {
   getTransactionsQuerySchema,
   transactionSummarySchema,
 } from '../types/transaction.types';
+import { logAction } from '../services/audit.service';
 
 /**
  * Create a new transaction
@@ -21,6 +22,21 @@ import {
 export const create = async (req: Request, res: Response) => {
   const input = createTransactionSchema.parse(req.body);
   const transaction = await createTransaction(req.user!.userId, input);
+
+  // Log transaction creation
+  logAction({
+    userId: req.user!.userId,
+    action: 'create_transaction',
+    entityType: 'transaction',
+    entityId: transaction.id,
+    ipAddress: req.ip,
+    userAgent: req.headers['user-agent'] as string,
+    metadata: {
+      amount: transaction.amount,
+      category: transaction.category?.name,
+      merchant: transaction.merchant
+    }
+  });
 
   res.status(201).json({
     success: true,
@@ -85,6 +101,16 @@ export const update = async (req: Request, res: Response) => {
  */
 export const remove = async (req: Request, res: Response) => {
   const result = await deleteTransaction(req.user!.userId, req.params.id as string);
+
+  // Log transaction deletion
+  logAction({
+    userId: req.user!.userId,
+    action: 'delete_transaction',
+    entityType: 'transaction',
+    entityId: req.params.id,
+    ipAddress: req.ip,
+    userAgent: Array.isArray(req.headers['user-agent']) ? req.headers['user-agent'][0] : (req.headers['user-agent'] as string) || undefined
+  });
 
   res.status(200).json({
     success: true,

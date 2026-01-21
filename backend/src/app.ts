@@ -4,7 +4,7 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
 import config from './config/env';
-import { errorHandler, notFoundHandler } from './middleware';
+import { errorHandler, notFoundHandler, optionalAuthenticate } from './middleware';
 
 // Import routes
 import authRoutes from './routes/auth.routes';
@@ -29,19 +29,25 @@ app.use(
   })
 );
 
-// Rate limiting
-const limiter = rateLimit({
-  windowMs: config.rateLimit.windowMs,
-  max: config.rateLimit.max,
-  message: 'Too many requests from this IP, please try again later.',
-  standardHeaders: true,
-  legacyHeaders: false,
-});
-app.use('/api', limiter);
-
 // Body parsing middleware
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Rate limiting (User-based if authenticated, IP-based otherwise)
+app.use('/api', optionalAuthenticate);
+
+const limiter = rateLimit({
+  windowMs: config.rateLimit.windowMs,
+  max: config.rateLimit.max,
+  message: 'Too many requests, please try again later.',
+  standardHeaders: true,
+  legacyHeaders: false,
+  keyGenerator: (req) => {
+    // If optionalAuthenticate found a user, use userId as the key
+    return req.user?.userId || req.ip || 'unknown';
+  },
+});
+app.use('/api', limiter);
 
 // Logging middleware
 if (config.env === 'development') {

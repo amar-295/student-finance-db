@@ -42,3 +42,36 @@ export const authenticate = async (
     next(error);
   };
 };
+
+/**
+ * Optional Authentication middleware - populates req.user if token is present, 
+ * but does not block the request if missing or invalid.
+ * Useful for rate limiting by user ID where possible.
+ */
+export const optionalAuthenticate = async (
+  req: Request,
+  _res: Response,
+  next: NextFunction
+) => {
+  try {
+    const authHeader = req.headers.authorization;
+
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      const token = authHeader.substring(7);
+
+      const isBlacklisted = await isTokenBlacklisted(token);
+      if (!isBlacklisted) {
+        const payload = verifyAccessToken(token);
+        req.user = {
+          userId: payload.userId,
+          email: payload.email,
+        };
+        req.token = token;
+      }
+    }
+  } catch (error) {
+    // Silently continue for optional auth
+  } finally {
+    next();
+  }
+};

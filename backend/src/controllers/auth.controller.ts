@@ -13,6 +13,7 @@ import {
 } from '../types/auth.types';
 import { verifyRefreshToken, generateTokenPair, UnauthorizedError } from '../utils';
 import { blacklistTokenPair, blacklistToken, isTokenBlacklisted } from '../services/tokenBlacklist.service';
+import { logAuthEvent } from '../services/audit.service';
 
 /**
  * Register a new user
@@ -42,6 +43,9 @@ export const login = async (req: Request, res: Response) => {
 
   // Login user
   const result = await loginUser(input);
+
+  // Log successful login
+  logAuthEvent(result.user.id, 'login', req.ip, req.headers['user-agent'] as string);
 
   res.status(200).json({
     success: true,
@@ -108,6 +112,9 @@ export const updateMe = async (req: Request, res: Response) => {
   // Update profile
   const user = await updateUserProfile(req.user!.userId, input);
 
+  // Log profile update
+  logAuthEvent(req.user!.userId, 'update_profile', req.ip, req.headers['user-agent'] as string);
+
   res.status(200).json({
     success: true,
     message: 'Profile updated successfully',
@@ -129,6 +136,11 @@ export const logout = async (req: Request, res: Response) => {
   // Blacklist both tokens
   if (accessToken) {
     await blacklistTokenPair(accessToken, refreshToken);
+  }
+
+  // Log logout
+  if (req.user) {
+    logAuthEvent(req.user.userId, 'logout', req.ip, req.headers['user-agent'] as string);
   }
 
   res.status(200).json({

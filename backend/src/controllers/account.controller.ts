@@ -11,6 +11,7 @@ import {
   updateAccountSchema,
   accountIdSchema,
 } from '../types/account.types';
+import { logAction } from '../services/audit.service';
 
 /**
  * Create account
@@ -19,6 +20,17 @@ import {
 export const create = async (req: Request, res: Response) => {
   const input = createAccountSchema.parse(req.body);
   const account = await createAccount(req.user!.userId, input);
+
+  // Log account creation
+  logAction({
+    userId: req.user!.userId,
+    action: 'create_account',
+    entityType: 'account',
+    entityId: account.id,
+    ipAddress: req.ip,
+    userAgent: req.headers['user-agent'] as string,
+    metadata: { name: account.name, type: account.accountType }
+  });
 
   res.status(201).json({
     success: true,
@@ -81,6 +93,16 @@ export const update = async (req: Request, res: Response) => {
 export const remove = async (req: Request, res: Response) => {
   const { id } = accountIdSchema.parse(req.params);
   const result = await deleteAccount(req.user!.userId, id);
+
+  // Log account deletion
+  logAction({
+    userId: req.user!.userId,
+    action: 'delete_account',
+    entityType: 'account',
+    entityId: id,
+    ipAddress: req.ip,
+    userAgent: req.headers['user-agent'] as string
+  });
 
   res.status(200).json({
     success: true,
