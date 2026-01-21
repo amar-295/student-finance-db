@@ -1,5 +1,5 @@
 import prisma from '../config/database';
-import { NotFoundError } from '../utils';
+import { NotFoundError, BadRequestError } from '../utils';
 import type { CreateAccountInput, UpdateAccountInput } from '../types/account.types';
 
 /**
@@ -111,7 +111,7 @@ export const deleteAccount = async (userId: string, accountId: string) => {
   });
 
   if (transactionCount > 0) {
-    throw new Error(
+    throw new BadRequestError(
       `Cannot delete account with ${transactionCount} transaction(s). Delete or move transactions first.`
     );
   }

@@ -9,6 +9,7 @@ import {
 import {
   createAccountSchema,
   updateAccountSchema,
+  accountIdSchema,
 } from '../types/account.types';
 
 /**
@@ -43,8 +44,13 @@ export const getAll = async (req: Request, res: Response) => {
  * Get single account
  * GET /api/accounts/:id
  */
+/**
+ * Get single account
+ * GET /api/accounts/:id
+ */
 export const getOne = async (req: Request, res: Response) => {
-  const account = await getAccountById(req.user!.userId, req.params.id);
+  const { id } = accountIdSchema.parse(req.params);
+  const account = await getAccountById(req.user!.userId, id);
 
   res.status(200).json({
     success: true,
@@ -57,8 +63,9 @@ export const getOne = async (req: Request, res: Response) => {
  * PUT /api/accounts/:id
  */
 export const update = async (req: Request, res: Response) => {
+  const { id } = accountIdSchema.parse(req.params);
   const input = updateAccountSchema.parse(req.body);
-  const account = await updateAccount(req.user!.userId, req.params.id, input);
+  const account = await updateAccount(req.user!.userId, id, input);
 
   res.status(200).json({
     success: true,
@@ -72,7 +79,8 @@ export const update = async (req: Request, res: Response) => {
  * DELETE /api/accounts/:id
  */
 export const remove = async (req: Request, res: Response) => {
-  const result = await deleteAccount(req.user!.userId, req.params.id);
+  const { id } = accountIdSchema.parse(req.params);
+  const result = await deleteAccount(req.user!.userId, id);
 
   res.status(200).json({
     success: true,

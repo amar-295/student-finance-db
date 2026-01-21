@@ -11,6 +11,10 @@ import authRoutes from './routes/auth.routes';
 import healthRoutes from './routes/health.routes';
 import transactionRoutes from './routes/transaction.routes';
 import accountRoutes from './routes/account.routes';
+import budgetRoutes from './routes/budget.routes';
+import categoryRoutes from './routes/category.routes';
+import groupRoutes from './routes/group.routes';
+import billSplitRoutes from './routes/bill-split.routes';
 
 const app: Application = express();
 
@@ -58,6 +62,10 @@ app.use('/health', healthRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/accounts', accountRoutes);
 app.use('/api/transactions', transactionRoutes);
+app.use('/api/categories', categoryRoutes);
+app.use('/api/budgets', budgetRoutes);
+app.use('/api/groups', groupRoutes);
+app.use('/api/bill-splits', billSplitRoutes);
 
 // 404 handler
 app.use(notFoundHandler);

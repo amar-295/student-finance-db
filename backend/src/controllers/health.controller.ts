@@ -8,8 +8,7 @@ import config from '../config/env';
  */
 export const healthCheck = async (req: Request, res: Response) => {
   res.status(200).json({
-    success: true,
-    message: 'Server is running',
+    status: 'ok',
     timestamp: new Date().toISOString(),
     environment: config.env,
   });

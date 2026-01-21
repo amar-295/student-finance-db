@@ -11,8 +11,8 @@ import {
   refreshTokenSchema,
   updateProfileSchema,
 } from '../types/auth.types';
-import { verifyRefreshToken, generateAccessToken } from '../utils';
-import { blacklistTokenPair } from '../services/tokenBlacklist.service';
+import { verifyRefreshToken, generateTokenPair, UnauthorizedError } from '../utils';
+import { blacklistTokenPair, blacklistToken, isTokenBlacklisted } from '../services/tokenBlacklist.service';
 
 /**
  * Register a new user
@@ -58,19 +58,28 @@ export const refreshToken = async (req: Request, res: Response) => {
   // Validate input
   const input = refreshTokenSchema.parse(req.body);
 
+  // Check if refresh token is blacklisted (Reuse Detection)
+  const isBlacklisted = await isTokenBlacklisted(input.refreshToken);
+  if (isBlacklisted) {
+    throw new UnauthorizedError('Refresh token has been revoked');
+  }
+
   // Verify refresh token
   const payload = verifyRefreshToken(input.refreshToken);
 
-  // Generate new access token
-  const accessToken = generateAccessToken({
+  // Generate new token pair (token rotation)
+  const tokens = generateTokenPair({
     userId: payload.userId,
     email: payload.email,
   });
 
+  // Blacklist the old refresh token (Token Invalidation)
+  await blacklistToken(input.refreshToken);
+
   res.status(200).json({
     success: true,
     message: 'Token refreshed successfully',
-    data: { accessToken },
+    data: tokens,
   });
 };
 

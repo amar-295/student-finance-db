@@ -147,7 +147,8 @@ const categorizeWithRules = (
   }
 
   // Transportation patterns
-  if (/uber|ola|rapido|metro|petrol|diesel|fuel|parking|toll/i.test(normalized)) {
+  // Transportation patterns
+  if (/\b(uber|ola|rapido|metro|petrol|diesel|fuel|parking|toll)\b/i.test(normalized)) {
     return { category: 'Transportation', confidence: 0.9, aiGenerated: false };
   }
 

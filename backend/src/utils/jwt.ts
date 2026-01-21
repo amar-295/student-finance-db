@@ -33,10 +33,10 @@ export const verifyAccessToken = (token: string): JwtPayload => {
     return jwt.verify(token, config.jwt.secret) as JwtPayload;
   } catch (error) {
     if (error instanceof jwt.TokenExpiredError) {
-      throw new UnauthorizedError('Access token expired');
+      throw new UnauthorizedError('Token expired');
     }
     if (error instanceof jwt.JsonWebTokenError) {
-      throw new UnauthorizedError('Invalid access token');
+      throw new UnauthorizedError('Invalid token');
     }
     throw new UnauthorizedError('Token verification failed');
   }

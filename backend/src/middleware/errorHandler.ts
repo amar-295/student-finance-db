@@ -20,18 +20,29 @@ export const errorHandler = (
 
   // Handle known API errors
   if (err instanceof ApiError) {
+    // Map error type to error code
+    let errorCode = 'UNKNOWN_ERROR';
+    if (err.constructor.name === 'ValidationError') errorCode = 'VALIDATION_ERROR';
+    else if (err.constructor.name === 'UnauthorizedError') errorCode = 'UNAUTHORIZED';
+    else if (err.constructor.name === 'ForbiddenError') errorCode = 'FORBIDDEN';
+    else if (err.constructor.name === 'NotFoundError') errorCode = 'NOT_FOUND';
+    else if (err.constructor.name === 'ConflictError') errorCode = 'CONFLICT';
+    else if (err.constructor.name === 'BadRequestError') errorCode = 'BAD_REQUEST';
+
     return res.status(err.statusCode).json({
       success: false,
       message: err.message,
+      error: errorCode,
       ...(err instanceof ValidationError && err.errors && { errors: err.errors }),
     });
   }
 
   // Handle Zod validation errors
   if (err instanceof ZodError) {
-    return res.status(422).json({
+    return res.status(400).json({
       success: false,
-      message: 'Validation failed',
+      message: 'Validation error',
+      error: 'VALIDATION_ERROR',
       errors: err.errors.map((e) => ({
         field: e.path.join('.'),
         message: e.message,
@@ -69,6 +80,7 @@ export const errorHandler = (
 
   // Handle Prisma validation errors
   if (err instanceof Prisma.PrismaClientValidationError) {
+    console.error('Prisma Validation Error:', err); // Debug log
     return res.status(400).json({
       success: false,
       message: 'Invalid data provided',

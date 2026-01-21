@@ -1,0 +1,16 @@
+{
+    "groupId": "0eb9c21e-ba83-43f7-90ef-e42ccb2ed1aa",
+    "totalAmount": 60.0,
+    "description": "Internet Bill",
+    "splitType": "equal",
+    "participants": [
+        {
+            "userId": "919a6936-3de7-45a2-96b9-fe22b42f0569",
+            "amountOwed": 0
+        },
+        {
+            "userId": "e9f12e54-97e2-4e59-bb91-94ce3104775d",
+            "amountOwed": 0
+        }
+    ]
+}

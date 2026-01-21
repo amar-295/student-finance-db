@@ -14,7 +14,7 @@ export const registerUser = async (input: RegisterInput) => {
   });
 
   if (existingUser) {
-    throw new ConflictError('User with this email already exists');
+    throw new ConflictError('Email already registered');
   }
 
   // Hash password
@@ -55,7 +55,7 @@ export const registerUser = async (input: RegisterInput) => {
 
   return {
     user,
-    ...tokens,
+    tokens,
   };
 };
 
@@ -143,7 +143,7 @@ export const loginUser = async (input: LoginInput) => {
 
   return {
     user: userWithoutSensitive,
-    ...tokens,
+    tokens,
   };
 };
 

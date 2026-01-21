@@ -1,0 +1,15 @@
+{
+    "totalAmount": 100.0,
+    "description": "Dinner",
+    "splitType": "custom",
+    "participants": [
+        {
+            "userId": "919a6936-3de7-45a2-96b9-fe22b42f0569",
+            "amountOwed": 40.0
+        },
+        {
+            "userId": "e9f12e54-97e2-4e59-bb91-94ce3104775d",
+            "amountOwed": 60.0
+        }
+    ]
+}

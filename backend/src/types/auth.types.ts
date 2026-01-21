@@ -6,11 +6,11 @@ import { z } from 'zod';
 export const registerSchema = z.object({
   email: z.string().email('Invalid email address'),
   password: z
-    .string()
+    .string({ required_error: 'Password is required' })
     .min(8, 'Password must be at least 8 characters')
     .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
     .regex(/[0-9]/, 'Password must contain at least one number'),
-  name: z.string().min(1, 'Name is required').max(100, 'Name is too long'),
+  name: z.string({ required_error: 'Name is required' }).min(1, 'Name is required').max(100, 'Name is too long'),
   university: z.string().max(150).optional(),
   baseCurrency: z.string().length(3, 'Currency must be 3-letter ISO code').default('USD'),
 });
@@ -20,7 +20,7 @@ export const registerSchema = z.object({
  */
 export const loginSchema = z.object({
   email: z.string().email('Invalid email address'),
-  password: z.string().min(1, 'Password is required'),
+  password: z.string({ required_error: 'Password is required' }).min(1, 'Password is required'),
 });
 
 /**
@@ -36,7 +36,7 @@ export const refreshTokenSchema = z.object({
 export const updateProfileSchema = z.object({
   name: z.string().min(1).max(100).optional(),
   university: z.string().max(150).optional(),
-  baseCurrency: z.string().length(3).optional(),
+  baseCurrency: z.string().length(3, 'Currency must be 3-letter ISO code').optional(),
 });
 
 export type RegisterInput = z.infer<typeof registerSchema>;

@@ -1,6 +1,6 @@
 import prisma from '../config/database';
 import { categorizeTransaction } from './ai-categorization.service';
-import { NotFoundError, BadRequestError, ForbiddenError } from '../utils';
+import { NotFoundError } from '../utils';
 import type {
   CreateTransactionInput,
   UpdateTransactionInput,
@@ -20,7 +20,6 @@ export const createTransaction = async (
     where: {
       id: input.accountId,
       userId,
-      deletedAt: null,
     },
   });
 
@@ -53,6 +52,7 @@ export const createTransaction = async (
         data: {
           userId,
           name: categorization.category,
+          type: 'expense', // AI categorized are expenses
           color: generateCategoryColor(categorization.category),
         },
       });
@@ -65,20 +65,35 @@ export const createTransaction = async (
 
   // Create transaction and update balance atomically
   const transaction = await prisma.$transaction(async (tx) => {
+    // Get category to check type
+    const category = await tx.category.findUnique({
+      where: { id: categoryId },
+    });
+
+    if (!category) {
+      throw new NotFoundError('Category not found');
+    }
+
+    // Ensure expense amounts are negative and income amounts are positive
+    let finalAmount = Number(input.amount);
+    if (category.type === 'expense') {
+      finalAmount = -Math.abs(finalAmount);
+    } else if (category.type === 'income') {
+      finalAmount = Math.abs(finalAmount);
+    }
+
     const newTransaction = await tx.transaction.create({
       data: {
         userId,
         accountId: input.accountId,
         categoryId,
-        amount: input.amount,
+        amount: finalAmount,
         merchant: input.merchant,
         description: input.description,
         transactionDate: input.transactionDate
           ? new Date(input.transactionDate)
           : new Date(),
         currency: input.currency || account.currency,
-        tags: input.tags,
-        notes: input.notes,
         aiCategorized,
         aiConfidence,
       },
@@ -236,7 +251,6 @@ export const updateTransaction = async (
       where: {
         id: input.accountId,
         userId,
-        deletedAt: null,
       },
     });
 
@@ -250,10 +264,23 @@ export const updateTransaction = async (
     const updatedTransaction = await tx.transaction.update({
       where: { id: transactionId },
       data: {
-        ...input,
+        accountId: input.accountId,
+        categoryId: input.categoryId,
+        amount: input.amount !== undefined ? await (async () => {
+          const catId = input.categoryId || existing.categoryId || undefined;
+          if (!catId) return input.amount;
+          const category = await tx.category.findUnique({ where: { id: catId } });
+          if (category?.type === 'expense') return -Math.abs(Number(input.amount));
+          if (category?.type === 'income') return Math.abs(Number(input.amount));
+          return input.amount;
+        })() : undefined,
         transactionDate: input.transactionDate
           ? new Date(input.transactionDate)
           : undefined,
+        merchant: input.merchant,
+        description: input.description,
+        currency: input.currency,
+        notes: input.notes,
         // Reset AI flags if manually edited
         aiCategorized: input.categoryId ? false : existing.aiCategorized,
       },
@@ -312,7 +339,7 @@ export const getTransactionSummary = async (
   userId: string,
   query: TransactionSummaryQuery
 ) => {
-  const { startDate, endDate, groupBy = 'category' } = query;
+  const { startDate, endDate } = query;
 
   const where: any = {
     userId,
@@ -332,13 +359,13 @@ export const getTransactionSummary = async (
     },
   });
 
-  // Calculate totals
+  // Calculate totals based on category type
   const totalIncome = transactions
-    .filter(t => Number(t.amount) > 0)
-    .reduce((sum, t) => sum + Number(t.amount), 0);
+    .filter(t => t.category?.type === 'income')
+    .reduce((sum, t) => sum + Math.abs(Number(t.amount)), 0);
 
   const totalExpenses = transactions
-    .filter(t => Number(t.amount) < 0)
+    .filter(t => t.category?.type === 'expense')
     .reduce((sum, t) => sum + Math.abs(Number(t.amount)), 0);
 
   const netCashflow = totalIncome - totalExpenses;
