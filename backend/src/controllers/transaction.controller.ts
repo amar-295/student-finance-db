@@ -51,7 +51,7 @@ export const getAll = async (req: Request, res: Response) => {
 export const getOne = async (req: Request, res: Response) => {
   const transaction = await getTransactionById(
     req.user!.userId,
-    req.params.id
+    req.params.id as string
   );
 
   res.status(200).json({
@@ -68,7 +68,7 @@ export const update = async (req: Request, res: Response) => {
   const input = updateTransactionSchema.parse(req.body);
   const transaction = await updateTransaction(
     req.user!.userId,
-    req.params.id,
+    req.params.id as string,
     input
   );
 
@@ -84,7 +84,7 @@ export const update = async (req: Request, res: Response) => {
  * DELETE /api/transactions/:id
  */
 export const remove = async (req: Request, res: Response) => {
-  const result = await deleteTransaction(req.user!.userId, req.params.id);
+  const result = await deleteTransaction(req.user!.userId, req.params.id as string);
 
   res.status(200).json({
     success: true,

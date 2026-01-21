@@ -6,19 +6,18 @@ import config from '../config/env';
  * Basic health check
  * GET /health
  */
-export const healthCheck = async (req: Request, res: Response) => {
+export const healthCheck = async (_req: Request, res: Response) => {
   res.status(200).json({
-    status: 'ok',
+    success: true,
+    message: 'Backend is up and running',
     timestamp: new Date().toISOString(),
-    environment: config.env,
   });
 };
 
 /**
- * Detailed health check with database status
- * GET /health/detailed
+ * Detailed health check included database connection status
  */
-export const detailedHealthCheck = async (req: Request, res: Response) => {
+export const detailedHealthCheck = async (_req: Request, res: Response) => {
   const checks = {
     server: 'ok',
     database: 'unknown',

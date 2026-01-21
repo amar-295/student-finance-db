@@ -8,7 +8,7 @@ import { isTokenBlacklisted } from '../services/tokenBlacklist.service';
  */
 export const authenticate = async (
   req: Request,
-  res: Response,
+  _res: Response,
   next: NextFunction
 ) => {
   try {

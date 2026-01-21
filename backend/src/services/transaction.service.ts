@@ -82,6 +82,7 @@ export const createTransaction = async (
       finalAmount = Math.abs(finalAmount);
     }
 
+    // Create transaction
     const newTransaction = await tx.transaction.create({
       data: {
         userId,
@@ -103,8 +104,15 @@ export const createTransaction = async (
       },
     });
 
-    // Update account balance within same transaction
-    await updateAccountBalanceInTx(tx, input.accountId);
+    // Update account balance atomically
+    await tx.account.update({
+      where: { id: input.accountId },
+      data: {
+        balance: {
+          increment: finalAmount,
+        },
+      },
+    });
 
     return newTransaction;
   });
@@ -261,19 +269,40 @@ export const updateTransaction = async (
 
   // Update transaction and balances atomically
   const transaction = await prisma.$transaction(async (tx) => {
+    // Determine new amount
+    let newAmount = Number(existing.amount);
+
+    if (input.amount !== undefined) {
+      const catId = input.categoryId || existing.categoryId;
+
+      if (!catId) {
+        newAmount = parseInt(input.amount.toString());
+      } else {
+        const category = await tx.category.findUnique({ where: { id: catId } });
+        if (category?.type === 'expense') {
+          newAmount = -Math.abs(Number(input.amount));
+        } else if (category?.type === 'income') {
+          newAmount = Math.abs(Number(input.amount));
+        } else {
+          newAmount = Number(input.amount);
+        }
+      }
+    } else if (input.categoryId && input.categoryId !== existing.categoryId) {
+      // Amount didn't change, but category might have changed type
+      const category = await tx.category.findUnique({ where: { id: input.categoryId } });
+      if (category?.type === 'expense') {
+        newAmount = -Math.abs(Number(existing.amount));
+      } else if (category?.type === 'income') {
+        newAmount = Math.abs(Number(existing.amount));
+      }
+    }
+
     const updatedTransaction = await tx.transaction.update({
       where: { id: transactionId },
       data: {
         accountId: input.accountId,
         categoryId: input.categoryId,
-        amount: input.amount !== undefined ? await (async () => {
-          const catId = input.categoryId || existing.categoryId || undefined;
-          if (!catId) return input.amount;
-          const category = await tx.category.findUnique({ where: { id: catId } });
-          if (category?.type === 'expense') return -Math.abs(Number(input.amount));
-          if (category?.type === 'income') return Math.abs(Number(input.amount));
-          return input.amount;
-        })() : undefined,
+        amount: newAmount,
         transactionDate: input.transactionDate
           ? new Date(input.transactionDate)
           : undefined,
@@ -290,10 +319,28 @@ export const updateTransaction = async (
       },
     });
 
-    // Update account balances within same transaction
-    await updateAccountBalanceInTx(tx, existing.accountId);
+    // Update account balances atomically
     if (input.accountId && input.accountId !== existing.accountId) {
-      await updateAccountBalanceInTx(tx, input.accountId);
+      // Account changed:
+      // 1. Reverse from old account
+      await tx.account.update({
+        where: { id: existing.accountId },
+        data: { balance: { increment: -Number(existing.amount) } },
+      });
+      // 2. Apply to new account
+      await tx.account.update({
+        where: { id: input.accountId },
+        data: { balance: { increment: newAmount } },
+      });
+    } else {
+      // Account same, check if amount changed
+      if (newAmount !== Number(existing.amount)) {
+        const diff = newAmount - Number(existing.amount);
+        await tx.account.update({
+          where: { id: existing.accountId },
+          data: { balance: { increment: diff } },
+        });
+      }
     }
 
     return updatedTransaction;
@@ -325,8 +372,11 @@ export const deleteTransaction = async (userId: string, transactionId: string) =
       data: { deletedAt: new Date() },
     });
 
-    // Update account balance within same transaction
-    await updateAccountBalanceInTx(tx, transaction.accountId);
+    // Reverse the balance impact
+    await tx.account.update({
+      where: { id: transaction.accountId },
+      data: { balance: { increment: -Number(transaction.amount) } },
+    });
   });
 
   return { message: 'Transaction deleted successfully' };
@@ -398,31 +448,6 @@ export const getTransactionSummary = async (
       (a: any, b: any) => Math.abs(b.totalAmount) - Math.abs(a.totalAmount)
     ),
   };
-};
-
-/**
- * Update account balance based on transactions (within a Prisma transaction)
- */
-const updateAccountBalanceInTx = async (
-  tx: Parameters<Parameters<typeof prisma.$transaction>[0]>[0],
-  accountId: string
-) => {
-  const transactions = await tx.transaction.findMany({
-    where: {
-      accountId,
-      deletedAt: null,
-    },
-  });
-
-  const balance = transactions.reduce(
-    (sum, t) => sum + Number(t.amount),
-    0
-  );
-
-  await tx.account.update({
-    where: { id: accountId },
-    data: { balance },
-  });
 };
 
 /**

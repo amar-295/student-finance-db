@@ -15,6 +15,8 @@ import budgetRoutes from './routes/budget.routes';
 import categoryRoutes from './routes/category.routes';
 import groupRoutes from './routes/group.routes';
 import billSplitRoutes from './routes/bill-split.routes';
+import swaggerUi from 'swagger-ui-express';
+import { specs } from './config/swagger';
 
 const app: Application = express();
 
@@ -66,6 +68,13 @@ app.use('/api/categories', categoryRoutes);
 app.use('/api/budgets', budgetRoutes);
 app.use('/api/groups', groupRoutes);
 app.use('/api/bill-splits', billSplitRoutes);
+
+// Swagger Documentation
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
+app.get('/api-docs.json', (req, res) => {
+  res.setHeader('Content-Type', 'application/json');
+  res.send(specs);
+});
 
 // 404 handler
 app.use(notFoundHandler);

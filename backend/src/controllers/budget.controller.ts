@@ -49,7 +49,7 @@ export const getAll = async (req: Request, res: Response) => {
  * GET /api/budgets/:id
  */
 export const getOne = async (req: Request, res: Response) => {
-    const budget = await getBudgetById(req.user!.userId, req.params.id);
+    const budget = await getBudgetById(req.user!.userId, req.params.id as string);
 
     res.status(200).json({
         success: true,
@@ -63,7 +63,7 @@ export const getOne = async (req: Request, res: Response) => {
  */
 export const update = async (req: Request, res: Response) => {
     const input = updateBudgetSchema.parse(req.body);
-    const budget = await updateBudget(req.user!.userId, req.params.id, input);
+    const budget = await updateBudget(req.user!.userId, req.params.id as string, input);
 
     res.status(200).json({
         success: true,
@@ -77,7 +77,7 @@ export const update = async (req: Request, res: Response) => {
  * DELETE /api/budgets/:id
  */
 export const remove = async (req: Request, res: Response) => {
-    const result = await deleteBudget(req.user!.userId, req.params.id);
+    const result = await deleteBudget(req.user!.userId, req.params.id as string);
 
     res.status(200).json({
         success: true,

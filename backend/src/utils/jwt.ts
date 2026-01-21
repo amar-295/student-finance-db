@@ -1,4 +1,4 @@
-import jwt from 'jsonwebtoken';
+import jwt, { SignOptions } from 'jsonwebtoken';
 import config from '../config/env';
 import { UnauthorizedError } from './errors';
 
@@ -11,18 +11,20 @@ export interface JwtPayload {
  * Generate access token
  */
 export const generateAccessToken = (payload: JwtPayload): string => {
-  return jwt.sign(payload, config.jwt.secret, {
-    expiresIn: config.jwt.expiresIn,
-  });
+  const options: SignOptions = {
+    expiresIn: config.jwt.expiresIn as any,
+  };
+  return jwt.sign(payload, config.jwt.secret as string, options);
 };
 
 /**
  * Generate refresh token
  */
 export const generateRefreshToken = (payload: JwtPayload): string => {
-  return jwt.sign(payload, config.jwt.refreshSecret, {
-    expiresIn: config.jwt.refreshExpiresIn,
-  });
+  const options: SignOptions = {
+    expiresIn: config.jwt.refreshExpiresIn as any,
+  };
+  return jwt.sign(payload, config.jwt.refreshSecret as string, options);
 };
 
 /**

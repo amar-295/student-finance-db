@@ -9,9 +9,9 @@ import config from '../config/env';
  */
 export const errorHandler = (
   err: Error,
-  req: Request,
+  _req: Request,
   res: Response,
-  next: NextFunction
+  _next: NextFunction
 ) => {
   // Log error for debugging
   if (config.env === 'development') {
@@ -94,7 +94,7 @@ export const errorHandler = (
       ? 'An unexpected error occurred'
       : err.message || 'Internal Server Error';
 
-  res.status(statusCode).json({
+  return res.status(statusCode).json({
     success: false,
     message,
     ...(config.env === 'development' && { stack: err.stack }),

@@ -51,7 +51,7 @@ export const getOne = async (req: Request, res: Response) => {
     const { id } = req.params;
 
     const category = await prisma.category.findUnique({
-        where: { id },
+        where: { id: id as string },
     });
 
     if (!category) {
