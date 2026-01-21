@@ -3,20 +3,24 @@ import { ZodError } from 'zod';
 import { Prisma } from '@prisma/client';
 import { ApiError, ValidationError } from '../utils';
 import config from '../config/env';
+import logger from '../config/logger';
 
 /**
  * Global error handler middleware
  */
 export const errorHandler = (
   err: Error,
-  _req: Request,
+  req: Request,
   res: Response,
   _next: NextFunction
 ) => {
   // Log error for debugging
-  if (config.env === 'development') {
-    console.error('❌ Error:', err.message, err.stack);
-  }
+  logger.error({
+    err,
+    requestID: req.id,
+    path: req.path,
+    method: req.method,
+  }, err.message);
 
   // Handle known API errors
   if (err instanceof ApiError) {

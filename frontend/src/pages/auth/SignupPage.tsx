@@ -1,80 +1,61 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { authService } from '../../services/auth.service';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { toast } from 'sonner';
+import { z } from 'zod';
+import { authService, registerSchema } from '../../services/auth.service';
+import { useAuthStore } from '../../store/authStore';
+
+const signupSchema = registerSchema.extend({
+    terms: z.literal(true, {
+        message: 'You must accept the terms and conditions',
+    }),
+});
+
+type SignupInput = z.infer<typeof signupSchema>;
 
 export default function SignupPage() {
     const navigate = useNavigate();
-    const [formData, setFormData] = useState({
-        fullname: '',
-        email: '',
-        password: '',
-        terms: false
-    });
+    const setAuth = useAuthStore(state => state.setAuth);
     const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState('');
 
-    const [touched, setTouched] = useState({
-        fullname: false,
-        email: false,
-        password: false
+    const {
+        register,
+        handleSubmit,
+        watch,
+        formState: { errors },
+    } = useForm<SignupInput>({
+        resolver: zodResolver(signupSchema),
+        defaultValues: {
+            name: '',
+            email: '',
+            password: '',
+        },
     });
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { name, value, type, checked } = e.target;
-        setFormData(prev => ({
-            ...prev,
-            [name]: type === 'checkbox' ? checked : value
-        }));
-    };
-
-    const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
-        const { name } = e.target;
-        setTouched(prev => ({
-            ...prev,
-            [name]: true
-        }));
-    };
-
-    // Validation Checkers
-    const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email);
-    const isPasswordValid = formData.password.length >= 8 &&
-        /\d/.test(formData.password) &&
-        /[A-Z]/.test(formData.password) &&
-        /[!@#$%^&*(),.?":{}|<>]/.test(formData.password);
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setError('');
-        setIsLoading(true);
-
-        try {
-            const response = await authService.register({
-                email: formData.email,
-                password: formData.password,
-                name: formData.fullname
-            });
-
-            // Auto-login: Store tokens
-            localStorage.setItem('accessToken', response.accessToken);
-            localStorage.setItem('refreshToken', response.refreshToken);
-            localStorage.setItem('user', JSON.stringify(response.user));
-
-            // Redirect to Dashboard
-            navigate('/dashboard');
-        } catch (err: any) {
-            setError(err.message || 'Registration failed. Please try again.');
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    // Mock validation for visuals
-    const password = formData.password;
+    const password = watch('password', '');
     const hasMinLength = password.length >= 8;
     const hasNumber = /\d/.test(password);
     const hasUpper = /[A-Z]/.test(password);
     const hasSymbol = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+
+    const onSignup = async (data: SignupInput) => {
+        setIsLoading(true);
+        try {
+            // Backend doesn't need 'terms'
+            const { terms, ...registrationData } = data;
+            const response = await authService.register(registrationData);
+            setAuth(response);
+            toast.success('Account created successfully!');
+            navigate('/dashboard');
+        } catch (err: any) {
+            toast.error(err.message || 'Registration failed. Please try again.');
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     return (
         <div className="font-display bg-white dark:bg-background-dark text-text-main dark:text-white min-h-screen flex flex-col lg:flex-row selection:bg-primary/30">
@@ -117,7 +98,7 @@ export default function SignupPage() {
             </div>
 
             {/* Right Side - Form */}
-            <main className="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-12 lg:p-16 relative bg-white dark:bg-[#1a2828] overflow-y-auto">
+            <main className="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-12 lg:p-16 relative bg-white dark:bg-[#1a2828] overflow-y-auto font-display">
                 <div className="w-full max-w-[440px] flex flex-col gap-8">
                     <Link to="/" className="lg:hidden flex items-center gap-2 text-primary mb-2 w-fit hover:opacity-90 transition-opacity">
                         <div className="size-8 bg-gradient-to-br from-primary to-[#259694] rounded-lg flex items-center justify-center text-white shadow-lg shadow-primary/20">
@@ -128,35 +109,31 @@ export default function SignupPage() {
 
                     <div className="space-y-2">
                         <h1 className="text-3xl font-extrabold tracking-tight text-text-main dark:text-white">Create an account</h1>
-                        <p className="text-text-sub dark:text-[#8ba7a6] text-base font-normal">Start your 30-day free trial. Cancel anytime.</p>
+                        <p className="text-text-sub dark:text-[#8ba7a6] text-base font-normal">Start your journey to financial freedom today.</p>
                     </div>
 
-                    <form className="flex flex-col gap-5" onSubmit={handleSubmit}>
-                        {error && (
-                            <div className="p-3 rounded-lg bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-sm font-medium">
-                                {error}
-                            </div>
-                        )}
-
+                    <form className="flex flex-col gap-5" onSubmit={handleSubmit(onSignup)}>
                         <div className="space-y-1.5">
-                            <label className="text-text-main dark:text-[#e0eaea] text-sm font-semibold ml-1" htmlFor="fullname">Full Name</label>
+                            <label className="text-text-main dark:text-[#e0eaea] text-sm font-semibold ml-1" htmlFor="name">Full Name</label>
                             <div className="relative group">
                                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                                     <span className="material-symbols-outlined text-gray-400 group-focus-within:text-primary transition-colors text-[20px]">person</span>
                                 </div>
                                 <input
-                                    className="w-full h-12 pl-11 pr-4 rounded-xl border border-[#d3e4e4] dark:border-[#3a4b4b] bg-[#f9fbfb] dark:bg-[#131f1f] text-text-main dark:text-white placeholder-[#94b3b2] dark:placeholder-[#4a6b6a] focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-normal shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
-                                    id="fullname"
-                                    name="fullname"
+                                    {...register('name')}
+                                    className={`w-full h-12 pl-11 pr-4 rounded-xl border ${errors.name ? 'border-red-500' : 'border-[#d3e4e4] dark:border-[#3a4b4b]'} bg-[#f9fbfb] dark:bg-[#131f1f] text-text-main dark:text-white placeholder-[#94b3b2] dark:placeholder-[#4a6b6a] focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-normal shadow-sm disabled:opacity-50 disabled:cursor-not-allowed`}
+                                    id="name"
                                     placeholder="Jane Doe"
-                                    required
                                     type="text"
-                                    value={formData.fullname}
-                                    onChange={handleChange}
-                                    onBlur={handleBlur}
                                     disabled={isLoading}
                                 />
                             </div>
+                            {errors.name && (
+                                <p className="text-xs text-red-500 mt-1 ml-1 flex items-center gap-1">
+                                    <span className="material-symbols-outlined text-[14px]">error</span>
+                                    {errors.name.message}
+                                </p>
+                            )}
                         </div>
 
                         <div className="space-y-1.5">
@@ -166,28 +143,20 @@ export default function SignupPage() {
                                     <span className="material-symbols-outlined text-gray-400 group-focus-within:text-primary transition-colors text-[20px]">mail</span>
                                 </div>
                                 <input
-                                    className="w-full h-12 pl-11 pr-4 rounded-xl border border-[#d3e4e4] dark:border-[#3a4b4b] bg-[#f9fbfb] dark:bg-[#131f1f] text-text-main dark:text-white placeholder-[#94b3b2] dark:placeholder-[#4a6b6a] focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-normal shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                                    {...register('email')}
+                                    className={`w-full h-12 pl-11 pr-4 rounded-xl border ${errors.email ? 'border-red-500' : 'border-[#d3e4e4] dark:border-[#3a4b4b]'} bg-[#f9fbfb] dark:bg-[#131f1f] text-text-main dark:text-white placeholder-[#94b3b2] dark:placeholder-[#4a6b6a] focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-normal shadow-sm disabled:opacity-50 disabled:cursor-not-allowed`}
                                     id="email"
-                                    name="email"
                                     placeholder="student@example.com"
-                                    required
                                     type="email"
-                                    value={formData.email}
-                                    onChange={handleChange}
-                                    onBlur={handleBlur}
                                     disabled={isLoading}
                                 />
                             </div>
-                            {touched.email && !isEmailValid && formData.email && (
+                            {errors.email && (
                                 <p className="text-xs text-red-500 mt-1 ml-1 flex items-center gap-1">
                                     <span className="material-symbols-outlined text-[14px]">error</span>
-                                    Please enter a valid email address
+                                    {errors.email.message}
                                 </p>
                             )}
-                            <p className="text-xs text-text-sub mt-1 ml-1 flex items-center gap-1">
-                                <span className="material-symbols-outlined text-[14px]">lock</span>
-                                We'll never share your email with anyone else.
-                            </p>
                         </div>
 
                         <div className="space-y-1.5">
@@ -197,15 +166,11 @@ export default function SignupPage() {
                                     <span className="material-symbols-outlined text-gray-400 group-focus-within:text-primary transition-colors text-[20px]">lock</span>
                                 </div>
                                 <input
-                                    className="w-full h-12 pl-11 pr-11 rounded-xl border border-[#d3e4e4] dark:border-[#3a4b4b] bg-[#f9fbfb] dark:bg-[#131f1f] text-text-main dark:text-white placeholder-[#94b3b2] dark:placeholder-[#4a6b6a] focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-normal shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                                    {...register('password')}
+                                    className={`w-full h-12 pl-11 pr-11 rounded-xl border ${errors.password ? 'border-red-500' : 'border-[#d3e4e4] dark:border-[#3a4b4b]'} bg-[#f9fbfb] dark:bg-[#131f1f] text-text-main dark:text-white placeholder-[#94b3b2] dark:placeholder-[#4a6b6a] focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-normal shadow-sm disabled:opacity-50 disabled:cursor-not-allowed`}
                                     id="password"
-                                    name="password"
                                     placeholder="••••••••"
-                                    required
                                     type={showPassword ? "text" : "password"}
-                                    value={formData.password}
-                                    onChange={handleChange}
-                                    onBlur={handleBlur}
                                     disabled={isLoading}
                                 />
                                 <button
@@ -266,13 +231,10 @@ export default function SignupPage() {
                         <div className="flex items-start gap-3 mt-2">
                             <div className="flex items-center h-5">
                                 <input
-                                    className="w-4 h-4 rounded border-[#d3e4e4] dark:border-[#3a4b4b] text-primary focus:ring-primary/25 bg-[#f9fbfb] dark:bg-[#131f1f] cursor-pointer transition-colors"
+                                    {...register('terms')}
+                                    className={`w-4 h-4 rounded border-[#d3e4e4] dark:border-[#3a4b4b] text-primary focus:ring-primary/25 bg-[#f9fbfb] dark:bg-[#131f1f] cursor-pointer transition-colors ${errors.terms ? 'border-red-500' : ''}`}
                                     id="terms"
-                                    name="terms"
-                                    required
                                     type="checkbox"
-                                    checked={formData.terms}
-                                    onChange={handleChange}
                                     disabled={isLoading}
                                 />
                             </div>
@@ -280,14 +242,16 @@ export default function SignupPage() {
                                 <label className="font-normal text-text-sub dark:text-[#8ba7a6]" htmlFor="terms">
                                     I agree to the <a className="font-semibold text-primary hover:text-[#259694] transition-colors underline decoration-primary/30 underline-offset-2" href="#">Terms of Service</a> and <a className="font-semibold text-primary hover:text-[#259694] transition-colors underline decoration-primary/30 underline-offset-2" href="#">Privacy Policy</a>
                                 </label>
+                                {errors.terms && (
+                                    <p className="text-[10px] text-red-500 mt-0.5">{errors.terms.message}</p>
+                                )}
                             </div>
                         </div>
 
-                        {/* Button - Reverted to Template Gradient (Teal to Yellow) */}
                         <button
                             className="mt-4 relative w-full h-12 rounded-xl bg-gradient-to-r from-primary to-[#259694] text-white font-bold text-base shadow-lg shadow-primary/25 hover:shadow-primary/40 hover:scale-[1.01] active:scale-[0.98] transition-all duration-200 overflow-hidden group disabled:opacity-70 disabled:grayscale disabled:cursor-not-allowed"
                             type="submit"
-                            disabled={isLoading || !isEmailValid || !isPasswordValid || !formData.fullname || !formData.terms}
+                            disabled={isLoading}
                         >
                             <span className="relative z-10 flex items-center justify-center gap-2">
                                 {isLoading ? 'Creating Account...' : 'Create Account'}
@@ -314,14 +278,14 @@ export default function SignupPage() {
                         </button>
                         <button className="flex items-center justify-center gap-2 rounded-lg border border-gray-200 bg-white p-3 text-sm font-semibold text-text-main hover:bg-gray-50 hover:border-gray-300 transition-all dark:bg-[#252a30] dark:border-gray-700 dark:text-white dark:hover:bg-[#2f353d]" type="button">
                             <svg className="h-5 w-5 fill-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.09-.08 2.31-.84 3.69-.74 1.51.1 2.65.73 3.4 1.83-3.03 1.83-2.51 6.55.94 7.95-.69 1.76-1.63 3.51-3.11 3.13zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.54 4.54-3.74 4.25z"></path>
+                                <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.09-.08 2.31-.84 3.69-.74 1.51.1 2.65.73 3.4 1.83-3.03 1.83-2.51 6.55.94 7.95-.69 1.76-1.63 3.51-3.11 3.13zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.54 4.54-3.74 4.25z"></path>
                             </svg>
                             Apple
                         </button>
                     </div>
 
                     <div className="text-center pt-2">
-                        <p className="text-text-sub dark:text-[#8ba7a6] text-sm">
+                        <p className="text-text-sub dark:text-[#8ba7a6] text-sm font-display">
                             Already a member?
                             <Link className="text-primary font-bold hover:text-[#259694] transition-colors inline-flex items-center gap-0.5 group ml-1" to="/login">
                                 Log In

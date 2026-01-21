@@ -1,9 +1,10 @@
 import express, { Application } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
-import morgan from 'morgan';
+import pino from 'pino-http';
 import rateLimit from 'express-rate-limit';
 import config from './config/env';
+import logger from './config/logger';
 import { errorHandler, notFoundHandler, optionalAuthenticate } from './middleware';
 
 // Import routes
@@ -50,18 +51,7 @@ const limiter = rateLimit({
 app.use('/api', limiter);
 
 // Logging middleware
-if (config.env === 'development') {
-  app.use(morgan('dev'));
-} else {
-  app.use(morgan('combined'));
-}
-
-// Request ID middleware (for tracking requests in logs)
-app.use((req, res, next) => {
-  req.id = Math.random().toString(36).substring(7);
-  res.setHeader('X-Request-ID', req.id);
-  next();
-});
+app.use(pino({ logger }));
 
 // Health check routes
 app.use('/health', healthRoutes);

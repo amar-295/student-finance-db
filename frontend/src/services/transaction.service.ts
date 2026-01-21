@@ -27,6 +27,7 @@ export interface TransactionFilters {
     search?: string;
     minAmount?: number;
     maxAmount?: number;
+    limit?: number;
 }
 
 const getAuthHeader = () => {
@@ -42,6 +43,7 @@ export const transactionService = {
         if (filters.endDate) params.append('endDate', filters.endDate);
         if (filters.categoryId) params.append('categoryId', filters.categoryId);
         if (filters.search) params.append('search', filters.search);
+        if (filters.limit) params.append('limit', filters.limit.toString());
 
         const response = await axios.get<Transaction[]>(API_URL, {
             headers: getAuthHeader(),

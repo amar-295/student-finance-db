@@ -1,20 +1,27 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { authService } from '../../services/auth.service';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { toast } from 'sonner';
+import { authService, loginSchema, type LoginInput } from '../../services/auth.service';
+import { useAuthStore } from '../../store/authStore';
 
 export default function LoginPage() {
     const navigate = useNavigate();
-    const [formData, setFormData] = useState({
-        email: '',
-        password: '',
-        rememberMe: false
-    });
+    const setAuth = useAuthStore(state => state.setAuth);
     const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState('');
-    const [touched, setTouched] = useState({
-        email: false,
-        password: false
+
+    const {
+        register,
+        handleSubmit,
+        formState: { errors },
+    } = useForm<LoginInput>({
+        resolver: zodResolver(loginSchema),
+        defaultValues: {
+            email: '',
+            password: '',
+        },
     });
 
     const slides = [
@@ -41,48 +48,16 @@ export default function LoginPage() {
         return () => clearInterval(timer);
     }, []);
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { id, value, type, checked } = e.target;
-        setFormData(prev => ({
-            ...prev,
-            [id]: type === 'checkbox' ? checked : value
-        }));
-    };
-
-    const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
-        const { id } = e.target;
-        setTouched(prev => ({
-            ...prev,
-            [id]: true
-        }));
-    };
-
-    // Simple frontend validation to match backend requirements
-    const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email);
-    const isPasswordValid = formData.password.length > 0; // Backend handles complexity, frontend just checks presence for login
-
-    const handleLogin = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setError('');
+    const onLogin = async (data: LoginInput) => {
         setIsLoading(true);
 
         try {
-            const response = await authService.login({
-                email: formData.email,
-                password: formData.password
-            });
-
-            // Store user/token (handled by authService inside login? No, service returns data, we should store it?)
-            // Ah, my service implementation in Step 1017 didn't automatically store in localStorage inside login().
-            // It had a `logout` method that clears it. 
-            // I should store it here.
-            localStorage.setItem('accessToken', response.accessToken);
-            localStorage.setItem('refreshToken', response.refreshToken);
-            localStorage.setItem('user', JSON.stringify(response.user));
-
-            navigate('/dashboard'); // Redirect to Home/Dashboard
+            const response = await authService.login(data);
+            setAuth(response);
+            toast.success('Successfully logged in!');
+            navigate('/dashboard');
         } catch (err: any) {
-            setError(err.message || 'Login failed. Please check your credentials.');
+            toast.error(err.message || 'Login failed. Please check your credentials.');
         } finally {
             setIsLoading(false);
         }
@@ -145,33 +120,24 @@ export default function LoginPage() {
                         <p className="text-text-sub text-base">Welcome back! Please enter your details.</p>
                     </div>
 
-                    <form className="flex flex-col gap-5" onSubmit={handleLogin}>
-                        {error && (
-                            <div className="p-3 rounded-lg bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-sm font-medium">
-                                {error}
-                            </div>
-                        )}
+                    <form className="flex flex-col gap-5" onSubmit={handleSubmit(onLogin)}>
                         <div className="flex flex-col gap-2">
                             <label className="text-sm font-semibold text-text-main dark:text-gray-200" htmlFor="email">Email Address</label>
                             <div className="relative">
-                                {/* Input: Reverted to Primary Brand Color */}
                                 <input
-                                    className="w-full h-12 pl-4 pr-12 rounded-xl border border-[#d3e4e4] dark:border-[#3a4b4b] bg-[#f9fbfb] dark:bg-[#131f1f] text-text-main dark:text-white placeholder-[#94b3b2] dark:placeholder-[#4a6b6a] focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-normal shadow-sm disabled:opacity-50"
+                                    {...register('email')}
+                                    className={`w-full h-12 pl-4 pr-12 rounded-xl border ${errors.email ? 'border-red-500' : 'border-[#d3e4e4] dark:border-[#3a4b4b]'} bg-[#f9fbfb] dark:bg-[#131f1f] text-text-main dark:text-white placeholder-[#94b3b2] dark:placeholder-[#4a6b6a] focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-normal shadow-sm disabled:opacity-50`}
                                     id="email"
                                     placeholder="student@example.com"
                                     type="email"
-                                    required
-                                    value={formData.email}
-                                    onChange={handleChange}
-                                    onBlur={handleBlur}
                                     disabled={isLoading}
                                 />
                                 <span className="material-symbols-outlined absolute right-4 top-3.5 text-gray-400 pointer-events-none text-[20px]">mail</span>
                             </div>
-                            {touched.email && !isEmailValid && formData.email && (
+                            {errors.email && (
                                 <p className="text-xs text-red-500 mt-1 flex items-center gap-1">
                                     <span className="material-symbols-outlined text-[14px]">error</span>
-                                    Please enter a valid email address
+                                    {errors.email.message}
                                 </p>
                             )}
                         </div>
@@ -179,15 +145,12 @@ export default function LoginPage() {
                         <div className="flex flex-col gap-2">
                             <label className="text-sm font-semibold text-text-main dark:text-gray-200" htmlFor="password">Password</label>
                             <div className="relative">
-                                {/* Input: Reverted to Primary Brand Color */}
                                 <input
-                                    className="w-full h-12 pl-4 pr-12 rounded-xl border border-[#d3e4e4] dark:border-[#3a4b4b] bg-[#f9fbfb] dark:bg-[#131f1f] text-text-main dark:text-white placeholder-[#94b3b2] dark:placeholder-[#4a6b6a] focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-normal shadow-sm disabled:opacity-50"
+                                    {...register('password')}
+                                    className={`w-full h-12 pl-4 pr-12 rounded-xl border ${errors.password ? 'border-red-500' : 'border-[#d3e4e4] dark:border-[#3a4b4b]'} bg-[#f9fbfb] dark:bg-[#131f1f] text-text-main dark:text-white placeholder-[#94b3b2] dark:placeholder-[#4a6b6a] focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-normal shadow-sm disabled:opacity-50`}
                                     id="password"
                                     placeholder="••••••••"
                                     type={showPassword ? "text" : "password"}
-                                    required
-                                    value={formData.password}
-                                    onChange={handleChange}
                                     disabled={isLoading}
                                 />
 
@@ -198,23 +161,20 @@ export default function LoginPage() {
                                     {showPassword ? 'visibility_off' : 'visibility'}
                                 </span>
                             </div>
-                            {touched.password && !isPasswordValid && (
+                            {errors.password && (
                                 <p className="text-xs text-red-500 mt-1 flex items-center gap-1">
                                     <span className="material-symbols-outlined text-[14px]">error</span>
-                                    Please enter your password
+                                    {errors.password.message}
                                 </p>
                             )}
                         </div>
 
                         <div className="flex items-center justify-between">
                             <label className="flex items-center gap-2 cursor-pointer group">
-                                {/* Checkbox: Reverted to Primary Brand Color */}
                                 <input
                                     className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary/20 dark:border-gray-600 dark:bg-gray-800 transition-colors"
                                     type="checkbox"
                                     id="rememberMe"
-                                    checked={formData.rememberMe}
-                                    onChange={handleChange}
                                     disabled={isLoading}
                                 />
                                 <span className="text-sm text-text-sub group-hover:text-text-main transition-colors select-none">Remember me</span>
@@ -222,11 +182,10 @@ export default function LoginPage() {
                             <Link className="text-sm font-semibold text-secondary hover:text-secondary/80 transition-colors" to="/forgot-password">Forgot Password?</Link>
                         </div>
 
-                        {/* Button: Reverted to Primary Brand Color (No Gradient) */}
                         <button
                             className="mt-2 relative w-full h-12 rounded-xl bg-gradient-to-r from-primary to-[#259694] text-white font-bold text-base shadow-lg shadow-primary/25 hover:shadow-primary/40 hover:scale-[1.01] active:scale-[0.98] transition-all duration-200 overflow-hidden group disabled:opacity-70 disabled:grayscale disabled:cursor-not-allowed"
                             type="submit"
-                            disabled={isLoading || !isEmailValid || !isPasswordValid}
+                            disabled={isLoading}
                         >
                             <span className="relative z-10 flex items-center justify-center gap-2">
                                 {isLoading ? 'Logging In...' : 'Log In'}

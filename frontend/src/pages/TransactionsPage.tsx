@@ -1,28 +1,10 @@
-import { useState, useEffect } from 'react';
-import { transactionService, type Transaction } from '../services/transaction.service';
+import { useState } from 'react';
+import Skeleton from '../components/common/Skeleton';
+import { useTransactions } from '../hooks/useTransactions';
 
 export default function TransactionsPage() {
-    const [transactions, setTransactions] = useState<Transaction[]>([]);
-    const [loading, setLoading] = useState(true);
+    const { data: transactions = [], isLoading: loading } = useTransactions();
     const [searchQuery, setSearchQuery] = useState('');
-
-    useEffect(() => {
-        loadTransactions();
-    }, []);
-
-    const loadTransactions = async () => {
-        setLoading(true);
-        try {
-            // Using mock data for initial UI development
-            // In production, swap with: await transactionService.getTransactions();
-            const data = await transactionService.getMockTransactions();
-            setTransactions(data);
-        } catch (error) {
-            console.error('Failed to load transactions', error);
-        } finally {
-            setLoading(false);
-        }
-    };
 
     // Filter transactions based on search query
     const filteredTransactions = transactions.filter(t =>
@@ -76,9 +58,42 @@ export default function TransactionsPage() {
             {/* Transactions Table */}
             <div className="bg-white dark:bg-white/5 rounded-2xl border border-gray-100 dark:border-white/10 shadow-sm overflow-hidden">
                 {loading ? (
-                    <div className="p-12 text-center text-text-muted">
-                        <span className="material-symbols-outlined animate-spin text-3xl mb-2">refresh</span>
-                        <p>Loading transactions...</p>
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-left border-collapse">
+                            <thead>
+                                <tr className="bg-gray-50 dark:bg-white/5 border-b border-gray-100 dark:border-white/10">
+                                    <th className="p-4 font-semibold text-text-muted text-sm">Date</th>
+                                    <th className="p-4 font-semibold text-text-muted text-sm">Merchant</th>
+                                    <th className="p-4 font-semibold text-text-muted text-sm">Category</th>
+                                    <th className="p-4 font-semibold text-text-muted text-sm text-right">Amount</th>
+                                    <th className="p-4 font-semibold text-text-muted text-sm text-center">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {[...Array(6)].map((_, i) => (
+                                    <tr key={i} className="border-b border-gray-50 dark:border-white/5 last:border-0 h-16">
+                                        <td className="p-4">
+                                            <Skeleton variant="text" width="70%" />
+                                        </td>
+                                        <td className="p-4">
+                                            <div className="flex flex-col gap-1">
+                                                <Skeleton variant="text" width="80%" />
+                                                <Skeleton variant="text" width="40%" />
+                                            </div>
+                                        </td>
+                                        <td className="p-4">
+                                            <Skeleton width={100} height={24} className="rounded-full" />
+                                        </td>
+                                        <td className="p-4">
+                                            <Skeleton variant="text" width="50%" className="ml-auto" />
+                                        </td>
+                                        <td className="p-4">
+                                            <Skeleton variant="circle" width={24} height={24} className="mx-auto" />
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
                     </div>
                 ) : filteredTransactions.length > 0 ? (
                     <div className="overflow-x-auto">

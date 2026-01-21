@@ -13,6 +13,30 @@
 
 ---
 
+## 📐 System Architecture
+
+```mermaid
+graph TD
+    User([User]) <--> Frontend[React + Vite SPA]
+    Frontend <--> API[Express.js REST API]
+    API <--> Auth[JWT / Bcrypt]
+    API <--> AI[AI Service - Hugging Face]
+    API <--> Audit[Audit Multi-Agent Logger]
+    API <--> DB[(PostgreSQL + Prisma)]
+    API <--> Redis[(Redis - Rate Limiting)]
+```
+
+## ⚖️ Design Trade-offs
+
+During development, several key technical decisions were made to balance performance, security, and complexity:
+
+1.  **Asynchronous Audit Logging**: We prioritized API response times by logging user actions asynchronously. **Trade-off**: In the event of a catastrophic server failure immediately after an action, a log entry might be lost, but the user experience remains fast.
+2.  **Soft Deletion**: Transactions and Budgets use a `deletedAt` flag instead of hard-deleting records. **Trade-off**: Higher database storage requirements, but crucial for maintaining valid historical reports and audit trails.
+3.  **Hugging Face fallback**: AI categorization defaults to "Uncategorized" if the API key is missing or fails. **Trade-off**: Temporary loss of smart features is acceptable to ensure the core transaction flow is never blocked.
+4.  **User-Based Rate Limiting**: We use `Redis` to track request counts by `userId`. **Trade-off**: Adds infrastructure complexity compared to simple IP limiting, but prevents "noisy neighbor" issues in university dorm environments.
+
+---
+
 ## 🏗️ Architecture Overview
 
 ### **Full-Stack TypeScript Application**
