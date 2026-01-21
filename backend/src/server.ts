@@ -1,3 +1,7 @@
+/**
+ * © 2026 Amarnath Sharma
+ * Licensed under the MIT License
+ */
 import app from './app';
 import config from './config/env';
 import prisma from './config/database';

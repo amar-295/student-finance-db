@@ -1,3 +1,7 @@
+/**
+ * © 2026 Amarnath Sharma
+ * Licensed under the MIT License
+ */
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'

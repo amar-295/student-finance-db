@@ -543,3 +543,9 @@ The priority order for remaining development is:
 
 **Current Progress:** ~80% MVP completion 🚀  
 **Backend is 100% Verified (68 Tests Passed). Ready for Frontend Integration!**
+
+---
+
+© 2026 Amarnath Sharma. All rights reserved.
+
+Licensed under the MIT License.
