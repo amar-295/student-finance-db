@@ -5,6 +5,7 @@
 
 generator client {
   provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
 }
 
 datasource db {
@@ -17,34 +18,36 @@ datasource db {
 // =============================================================================
 
 model User {
-  id                  String    @id @default(uuid())
-  email               String    @unique
-  passwordHash        String    @map("password_hash")
-  name                String
-  university          String?
-  baseCurrency        String    @default("USD") @map("base_currency")
-  emailVerified       Boolean   @default(false) @map("email_verified")
+  id              String    @id @default(uuid())
+  email           String    @unique
+  passwordHash    String    @map("password_hash")
+  name            String
+  university      String?
+  baseCurrency    String    @default("USD") @map("base_currency")
+  emailVerified   Boolean   @default(false) @map("email_verified")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+  deletedAt           DateTime? @map("deleted_at")
   failedLoginAttempts Int       @default(0) @map("failed_login_attempts")
   lockedUntil         DateTime? @map("locked_until")
-  createdAt           DateTime  @default(now()) @map("created_at")
-  updatedAt           DateTime  @updatedAt @map("updated_at")
-  deletedAt           DateTime? @map("deleted_at")
 
   // Relations
-  accounts             Account[]
-  categories           Category[]            @relation("UserCategories")
-  transactions         Transaction[]
-  budgets              Budget[]
-  groupsCreated        Group[]               @relation("GroupCreator")
-  groupMemberships     GroupMember[]
-  billSplitsCreated    BillSplit[]           @relation("SplitCreator")
-  splitParticipations  SplitParticipant[]
-  reminders            PaymentReminder[]
-  insights             Insight[]
-  notificationSettings NotificationSettings?
-  notifications        Notification[]
-  reports              Report[]
-  auditLogs            AuditLog[]
+  accounts              Account[]
+  categories            Category[]
+  transactions          Transaction[]
+  budgets               Budget[]
+  groupsCreated         Group[]               @relation("GroupCreator")
+  groupMemberships      GroupMember[]
+  billSplitsCreated     BillSplit[]           @relation("SplitCreator")
+  splitParticipations   SplitParticipant[]
+  remindersSent         PaymentReminder[]      @relation("SentReminders")
+  insights              Insight[]
+  notificationSettings  NotificationSettings?
+  notifications         Notification[]
+  reports               Report[]
+  auditLogs             AuditLog[]
+  refreshTokens         RefreshToken[]
+  passwordResets        PasswordReset[]
 
   @@index([email])
   @@index([createdAt])
@@ -52,51 +55,46 @@ model User {
 }
 
 model Account {
-  id          String   @id @default(uuid())
-  userId      String   @map("user_id")
-  name        String
-  accountType String   @map("account_type") // 'checking', 'savings', 'cash', 'credit_card'
-  balance     Decimal  @default(0) @db.Decimal(12, 2)
-  // Account Model Fix
-  currency      String   @default("USD")
+  id            String    @id @default(uuid())
+  userId        String    @map("user_id")
+  name          String
+  accountType   String    @map("account_type") // 'checking', 'savings', 'credit', 'cash', 'other'
+  balance       Decimal   @default(0) @db.Decimal(10, 2)
+  currency      String    @default("USD")
   institution   String?
-  accountNumber String?  @map("account_number")
-
-  // Transaction Model Fix (apply manually to line ~107)
-  isActive      Boolean  @default(true) @map("is_active")
-  createdAt   DateTime  @default(now()) @map("created_at")
-  updatedAt   DateTime  @updatedAt @map("updated_at")
-  deletedAt   DateTime? @map("deleted_at")
+  accountNumber String?   @map("account_number")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+  deletedAt     DateTime? @map("deleted_at")
 
   // Relations
   user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   transactions Transaction[]
 
   @@index([userId])
-  @@index([userId, isActive])
+  @@index([accountType])
   @@map("accounts")
 }
 
-// =============================================================================
-// TRANSACTION MANAGEMENT
-// =============================================================================
-
 model Category {
-  id        String   @id @default(uuid())
-  name      String
-  type      String // 'income' or 'expense'
-  icon      String?
-  color     String?
-  isSystem  Boolean  @default(false) @map("is_system")
-  userId    String?  @map("user_id")
-  createdAt DateTime @default(now()) @map("created_at")
+  id          String    @id @default(uuid())
+  userId      String?   @map("user_id") // null for system categories
+  name        String
+  type        String    @default("expense") // 'income' or 'expense'
+  color       String    @default("#95A5A6")
+  icon        String?
+  isSystem    Boolean   @default(false) @map("is_system")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @default(now()) @updatedAt @map("updated_at")
+  deletedAt   DateTime? @map("deleted_at")
 
   // Relations
-  user         User?         @relation("UserCategories", fields: [userId], references: [id], onDelete: Cascade)
+  user         User?         @relation(fields: [userId], references: [id], onDelete: Cascade)
   transactions Transaction[]
   budgets      Budget[]
 
-  @@index([userId, type])
+  @@unique([userId, name])
+  @@index([userId])
   @@index([isSystem])
   @@map("categories")
 }
@@ -106,50 +104,42 @@ model Transaction {
   userId          String    @map("user_id")
   accountId       String    @map("account_id")
   categoryId      String?   @map("category_id")
-  amount          Decimal   @db.Decimal(12, 2)
+  amount          Decimal   @db.Decimal(10, 2)
+  merchant        String
+  description     String?   @db.Text
+  transactionDate DateTime  @map("transaction_date")
   currency        String    @default("USD")
   tags            String[]  @default([])
-  notes           String?
-  convertedAmount Decimal?  @map("converted_amount") @db.Decimal(12, 2)
-  exchangeRate    Decimal?  @map("exchange_rate") @db.Decimal(10, 6)
-  merchant        String?
-  description     String?   @db.Text
-  transactionDate DateTime  @map("transaction_date") @db.Date
-  isSplit         Boolean   @default(false) @map("is_split")
-  splitId         String?   @map("split_id")
+  notes           String?   @db.Text
   aiCategorized   Boolean   @default(false) @map("ai_categorized")
-  aiConfidence    Decimal?  @map("ai_confidence") @db.Decimal(3, 2)
+  aiConfidence    Float     @default(0) @map("ai_confidence")
   createdAt       DateTime  @default(now()) @map("created_at")
   updatedAt       DateTime  @updatedAt @map("updated_at")
   deletedAt       DateTime? @map("deleted_at")
 
   // Relations
   user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  account  Account   @relation(fields: [accountId], references: [id], onDelete: Restrict)
+  account  Account   @relation(fields: [accountId], references: [id], onDelete: Cascade)
   category Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
 
-  @@index([userId, transactionDate(sort: Desc)])
-  @@index([userId, categoryId])
+  @@index([userId])
   @@index([accountId])
-  @@index([deletedAt])
+  @@index([categoryId])
+  @@index([transactionDate])
   @@index([merchant])
   @@map("transactions")
 }
-
-// =============================================================================
-// BUDGET MANAGEMENT
-// =============================================================================
 
 model Budget {
   id             String    @id @default(uuid())
   userId         String    @map("user_id")
   categoryId     String    @map("category_id")
-  amount         Decimal   @db.Decimal(12, 2)
-  periodType     String    @default("monthly") @map("period_type") // 'monthly', 'semester'
-  startDate      DateTime  @map("start_date") @db.Date
-  endDate        DateTime? @map("end_date") @db.Date
-  alertThreshold Decimal   @default(0.80) @map("alert_threshold") @db.Decimal(5, 2)
-  rollover       Boolean   @default(false)
+  amount         Decimal   @db.Decimal(10, 2)
+  periodType     String    @map("period") // 'monthly', 'semester', 'yearly'
+  startDate      DateTime  @map("start_date")
+  endDate        DateTime  @map("end_date")
+  alertThreshold Int       @default(80) @map("alert_threshold") // Percentage
+  rollover       Boolean   @default(false) // Rollover unused budget to next period
   createdAt      DateTime  @default(now()) @map("created_at")
   updatedAt      DateTime  @updatedAt @map("updated_at")
   deletedAt      DateTime? @map("deleted_at")
@@ -158,45 +148,51 @@ model Budget {
   user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
 
-  @@unique([userId, categoryId, startDate])
-  @@index([userId, startDate, endDate])
+  @@unique([userId, categoryId, periodType])
+  @@index([userId])
   @@index([categoryId])
+  @@index([startDate, endDate])
   @@map("budgets")
 }
 
 // =============================================================================
-// BILL SPLITTING & ROOMMATES
+// BILL SPLITTING
 // =============================================================================
 
 model Group {
-  id        String   @id @default(uuid())
-  name      String
-  createdBy String   @map("created_by")
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  id          String    @id @default(uuid())
+  name        String
+  description String?   @db.Text
+  createdBy   String    @map("created_by")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  deletedAt   DateTime? @map("deleted_at")
 
   // Relations
-  creator    User          @relation("GroupCreator", fields: [createdBy], references: [id], onDelete: Restrict)
+  creator User          @relation("GroupCreator", fields: [createdBy], references: [id], onDelete: Cascade)
   members    GroupMember[]
   billSplits BillSplit[]
 
+  @@index([createdBy])
   @@map("groups")
 }
 
 model GroupMember {
-  id       String   @id @default(uuid())
-  groupId  String   @map("group_id")
-  userId   String   @map("user_id")
-  joinedAt DateTime @default(now()) @map("joined_at")
-  isActive Boolean  @default(true) @map("is_active")
+  id        String    @id @default(uuid())
+  groupId   String    @map("group_id")
+  userId    String    @map("user_id")
+  role      String    @default("member") // 'owner', 'member'
+  joinedAt  DateTime  @default(now()) @map("joined_at")
+  deletedAt DateTime? @map("deleted_at")
+  isActive  Boolean   @default(true) @map("is_active")
 
   // Relations
   group Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
   user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([groupId, userId])
+  @@index([groupId])
   @@index([userId])
-  @@index([groupId, isActive])
   @@map("group_members")
 }
 
@@ -204,46 +200,47 @@ model BillSplit {
   id          String    @id @default(uuid())
   groupId     String?   @map("group_id")
   createdBy   String    @map("created_by")
-  totalAmount Decimal   @map("total_amount") @db.Decimal(12, 2)
-  currency    String    @default("USD")
-  description String
-  splitType   String    @map("split_type") // 'equal', 'custom', 'percentage'
-  status      String    @default("pending") // 'pending', 'partial', 'settled'
+  description String    @db.Text
+  totalAmount Decimal   @map("total_amount") @db.Decimal(10, 2)
+  currency    String    @default("GBP")
+  splitType   String    @map("split_type") // 'equal', 'percentage', 'custom'
+  status      String    @default("pending") // 'pending', 'partial', 'settled', 'cancelled'
+  billDate    DateTime  @default(now()) @map("bill_date")
+  settledAt   DateTime? @map("settled_at")
   createdAt   DateTime  @default(now()) @map("created_at")
   updatedAt   DateTime  @updatedAt @map("updated_at")
-  settledAt   DateTime? @map("settled_at")
+  deletedAt   DateTime? @map("deleted_at")
 
   // Relations
-  group        Group?             @relation(fields: [groupId], references: [id], onDelete: SetNull)
-  creator      User               @relation("SplitCreator", fields: [createdBy], references: [id], onDelete: Restrict)
+  group        Group?             @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  creator      User               @relation("SplitCreator", fields: [createdBy], references: [id], onDelete: Cascade)
   participants SplitParticipant[]
 
   @@index([groupId])
   @@index([createdBy])
-  @@index([status])
+  @@index([billDate])
   @@map("bill_splits")
 }
 
 model SplitParticipant {
-  id          String    @id @default(uuid())
-  splitId     String    @map("split_id")
-  userId      String    @map("user_id")
-  amountOwed  Decimal   @map("amount_owed") @db.Decimal(12, 2)
-  amountPaid  Decimal   @default(0) @map("amount_paid") @db.Decimal(12, 2)
-  status      String    @default("pending") // 'pending', 'paid', 'forgiven'
-  paidAt      DateTime? @map("paid_at")
-  paymentNote String?   @map("payment_note") @db.Text
-  createdAt   DateTime  @default(now()) @map("created_at")
-  updatedAt   DateTime  @updatedAt @map("updated_at")
+  id            String    @id @default(uuid())
+  splitId       String    @map("split_id")
+  userId        String    @map("user_id")
+  amountOwed    Decimal   @map("amount_owed") @db.Decimal(10, 2)
+  amountPaid    Decimal   @default(0) @map("amount_paid") @db.Decimal(10, 2)
+  status        String    @default("pending") // 'pending', 'partial', 'paid'
+  paidAt        DateTime? @map("paid_at")
+  paymentMethod String?   @map("payment_method")
+  paymentNote   String?   @map("payment_note") @db.Text
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
 
   // Relations
-  split     BillSplit         @relation(fields: [splitId], references: [id], onDelete: Cascade)
-  user      User              @relation(fields: [userId], references: [id], onDelete: Cascade)
-  reminders PaymentReminder[]
+  split            BillSplit         @relation(fields: [splitId], references: [id], onDelete: Cascade)
+  user             User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  paymentReminders PaymentReminder[]
 
   @@unique([splitId, userId])
-  @@index([userId, status])
-  @@index([splitId])
   @@map("split_participants")
 }
 
@@ -251,70 +248,71 @@ model PaymentReminder {
   id                 String   @id @default(uuid())
   splitParticipantId String   @map("split_participant_id")
   sentBy             String   @map("sent_by")
-  reminderType       String   @default("polite") @map("reminder_type") // 'polite', 'urgent'
   sentAt             DateTime @default(now()) @map("sent_at")
+  reminderType       String   @default("email") @map("reminder_type") // 'polite', 'urgent'
+  status             String   @default("sent")
 
   // Relations
-  splitParticipant SplitParticipant @relation(fields: [splitParticipantId], references: [id], onDelete: Cascade)
-  sender           User             @relation(fields: [sentBy], references: [id], onDelete: Restrict)
+  participant SplitParticipant @relation(fields: [splitParticipantId], references: [id], onDelete: Cascade)
+  sender      User             @relation("SentReminders", fields: [sentBy], references: [id], onDelete: Cascade)
 
+  @@index([splitParticipantId])
+  @@index([sentBy])
   @@map("payment_reminders")
 }
 
 // =============================================================================
-// AI FEATURES
+// AI & INSIGHTS
 // =============================================================================
 
 model Insight {
-  id             String    @id @default(uuid())
-  userId         String    @map("user_id")
-  insightType    String    @map("insight_type") // 'warning', 'positive', 'tip', 'prediction'
-  title          String
-  message        String    @db.Text
-  supportingData Json?     @map("supporting_data")
-  actionType     String?   @map("action_type") // 'adjust_budget', 'view_category', 'set_goal'
-  actionData     Json?     @map("action_data")
-  isDismissed    Boolean   @default(false) @map("is_dismissed")
-  feedback       String? // 'helpful', 'not_helpful'
-  createdAt      DateTime  @default(now()) @map("created_at")
-  dismissedAt    DateTime? @map("dismissed_at")
+  id          String    @id @default(uuid())
+  userId      String    @map("user_id")
+  insightType String    @map("insight_type") // 'warning', 'positive', 'tip', 'prediction'
+  title       String
+  message     String    @db.Text
+  actionType  String?   @map("action_type")
+  actionData  Json?     @map("action_data")
+  priority    Int       @default(5)
+  readAt      DateTime? @map("read_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
 
   // Relations
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@index([userId, isDismissed, createdAt(sort: Desc)])
+  @@index([userId, createdAt(sort: Desc)])
   @@index([insightType])
   @@map("insights")
 }
 
-model AiCategoryCache {
-  id                 String   @id @default(uuid())
-  merchantNormalized String   @unique @map("merchant_normalized")
-  categoryId         String?  @map("category_id")
-  confidence         Decimal? @db.Decimal(3, 2)
-  usageCount         Int      @default(1) @map("usage_count")
-  lastUsedAt         DateTime @default(now()) @map("last_used_at")
-  createdAt          DateTime @default(now()) @map("created_at")
+model AICategoryCache {
+  id         String   @id @default(uuid())
+  merchant   String   @unique
+  category   String
+  confidence Float
+  source     String // 'ai' or 'rules'
+  hitCount   Int      @default(1) @map("hit_count")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
 
-  @@index([merchantNormalized])
-  @@index([usageCount(sort: Desc)])
+  @@index([merchant])
   @@map("ai_category_cache")
 }
 
 // =============================================================================
-// NOTIFICATIONS & ALERTS
+// NOTIFICATIONS
 // =============================================================================
 
 model NotificationSettings {
-  userId             String   @id @map("user_id")
-  budgetAlerts       Boolean  @default(true) @map("budget_alerts")
-  splitReminders     Boolean  @default(true) @map("split_reminders")
-  paymentReceived    Boolean  @default(true) @map("payment_received")
-  aiInsights         Boolean  @default(true) @map("ai_insights")
-  insightFrequency   String   @default("daily") @map("insight_frequency") // 'realtime', 'daily', 'weekly'
-  emailNotifications Boolean  @default(true) @map("email_notifications")
-  createdAt          DateTime @default(now()) @map("created_at")
-  updatedAt          DateTime @updatedAt @map("updated_at")
+  id                   String   @id @default(uuid())
+  userId               String   @unique @map("user_id")
+  emailNotifications   Boolean  @default(true) @map("email_notifications")
+  pushNotifications    Boolean  @default(true) @map("push_notifications")
+  budgetAlerts         Boolean  @default(true) @map("budget_alerts")
+  paymentReminders     Boolean  @default(true) @map("payment_reminders")
+  insightNotifications Boolean  @default(true) @map("insight_notifications")
+  createdAt            DateTime @default(now()) @map("created_at")
+  updatedAt            DateTime @updatedAt @map("updated_at")
 
   // Relations
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -323,39 +321,36 @@ model NotificationSettings {
 }
 
 model Notification {
-  id               String    @id @default(uuid())
-  userId           String    @map("user_id")
-  notificationType String    @map("notification_type") // 'budget_alert', 'split_request', etc.
-  title            String
-  message          String    @db.Text
-  link             String?
-  isRead           Boolean   @default(false) @map("is_read")
-  readAt           DateTime? @map("read_at")
-  createdAt        DateTime  @default(now()) @map("created_at")
+  id      String    @id @default(uuid())
+  userId  String    @map("user_id")
+  type    String // 'budget', 'payment', 'insight', 'system'
+  title   String
+  message String    @db.Text
+  link    String?
+  readAt  DateTime? @map("read_at")
+  sentAt  DateTime  @default(now()) @map("sent_at")
 
   // Relations
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@index([userId, isRead, createdAt(sort: Desc)])
+  @@index([userId, sentAt(sort: Desc)])
+  @@index([type])
   @@map("notifications")
 }
 
 // =============================================================================
-// REPORTING & EXPORTS
+// REPORTS
 // =============================================================================
 
 model Report {
-  id                String   @id @default(uuid())
-  userId            String   @map("user_id")
-  reportType        String   @default("monthly") @map("report_type") // 'monthly', 'semester'
-  periodStart       DateTime @map("period_start") @db.Date
-  periodEnd         DateTime @map("period_end") @db.Date
-  totalIncome       Decimal? @map("total_income") @db.Decimal(12, 2)
-  totalExpenses     Decimal? @map("total_expenses") @db.Decimal(12, 2)
-  netChange         Decimal? @map("net_change") @db.Decimal(12, 2)
-  categoryBreakdown Json?    @map("category_breakdown")
-  currency          String   @default("USD")
-  generatedAt       DateTime @default(now()) @map("generated_at")
+  id          String   @id @default(uuid())
+  userId      String   @map("user_id")
+  reportType  String   @map("report_type") // 'monthly', 'semester', 'yearly', 'custom'
+  periodStart DateTime @map("period_start")
+  periodEnd   DateTime @map("period_end")
+  data        Json // Store report data as JSON
+  format      String   @default("json") // 'json', 'pdf', 'csv'
+  generatedAt DateTime @default(now()) @map("generated_at")
 
   // Relations
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -367,6 +362,38 @@ model Report {
 // =============================================================================
 // AUDIT & SECURITY
 // =============================================================================
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  token     String   @unique
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([token])
+  @@index([expiresAt])
+  @@map("refresh_tokens")
+}
+
+model PasswordReset {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  token     String   @unique // Hashed token (SHA-256)
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([token])
+  @@index([expiresAt])
+  @@map("password_resets")
+}
 
 model AuditLog {
   id         String   @id @default(uuid())

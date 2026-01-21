@@ -8,6 +8,7 @@ import {
   updateMe,
   logout,
 } from '../controllers/auth.controller';
+import * as PasswordResetController from '../controllers/password-reset.controller';
 
 const router = express.Router();
 
@@ -192,5 +193,10 @@ router.get('/me', authenticate, asyncHandler(getMe));
  *         description: Profile updated successfully
  */
 router.put('/me', authenticate, asyncHandler(updateMe));
+
+// Password Reset Routes
+router.post('/forgot-password', PasswordResetController.forgotPassword);
+router.post('/verify-reset-token', PasswordResetController.verifyResetToken);
+router.post('/reset-password', PasswordResetController.resetPassword);
 
 export default router;

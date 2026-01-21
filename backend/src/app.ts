@@ -71,7 +71,7 @@ app.use('/api/bill-splits', billSplitRoutes);
 
 // Swagger Documentation
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
-app.get('/api-docs.json', (req, res) => {
+app.get('/api-docs.json', (_req, res) => {
   res.setHeader('Content-Type', 'application/json');
   res.send(specs);
 });

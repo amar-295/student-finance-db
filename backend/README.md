@@ -32,6 +32,14 @@ Then edit `.env` with your actual values:
 DATABASE_URL="postgresql://username:password@localhost:5432/student_finance_db"
 JWT_SECRET="your-super-secret-jwt-key-minimum-32-characters-long"
 JWT_REFRESH_SECRET="your-super-secret-refresh-key-minimum-32-characters-long"
+
+# Email Configuration (Ethereal for Dev)
+SMTP_HOST=smtp.ethereal.email
+SMTP_PORT=587
+SMTP_USER=your-ethereal-user
+SMTP_PASSWORD=your-ethereal-pass
+EMAIL_FROM="Student Finance" <noreply@studentfinance.com>
+ENABLE_EMAIL=true
 ```
 
 4. **Set up database:**
@@ -63,20 +71,35 @@ src/
 │   ├── database.ts   # Prisma client
 │   └── env.ts        # Environment validation
 ├── controllers/      # Route controllers
-│   └── auth.controller.ts
+│   ├── auth.controller.ts
+│   ├── password-reset.controller.ts
+│   ├── account.controller.ts
+│   ├── transaction.controller.ts
+│   ├── budget.controller.ts
+│   └── group.controller.ts
 ├── middleware/       # Express middleware
-│   ├── auth.ts       # Authentication middleware
-│   └── errorHandler.ts
+│   ├── auth.middleware.ts
+│   ├── validateOwnership.ts # IDOR protection
+│   └── errorHandler.middleware.ts
 ├── routes/           # API routes
-│   └── auth.routes.ts
+│   ├── auth.routes.ts
+│   ├── account.routes.ts
+│   ├── transaction.routes.ts
+│   ├── budget.routes.ts
+│   └── group.routes.ts
 ├── services/         # Business logic
-│   └── auth.service.ts
-├── types/            # TypeScript types
-│   └── auth.types.ts
-├── utils/            # Utility functions
-│   ├── errors.ts     # Custom error classes
-│   ├── jwt.ts        # JWT utilities
-│   └── password.ts   # Password hashing
+│   ├── auth.service.ts
+│   ├── password-reset.service.ts
+│   ├── account.service.ts
+│   ├── transaction.service.ts
+│   ├── budget.service.ts
+│   ├── ai-categorization.service.ts
+│   ├── email.service.ts
+│   └── group.service.ts
+├── types/            # TypeScript types & Zod schemas
+│   ├── auth.types.ts
+│   ├── password-reset.types.ts
+│   └── ... types for all models
 ├── app.ts            # Express app setup
 └── server.ts         # Server entry point
 ```
@@ -164,6 +187,34 @@ Content-Type: application/json
 POST /api/auth/logout
 Authorization: Bearer <access_token>
 ```
+
+#### Password Reset Flow
+*   `POST /api/auth/forgot-password` - Send reset token to email (Prevention against user enumeration)
+*   `POST /api/auth/verify-reset-token` - Validate if a hashed token is still valid/not expired
+*   `POST /api/auth/reset-password` - Finalize password change (Invalidates all active sessions)
+
+### Accounts (`/api/accounts`)
+*   `GET /api/accounts/summary` - Net balance across all accounts
+*   `GET /api/accounts` - List all accounts
+*   `POST /api/accounts` - Create checking/savings/cash account
+
+### Transactions (`/api/transactions`) 🤖 **AI POWERED**
+*   `POST /api/transactions` - Creates transaction with automatic AI categorization
+*   `GET /api/transactions` - Search and filter spending history
+
+### Budgets (`/api/budgets`)
+*   `GET /api/budgets/status` - Real-time budget health (safe/warning/danger)
+*   `GET /api/budgets/recommend` - AI-generated recommended spending limits
+
+### Bill Splitting (`/api/groups`)
+*   `POST /api/groups` - Create a group for roommates/shared expenses
+*   `POST /api/groups/:id/splits` - Create a new bill split among members
+
+### Email Integration (`/api/auth`)
+The system uses **Nodemailer** for email delivery.
+*   **Development**: Configured with **Ethereal Email** (mock service).
+*   **Verification**: All emails sent in dev can be viewed at [ethereal.email/messages](https://ethereal.email/messages).
+*   **Production**: Set `NODE_ENV=production` or `ENABLE_EMAIL=true` and provide real SMTP credentials.
 
 ---
 
@@ -259,11 +310,11 @@ The API uses consistent error responses:
 
 ## 📚 Next Steps
 
-1. **Add Transactions API** - CRUD for financial transactions
-2. **Implement AI Categorization** - Auto-categorize transactions
-3. **Budget Management** - Create and track budgets
-4. **Bill Splitting** - Roommate expense sharing
-5. **AI Insights** - Generate spending insights
+1. **Budget Frontend UI** - Build progress bars and status indicators
+2. **Bill Splitting UI** - Group management and debt settlement screens
+3. **AI Insights UI** - Display spending patterns and saving tips
+4. **Recurring Transactions** - Implementation of automated scheduled tracking
+5. **PDF Reports** - Generation of monthly/semester spending summaries
 
 ---
 

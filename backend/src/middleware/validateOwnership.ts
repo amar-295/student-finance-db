@@ -19,7 +19,7 @@ export const validateOwnership = (
     idParam: string = 'id',
     userIdField: string = 'userId'
 ) => {
-    return async (req: Request, res: Response, next: NextFunction) => {
+    return async (req: Request, _res: Response, next: NextFunction) => {
         try {
             if (!req.user || !req.user.userId) {
                 throw new ApiError(401, 'User authentication required for ownership validation');

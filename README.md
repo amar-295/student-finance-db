@@ -31,7 +31,7 @@ student-finance-db/
 │   │   ├── app.ts          # Express app setup
 │   │   └── server.ts       # Server entry point
 │   ├── prisma/
-│   │   └── schema.prisma   # Database schema (17 tables)
+│   │   └── schema.prisma   # Database schema (18 tables)
 │   └── package.json
 │
 └── frontend/          # React + Vite SPA
@@ -87,6 +87,7 @@ student-finance-db/
 backend/src/
 ├── controllers/               # API request handlers
 │   ├── auth.controller.ts         (2.9 KB) - Login, signup, logout
+│   ├── password-reset.controller.ts (2.5 KB) - Forgot & Reset password logic
 │   ├── account.controller.ts      (1.8 KB) - Account CRUD
 │   ├── transaction.controller.ts  (2.6 KB) - Transaction CRUD
 │   ├── budget.controller.ts       (3.2 KB) - Budget CRUD + status/alerts
@@ -94,11 +95,13 @@ backend/src/
 │
 ├── services/                  # Business logic layer
 │   ├── auth.service.ts            (4.6 KB) - User registration, JWT
+│   ├── password-reset.service.ts  (8.2 KB) - Secure token hashing & expiry
 │   ├── account.service.ts         (2.7 KB) - Account management
 │   ├── transaction.service.ts    (10.6 KB) - Transaction logic
 │   ├── budget.service.ts         (13.1 KB) - Budget tracking, AI recommendations
 │   ├── ai-categorization.service.ts (7.7 KB) - Hugging Face integration
 │   ├── ai-insights.service.ts    (11.8 KB) - AI spending insights
+│   ├── email.service.ts          (2.6 KB) - Nodemailer & Ethereal setup
 │   └── tokenBlacklist.service.ts  (2.4 KB) - JWT blacklist (logout)
 │
 ├── routes/                    # API endpoint definitions
@@ -110,6 +113,7 @@ backend/src/
 │
 ├── types/                     # TypeScript types & schemas
 │   ├── auth.types.ts              (1.4 KB) - User, AuthResponse
+│   ├── password-reset.types.ts    (1.2 KB) - Reset request validation
 │   ├── account.types.ts           (1.1 KB) - Account types
 │   ├── transaction.types.ts       (2.8 KB) - Transaction types
 │   ├── budget.types.ts            (2.2 KB) - Budget types
@@ -172,7 +176,7 @@ frontend/src/
 └── index.css                  (0.5 KB) - Global styles
 ```
 
-### **Database Schema (Prisma) - 17 Tables**
+### **Database Schema (Prisma) - 18 Tables**
 
 ```
 prisma/schema.prisma
@@ -199,11 +203,10 @@ prisma/schema.prisma
 │   ├── NotificationSetting - User preferences
 │   └── Notification        - Notification queue
 │
-└── Reporting (4)
-    ├── Report           - Monthly/semester reports
-    ├── RecurringTransaction - Auto-transactions
-    ├── PaymentReminder  - Bill reminders
-    └── AuditLog         - Security & tracking
+├── Reporting (3)
+│   ├── Report           - Monthly/semester reports
+│   ├── PaymentReminder  - Bill reminders
+│   └── AuditLog         - Security & tracking
 ```
 
 ---
@@ -213,6 +216,7 @@ prisma/schema.prisma
 | Feature | Backend API | Frontend UI | Status |
 |---------|-------------|-------------|--------|
 | **Authentication** | ✅ Complete | ✅ Complete | 🟢 Live |
+| **Password Reset** | ✅ Complete | ✅ Complete | 🟢 Live |
 | **User Registration** | ✅ Complete | ✅ Complete | 🟢 Live |
 | **Accounts Management** | ✅ Complete | ✅ Complete | 🟢 Live |
 | **Transactions (CRUD)** | ✅ Complete | ✅ Complete | 🟢 Live |
@@ -221,10 +225,9 @@ prisma/schema.prisma
 | **Budget Recommendations** | ✅ Complete | ⏳ Pending | 🟡 Backend Ready |
 | **Dashboard Overview** | ✅ Complete | ✅ Complete | 🟢 Live |
 | **AI Insights** | ✅ Complete | 🟡 Partial | 🟡 Backend Ready |
-| **Bill Splitting** | ✅ Complete | ⏳ Pending | � Backend Ready |
-| **Recurring Transactions** | ⏳ Pending | ⏳ Pending | 🔴 Not Started |
+| **Bill Splitting** | ✅ Complete | ⏳ Pending | 🟡 Backend Ready |
+| **Email Notifications** | ✅ Complete | ⏳ Pending | 🟡 Backend Ready |
 | **Reports & Analytics** | ⏳ Pending | ⏳ Pending | 🔴 Not Started |
-| **Email Notifications** | ⏳ Pending | ⏳ Pending | 🔴 Not Started |
 
 ---
 
@@ -234,6 +237,9 @@ prisma/schema.prisma
 ```
 POST   /api/auth/register      - Create new user account
 POST   /api/auth/login         - Login & get JWT token
+POST   /api/auth/forgot-password - Request password reset token
+POST   /api/auth/verify-reset-token - Validate reset token
+POST   /api/auth/reset-password - Update password with token
 POST   /api/auth/logout        - Invalidate JWT token
 GET    /api/auth/me            - Get current user info
 POST   /api/auth/refresh       - Refresh access token
@@ -360,11 +366,11 @@ Background: #f6f8f8  (Light Gray)
 
 ## 📊 Database Statistics
 
-**Total Tables:** 17  
-**Total Controllers:** 5  
-**Total Services:** 7  
-**Total Routes:** 5 route files  
-**Total API Endpoints:** ~35+
+**Total Tables:** 18  
+**Total Controllers:** 6  
+**Total Services:** 8  
+**Total Routes:** 6 route files  
+**Total API Endpoints:** ~40+
 
 ---
 
@@ -381,6 +387,8 @@ Background: #f6f8f8  (Light Gray)
 - Landing page
 - Responsive navigation & layout
 - Favicon implementation
+- Password Reset Flow (Full verification)
+- Backend System Stabilization (Type safety, Schema Sync)
 
 ### 🟡 **In Progress**
 - Budget UI (Backend ready, Frontend pending)
@@ -405,6 +413,7 @@ REDIS_URL="redis://localhost:6379"
 JWT_SECRET="your-secret-key"
 JWT_REFRESH_SECRET="your-refresh-secret"
 HUGGING_FACE_API_KEY="hf_..."
+FRONTEND_URL="http://localhost:5173"
 PORT=5000
 NODE_ENV=development
 ```
