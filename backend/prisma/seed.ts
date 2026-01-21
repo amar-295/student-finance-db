@@ -1,6 +1,5 @@
 import { PrismaClient } from '@prisma/client';
 import { hashPassword } from '../src/utils/password';
-import process from 'process';
 
 const prisma = new PrismaClient();
 

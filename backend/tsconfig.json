@@ -32,12 +32,12 @@
       "jest"
     ]
   },
-  "include": [
-    "src/**/*",
-    "tests/**/*.ts"
-  ],
-  "exclude": [
-    "node_modules",
-    "dist"
-  ]
+  "src/**/*",
+  "tests/**/*.ts",
+  "prisma/**/*"
+],
+"exclude": [
+  "node_modules",
+  "dist"
+]
 }
