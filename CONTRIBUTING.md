@@ -1,44 +1,60 @@
 # Contributing to UniFlow Finance
 
-We love your input! We want to make contributing to this project as easy and transparent as possible, whether it's:
+First off, thanks for taking the time to contribute! 🎉
 
-- Reporting a bug
-- Discussing the current state of the code
-- Submitting a fix
-- Proposing new features
-- Becoming a maintainer
+UniFlow is an open-source project dedicated to making student finance management easier. We welcome contributions from everyone.
 
-## We Use [Github Flow](https://guides.github.com/introduction/flow/index.html), So All Code Changes Happen Through Pull Requests
+## 🛠 Tech Stack
 
-Pull requests are the best way to propose changes to the codebase (we use [Github Flow](https://guides.github.com/introduction/flow/index.html)). We actively welcome your pull requests:
+-   **Backend**: Node.js, Express, TypeScript, Prisma, PostgreSQL, Redis, Hugging Face AI.
+-   **Frontend**: React 19, Vite 7, Tailwind CSS, TypeScript.
 
-1.  Fork the repo and create your branch from `main`.
-2.  If you've added code that should be tested, add tests.
-3.  If you've changed APIs, update the documentation.
-4.  Ensure the test suite passes.
-5.  Make sure your code lints.
-6.  Issue that pull request!
+## 🚀 Getting Started
 
-## Any contributions you make will be under the MIT Software License
+1.  **Fork the repository** on GitHub.
+2.  **Clone your fork** locally:
+    ```bash
+    git clone https://github.com/your-username/student-finance-db.git
+    cd student-finance-db
+    ```
+3.  **Install Dependencies**:
+    ```bash
+    npm install --prefix backend
+    npm install --prefix frontend
+    ```
+4.  **Create a Branch**:
+    ```bash
+    git checkout -b feat/my-new-feature
+    ```
+    *Naming Convention*: `feat/`, `fix/`, `docs/`, `chore/`.
 
-In short, when you submit code changes, your submissions are understood to be under the same [MIT License](http://choosealicense.com/licenses/mit/) that covers the project. Feel free to contact the maintainers if that's a concern.
+## 🧑‍💻 Development Workflow
 
-## Report bugs using Github's [issue tracker](https://github.com/yourusername/student-finance-db/issues)
+### Backend
+1.  Ensure Docker is running (`docker-compose up -d`).
+2.  Seed the database: `npx tsx prisma/seed.ts` (inside `backend/`).
+3.  Start server: `npm run dev`.
 
-We use GitHub issues to track public bugs. Report a bug by [opening a new issue](); it's that easy!
+### Frontend
+1.  Start Vite server: `npm run dev` (inside `frontend/`).
+2.  Login with `alex@demo.com` / `DemoPassword123`.
 
-## Write bug reports with detail, background, and sample code
+## 📮 Pull Requests
 
-**Great Bug Reports** tend to have:
+1.  Push to your fork: `git push origin feat/my-new-feature`.
+2.  Open a Pull Request against the `main` branch.
+3.  Please describe your changes clearly.
+4.  Ensure all tests pass (CI will check this).
 
-- A quick summary and/or background
-- Steps to reproduce
-    - Be specific!
-    - Give sample code if you can.
-- What you expected would happen
-- What actually happened
-- Notes (possibly including why you think this might be happening, or stuff you tried that didn't work)
+## 📝 Commit Messages
 
-## License
+We follow **Conventional Commits**:
 
-By contributing, you agree that your contributions will be licensed under its MIT License.
+-   `feat: add new budget alert`
+-   `fix: resolve crash on login`
+-   `docs: update readme`
+-   `style: format code`
+
+## 🤝 Code of Conduct
+
+Please note that we have a Code of Conduct. Please be respectful and inclusive.
