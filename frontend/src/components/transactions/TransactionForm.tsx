@@ -5,11 +5,9 @@ import { z } from 'zod';
 
 const transactionSchema = z.object({
     description: z.string().min(1, 'Description is required'),
-    amount: z.string()
-        .min(1, 'Amount is required')
-        .pipe(z.coerce.number().gt(0, 'Must be greater than 0')),
+    amount: z.string().min(1, 'Amount is required'),
     date: z.string().min(1, 'Date is required'),
-    accountId: z.coerce.number().min(1, 'Account is required'),
+    accountId: z.string().min(1, 'Account is required'),
     category: z.string().optional(),
     type: z.enum(['INCOME', 'EXPENSE']),
 });
@@ -63,6 +61,7 @@ export default function TransactionForm({ onSubmit, accounts, initialData, isLoa
         const submissionData = {
             ...data,
             amount: Number(data.amount),
+            accountId: Number(data.accountId),
         };
         // Remove category from submission if it's empty to match some test expectations
         if (!submissionData.category) {
@@ -124,7 +123,7 @@ export default function TransactionForm({ onSubmit, accounts, initialData, isLoa
                         } bg-white dark:bg-dark-bg-tertiary text-text-main dark:text-dark-text-primary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all`}
                     disabled={isLoading}
                 />
-                {errors.amount && <p className="text-xs text-red-500">{errors.amount.message}</p>}
+                {errors.amount && <p className="text-xs text-red-500">{String(errors.amount.message)}</p>}
             </div>
 
             <div className="flex flex-col gap-2">
