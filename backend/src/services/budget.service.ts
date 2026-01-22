@@ -341,7 +341,7 @@ const calculateStatusFromData = (budget: Budget & { category: Category }, transa
             name: budget.category.name,
             color: budget.category.color,
         },
-        period: budget.periodType || budget.period || 'monthly',
+        period: budget.periodType || 'monthly',
         limit,
         spent,
         remaining,
