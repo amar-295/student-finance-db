@@ -1,4 +1,5 @@
 import prisma from '../config/database';
+import { Budget, Transaction, Category } from '@prisma/client';
 import { NotFoundError, BadRequestError } from '../utils';
 import type {
     CreateBudgetInput,
@@ -241,31 +242,60 @@ export const getAllBudgetStatuses = async (userId: string): Promise<BudgetStatus
         },
     });
 
-    const statuses = await Promise.all(
-        budgets.map(budget => calculateBudgetStatus(userId, budget))
-    );
+    if (budgets.length === 0) {
+        return [];
+    }
 
-    return statuses;
-};
+    const categoryIds = budgets.map(b => b.categoryId);
+    const startDates = budgets.map(b => b.startDate.getTime());
+    const endDates = budgets.map(b => b.endDate.getTime());
 
-/**
- * Calculate budget status for a single budget
- */
-const calculateBudgetStatus = async (userId: string, budget: any): Promise<BudgetStatus> => {
-    // Get transactions in budget period
+    const minDate = new Date(Math.min(...startDates));
+    const maxDate = new Date(Math.max(...endDates));
+
+    // Optimize: Fetch all transactions in one query instead of N+1
     const transactions = await prisma.transaction.findMany({
         where: {
             userId,
-            categoryId: budget.categoryId,
+            categoryId: { in: categoryIds },
             transactionDate: {
-                gte: budget.startDate,
-                lte: budget.endDate,
+                gte: minDate,
+                lte: maxDate,
             },
             amount: { lt: 0 }, // Only expenses
             deletedAt: null,
         },
     });
 
+    // Group transactions by category for faster lookup
+    const transactionsByCategory = new Map<string, typeof transactions>();
+
+    for (const t of transactions) {
+        if (t.categoryId) {
+            const list = transactionsByCategory.get(t.categoryId) || [];
+            list.push(t);
+            transactionsByCategory.set(t.categoryId, list);
+        }
+    }
+
+    const statuses = budgets.map(budget => {
+        const relevantTransactions = transactionsByCategory.get(budget.categoryId) || [];
+        // Filter by specific budget period
+        const budgetTransactions = relevantTransactions.filter(t =>
+            t.transactionDate >= budget.startDate &&
+            t.transactionDate <= budget.endDate
+        );
+
+        return calculateStatusFromData(budget, budgetTransactions);
+    });
+
+    return statuses;
+};
+
+/**
+ * Helper to calculate status from in-memory data
+ */
+const calculateStatusFromData = (budget: Budget & { category: Category }, transactions: Transaction[]): BudgetStatus => {
     const spent = transactions.reduce(
         (sum, t) => sum + Math.abs(Number(t.amount)),
         0
@@ -311,7 +341,7 @@ const calculateBudgetStatus = async (userId: string, budget: any): Promise<Budge
             name: budget.category.name,
             color: budget.category.color,
         },
-        period: budget.period,
+        period: budget.periodType || budget.period || 'monthly',
         limit,
         spent,
         remaining,
