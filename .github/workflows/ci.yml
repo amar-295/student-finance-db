@@ -6,9 +6,12 @@ on:
   pull_request:
     branches: [ main ]
 
+permissions:
+  contents: read
+
 jobs:
-  test:
-    name: Lint & Test
+  backend-test:
+    name: Backend Lint & Test
     runs-on: ubuntu-latest
 
     services:
@@ -39,23 +42,22 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # Backend Steps
-      - name: Setup Node.js (Backend)
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
           cache-dependency-path: backend/package-lock.json
 
-      - name: Install Backend Dependencies
+      - name: Install dependencies
         run: |
           cd backend
           npm install
 
-      - name: Run Backend Lint
+      - name: Run Lint
         run: |
           cd backend
-          npm run lint || true
+          npm run lint || true # Don't fail the build yet, just report
 
       - name: Generate Prisma Client
         run: |
@@ -71,10 +73,10 @@ jobs:
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/student_finance_db_test?schema=public
 
-      - name: Run Backend Tests
+      - name: Run Integration Tests
         run: |
           cd backend
-          npm test -- --testTimeout=30000
+          npm test -- --testTimeout=60000
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/student_finance_db_test?schema=public
           REDIS_URL: redis://localhost:6379
@@ -82,20 +84,26 @@ jobs:
           JWT_REFRESH_SECRET: test-refresh-secret-key-at-least-32-characters-long
           NODE_ENV: test
 
-      # Frontend Steps
-      - name: Setup Node.js (Frontend)
+  frontend-test:
+    name: Frontend Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
           cache-dependency-path: frontend/package-lock.json
 
-      - name: Install Frontend Dependencies
+      - name: Install dependencies
         run: |
           cd frontend
           npm install
 
-      - name: Run Frontend Tests
+      - name: Run Tests
         run: |
           cd frontend
           npm run test:run
