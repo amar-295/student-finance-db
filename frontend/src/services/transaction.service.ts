@@ -13,7 +13,9 @@ export interface Transaction {
         color: string;
         icon: string;
     };
-    date: string; // ISO string
+    transactionDate: string; // ISO string
+    accountId?: string;
+    type?: 'INCOME' | 'EXPENSE';
     isSplit?: boolean;
     aiCategorized?: boolean;
     status?: 'pending' | 'cleared' | 'reconciled';
@@ -129,36 +131,40 @@ export const transactionService = {
                         amount: -12.50,
                         description: 'Starbucks Coffee',
                         merchant: 'Starbucks',
-                        date: new Date().toISOString(),
+                        transactionDate: new Date().toISOString(),
                         category: { id: 'c1', name: 'Food & Dining', color: '#EF4444', icon: 'restaurant' },
-                        aiCategorized: true
+                        aiCategorized: true,
+                        accountId: '1'
                     },
                     {
                         id: '2',
                         amount: -45.00,
                         description: 'Uber Ride',
                         merchant: 'Uber',
-                        date: new Date(Date.now() - 86400000).toISOString(),
+                        transactionDate: new Date(Date.now() - 86400000).toISOString(),
                         category: { id: 'c2', name: 'Transportation', color: '#3B82F6', icon: 'directions_car' },
-                        aiCategorized: true
+                        aiCategorized: true,
+                        accountId: '1'
                     },
                     {
                         id: '3',
                         amount: 1500.00,
                         description: 'Salary Deposit',
                         merchant: 'Employer',
-                        date: new Date(Date.now() - 172800000).toISOString(),
+                        transactionDate: new Date(Date.now() - 172800000).toISOString(),
                         category: { id: 'c3', name: 'Income', color: '#10B981', icon: 'payments' },
-                        aiCategorized: false
+                        aiCategorized: false,
+                        accountId: '1'
                     },
                     {
                         id: '4',
                         amount: -89.99,
                         description: 'Amazon Purchase',
                         merchant: 'Amazon',
-                        date: new Date(Date.now() - 259200000).toISOString(),
+                        transactionDate: new Date(Date.now() - 259200000).toISOString(),
                         category: { id: 'c4', name: 'Shopping', color: '#F59E0B', icon: 'shopping_bag' },
-                        aiCategorized: true
+                        aiCategorized: true,
+                        accountId: '1'
                     }
                 ]);
             }, 800);
