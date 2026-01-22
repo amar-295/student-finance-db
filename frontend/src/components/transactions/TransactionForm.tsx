@@ -38,11 +38,11 @@ export default function TransactionForm({ onSubmit, accounts, initialData, isLoa
         mode: 'onBlur',
         defaultValues: {
             description: '',
-            amount: '' as any,
+            amount: '',
             date: '',
-            accountId: accounts[0]?.id || 0,
+            accountId: String(accounts[0]?.id || ''),
             category: '',
-            type: 'EXPENSE',
+            type: 'EXPENSE' as const,
         },
     });
 
@@ -71,7 +71,7 @@ export default function TransactionForm({ onSubmit, accounts, initialData, isLoa
     };
 
     return (
-        <form className="flex flex-col gap-5 p-2" onSubmit={handleSubmit(handleFormSubmit)}>
+        <form className="flex flex-col gap-5 p-2" onSubmit={handleSubmit(handleFormSubmit as any)}>
             <div className="flex flex-col gap-2">
                 <label className="text-sm font-semibold text-text-main dark:text-dark-text-secondary" htmlFor="type-expense">Type</label>
                 <div className="flex gap-4">
