@@ -490,30 +490,29 @@ export const getTransactionSummary = async (
   let totalExpenses = 0;
   const byCategory: Record<string, any> = {};
 
-  // Initialize Uncategorized if needed
-  const uncategorizedStats = categoryStats.find(s => s.categoryId === null);
-  if (uncategorizedStats) {
-    const amount = Number(uncategorizedStats._sum.amount || 0);
-    if (amount > 0) totalIncome += amount;
-    else totalExpenses += Math.abs(amount);
-
-    byCategory['Uncategorized'] = {
-      category: 'Uncategorized',
-      totalAmount: amount,
-      count: uncategorizedStats._count.id,
-      isIncome: amount > 0,
-      color: '#95A5A6'
-    };
-  }
-
   for (const stat of categoryStats) {
-    if (!stat.categoryId) continue; // Handled above
-
-    const category = categoryMap.get(stat.categoryId);
     const amount = Number(stat._sum.amount || 0);
     const count = stat._count.id;
+
+    // Handle Uncategorized
+    if (!stat.categoryId) {
+      if (amount > 0) totalIncome += amount;
+      else totalExpenses += Math.abs(amount);
+
+      byCategory['Uncategorized'] = {
+        category: 'Uncategorized',
+        totalAmount: amount,
+        count: count,
+        isIncome: amount > 0,
+        color: '#95A5A6',
+      };
+      continue;
+    }
+
+    const category = categoryMap.get(stat.categoryId);
     const categoryName = category?.name || 'Unknown';
 
+    // Note: We use net amount per category to handle refunds/corrections correctly
     if (category?.type === 'income') {
       totalIncome += Math.abs(amount); // Typically positive
     } else {
@@ -526,7 +525,7 @@ export const getTransactionSummary = async (
         totalAmount: 0,
         count: 0,
         isIncome: category?.type === 'income',
-        color: category ? category.color : generateCategoryColor(categoryName)
+        color: category ? category.color : generateCategoryColor(categoryName),
       };
     }
 
