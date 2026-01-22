@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 
@@ -12,7 +12,7 @@ const transactionSchema = z.object({
     type: z.enum(['INCOME', 'EXPENSE']),
 });
 
-type TransactionInput = z.infer<typeof transactionSchema>;
+type TransactionFormData = z.infer<typeof transactionSchema>;
 
 interface Account {
     id: number;
@@ -33,7 +33,7 @@ export default function TransactionForm({ onSubmit, accounts, initialData, isLoa
         handleSubmit,
         reset,
         formState: { errors },
-    } = useForm<TransactionInput>({
+    } = useForm<TransactionFormData>({
         resolver: zodResolver(transactionSchema),
         mode: 'onBlur',
         defaultValues: {
@@ -42,36 +42,42 @@ export default function TransactionForm({ onSubmit, accounts, initialData, isLoa
             date: '',
             accountId: String(accounts[0]?.id || ''),
             category: '',
-            type: 'EXPENSE' as const,
+            type: 'EXPENSE',
         },
     });
 
     useEffect(() => {
         if (initialData) {
-            // Map numeric values back to strings for the form if necessary
             const data = {
-                ...initialData,
+                description: initialData.description || '',
                 amount: initialData.amount?.toString() || '',
+                date: initialData.date || '',
+                accountId: String(initialData.accountId || ''),
+                category: initialData.category || '',
+                type: initialData.type || 'EXPENSE',
             };
             reset(data);
         }
     }, [initialData, reset]);
 
-    const handleFormSubmit = (data: TransactionInput) => {
-        const submissionData = {
-            ...data,
+    const handleFormSubmit: SubmitHandler<TransactionFormData> = (data) => {
+        const submissionData: any = {
+            description: data.description,
             amount: Number(data.amount),
+            date: data.date,
             accountId: Number(data.accountId),
+            type: data.type,
         };
-        // Remove category from submission if it's empty to match some test expectations
-        if (!submissionData.category) {
-            delete (submissionData as any).category;
+
+        if (data.category) {
+            submissionData.category = data.category;
         }
+
         onSubmit(submissionData);
     };
 
     return (
-        <form className="flex flex-col gap-5 p-2" onSubmit={handleSubmit(handleFormSubmit as any)}>
+        <form className="flex flex-col gap-5 p-2" onSubmit={handleSubmit(handleFormSubmit)}>
             <div className="flex flex-col gap-2">
                 <label className="text-sm font-semibold text-text-main dark:text-dark-text-secondary" htmlFor="type-expense">Type</label>
                 <div className="flex gap-4">
@@ -123,7 +129,7 @@ export default function TransactionForm({ onSubmit, accounts, initialData, isLoa
                         } bg-white dark:bg-dark-bg-tertiary text-text-main dark:text-dark-text-primary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all`}
                     disabled={isLoading}
                 />
-                {errors.amount && <p className="text-xs text-red-500">{String(errors.amount.message)}</p>}
+                {errors.amount && <p className="text-xs text-red-500">{errors.amount.message}</p>}
             </div>
 
             <div className="flex flex-col gap-2">
