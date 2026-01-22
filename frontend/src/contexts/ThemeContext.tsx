@@ -1,5 +1,5 @@
 /* eslint-disable react-refresh/only-export-components */
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 
 type Theme = 'light' | 'dark' | 'system';
 type ResolvedTheme = 'light' | 'dark';
@@ -20,15 +20,26 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
         return savedTheme || 'system';
     });
 
-    const [resolvedTheme, setResolvedTheme] = useState<ResolvedTheme>('light');
+    // Initial resolved theme based on current theme state
+    const getInitialResolvedTheme = (currentTheme: Theme): ResolvedTheme => {
+        if (currentTheme === 'system') {
+            if (typeof window !== 'undefined' && window.matchMedia) {
+                return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            }
+            return 'light'; // Default SSR/fallback
+        }
+        return currentTheme;
+    };
 
-    const updateDOM = (resolvedTheme: ResolvedTheme) => {
+    const [resolvedTheme, setResolvedTheme] = useState<ResolvedTheme>(() => getInitialResolvedTheme(theme));
+
+    const updateDOM = useCallback((newResolvedTheme: ResolvedTheme) => {
         const root = document.documentElement;
 
         // Add transition class
         root.classList.add('theme-transitioning');
 
-        if (resolvedTheme === 'dark') {
+        if (newResolvedTheme === 'dark') {
             root.classList.add('dark');
         } else {
             root.classList.remove('dark');
@@ -38,38 +49,29 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
         setTimeout(() => {
             root.classList.remove('theme-transitioning');
         }, 300);
-    };
+    }, []);
 
-    // Detect system preference
+    // Effect to handle theme changes and system preference updates
     useEffect(() => {
-        const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+        const handleThemeUpdate = () => {
+            const newResolvedTheme = getInitialResolvedTheme(theme);
+            setResolvedTheme(newResolvedTheme);
+            updateDOM(newResolvedTheme);
+        };
 
-        const handleSystemThemeChange = (e: MediaQueryListEvent) => {
-            if (theme === 'system') {
+        handleThemeUpdate(); // Run immediately on theme change
+
+        if (theme === 'system') {
+            const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+            const listener = (e: MediaQueryListEvent) => {
                 const newTheme = e.matches ? 'dark' : 'light';
                 setResolvedTheme(newTheme);
                 updateDOM(newTheme);
-            }
-        };
-
-        mediaQuery.addEventListener('change', handleSystemThemeChange);
-        return () => mediaQuery.removeEventListener('change', handleSystemThemeChange);
-    }, [theme]);
-
-    // Update resolved theme when theme changes
-    useEffect(() => {
-        let newResolvedTheme: ResolvedTheme;
-
-        if (theme === 'system') {
-            const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-            newResolvedTheme = systemPrefersDark ? 'dark' : 'light';
-        } else {
-            newResolvedTheme = theme;
+            };
+            mediaQuery.addEventListener('change', listener);
+            return () => mediaQuery.removeEventListener('change', listener);
         }
-
-        setResolvedTheme(newResolvedTheme);
-        updateDOM(newResolvedTheme);
-    }, [theme]);
+    }, [theme, updateDOM]);
 
     const setTheme = (newTheme: Theme) => {
         setThemeState(newTheme);
