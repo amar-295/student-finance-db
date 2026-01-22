@@ -1,4 +1,4 @@
-name: Backend CI
+name: CI
 
 on:
   push:
@@ -39,6 +39,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # Backend Steps
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -70,7 +71,7 @@ jobs:
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/student_finance_db_test?schema=public
 
-      - name: Run Backend Integration Tests
+      - name: Run Backend Tests
         run: |
           cd backend
           npm test -- --testTimeout=60000
@@ -81,12 +82,18 @@ jobs:
           JWT_REFRESH_SECRET: test-refresh-secret-key-at-least-32-characters-long
           NODE_ENV: test
 
+      # Frontend Steps
       - name: Install Frontend Dependencies
         run: |
           cd frontend
-          npm install
+          npm install --include=dev
+        env:
+          NODE_ENV: development # Ensure devDeps are installed
 
       - name: Run Frontend Tests
         run: |
           cd frontend
           npm run test:run
+        env:
+          NODE_ENV: test
+          CI: true
