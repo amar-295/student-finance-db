@@ -7,7 +7,7 @@
     "dev": "tsx watch src/server.ts",
     "build": "tsc",
     "start": "node dist/server.js",
-    "test": "npx prisma db push && jest --detectOpenHandles",
+    "test": "npx prisma db push --accept-data-loss && jest --detectOpenHandles",
     "test:watch": "jest --watch",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
