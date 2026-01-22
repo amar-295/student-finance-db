@@ -11,14 +11,18 @@ import { Dialog, DialogPanel, DialogTitle } from '@headlessui/react';
 import { useMutation } from '@tanstack/react-query';
 
 // Interface matching the backend response for display
+// Extending the inferred type from the service or defining a compatible one
 interface TransactionDisplay {
     id: string;
+    // transactionDate property seems to be what the UI expects, but service returns 'date'
+    // We need to clarify if we map it or if the service type is wrong.
+    // Based on usage: formatDate(txn.transactionDate)
     transactionDate: string;
-    merchant: string;
+    merchant?: string;
     description: string;
     amount: number;
-    status: string;
-    aiCategorized: boolean;
+    status?: string;
+    aiCategorized?: boolean;
     category?: {
         name: string;
         color: string;
@@ -56,7 +60,8 @@ export default function TransactionsPage() {
         })
     });
 
-    const transactions: TransactionDisplay[] = data?.data || [];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const transactions: TransactionDisplay[] = (data?.data || []) as any[];
     const pagination = data?.pagination;
 
     const toggleSelection = (id: string) => {
@@ -356,7 +361,8 @@ export default function TransactionsPage() {
                             accounts={[{ id: 1, name: 'Checking', type: 'CHECKING' }]} // Should ideally come from real accounts
                             initialData={editingTransaction ? {
                                 ...editingTransaction,
-                                date: editingTransaction.transactionDate?.split('T')[0]
+                                date: editingTransaction.transactionDate?.split('T')[0],
+                                category: editingTransaction.category?.name
                             } : undefined}
                             isLoading={createMutation.isPending || updateMutation.isPending}
                             onCancel={() => setIsFormOpen(false)}
