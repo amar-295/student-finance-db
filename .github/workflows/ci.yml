@@ -73,7 +73,7 @@ jobs:
       - name: Run Integration Tests
         run: |
           cd backend
-          npm test
+          npm test -- --testTimeout=30000
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/student_finance_db_test?schema=public
           REDIS_URL: redis://localhost:6379

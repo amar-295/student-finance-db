@@ -269,7 +269,9 @@ const calculateBudgetStatus = async (userId: string, budget: any): Promise<Budge
         },
     });
 
-    const spent = Math.abs(Number(aggregations._sum.amount || 0));
+    // Safely convert Decimal to number (handle null, Decimal object, or primitives)
+    const totalAmount = aggregations._sum.amount;
+    const spent = Math.abs(Number(totalAmount ? totalAmount.toString() : 0));
 
     const limit = Number(budget.amount);
     const remaining = limit - spent;
