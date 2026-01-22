@@ -15,7 +15,16 @@ const transactionSchema = z.object({
     type: z.enum(['INCOME', 'EXPENSE']),
 });
 
-type TransactionFormData = z.infer<typeof transactionSchema>;
+export type TransactionFormData = z.infer<typeof transactionSchema>;
+
+export interface TransactionSubmissionData {
+    description: string;
+    amount: number;
+    date: string;
+    accountId: number;
+    type: 'INCOME' | 'EXPENSE';
+    category?: string;
+}
 
 interface Account {
     id: number;
@@ -24,9 +33,9 @@ interface Account {
 }
 
 interface TransactionFormProps {
-    onSubmit: (data: any) => void;
+    onSubmit: (data: TransactionSubmissionData) => void;
     accounts: Account[];
-    initialData?: any;
+    initialData?: Partial<TransactionSubmissionData> & Record<string, unknown>;
     isLoading?: boolean;
     onCancel?: () => void;
 }
@@ -65,17 +74,14 @@ export default function TransactionForm({ onSubmit, accounts, initialData, isLoa
     }, [initialData, reset]);
 
     const handleFormSubmit: SubmitHandler<TransactionFormData> = (data) => {
-        const submissionData: any = {
+        const submissionData: TransactionSubmissionData = {
             description: data.description,
             amount: Number(data.amount),
             date: data.date,
             accountId: Number(data.accountId),
             type: data.type,
+            ...(data.category ? { category: data.category } : {}),
         };
-
-        if (data.category) {
-            submissionData.category = data.category;
-        }
 
         onSubmit(submissionData);
     };
