@@ -32,7 +32,7 @@ export const validateOwnership = (
                 return next();
             }
 
-            // @ts-ignore - Dynamic prisma access
+            // @ts-expect-error - Dynamic prisma access
             const resource = await prisma[modelName].findUnique({
                 where: { id: resourceId },
                 select: { [userIdField]: true },
@@ -42,7 +42,7 @@ export const validateOwnership = (
                 throw new ApiError(404, `${modelName} not found`);
             }
 
-            // @ts-ignore - Dynamic access
+            // @ts-expect-error - Dynamic access
             if (resource[userIdField] !== req.user.userId) {
                 throw new ApiError(403, 'Access denied: You do not own this resource');
             }

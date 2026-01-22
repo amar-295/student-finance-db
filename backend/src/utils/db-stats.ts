@@ -28,7 +28,7 @@ async function getDbStats() {
 
     for (const table of tables) {
         try {
-            // @ts-ignore - dynamic access to prisma models
+            // @ts-expect-error - dynamic access to prisma models
             const count = await prisma[table].count();
             stats[table] = count;
         } catch (error: any) {
