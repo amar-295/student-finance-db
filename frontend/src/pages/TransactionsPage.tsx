@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { transactionService, type TransactionFilters } from '../services/transaction.service';
+import { useTransactions } from '../hooks/useTransactions';
 import TransactionFiltersPanel from '../components/transactions/TransactionFilters';
 import BulkActionsBar from '../components/transactions/BulkActionsBar';
 import Skeleton from '../components/common/Skeleton';
@@ -24,16 +25,13 @@ export default function TransactionsPage() {
 
 
     // Fetch transactions
-    const { data, isLoading } = useQuery({
-        queryKey: ['transactions', page, filters, searchQuery, sort],
-        queryFn: () => transactionService.getTransactions({
-            ...filters,
-            search: searchQuery,
-            page,
-            limit: 20,
-            sortBy: sort.by as any,
-            sortOrder: sort.order
-        })
+    const { data, isLoading } = useTransactions({
+        ...filters,
+        search: searchQuery,
+        page,
+        limit: 20,
+        sortBy: sort.by as any,
+        sortOrder: sort.order
     });
 
     const transactions = data?.data || [];

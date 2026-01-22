@@ -6,7 +6,7 @@ import { useTransactions } from '../hooks/useTransactions';
 export default function DashboardPage() {
     const user = authService.getCurrentUser();
     const { data: accounts = [], isLoading: accountsLoading } = useAccounts();
-    const { data: response, isLoading: transactionsLoading } = useTransactions(5);
+    const { data: response, isLoading: transactionsLoading } = useTransactions({ limit: 5 });
     const transactions = response?.data || [];
 
     const loading = accountsLoading || transactionsLoading;
