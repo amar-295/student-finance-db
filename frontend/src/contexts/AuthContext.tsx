@@ -1,12 +1,12 @@
-/* eslint-disable react-refresh/only-export-components */
+
 import { createContext, useContext, type ReactNode } from 'react';
 import { useAuthStore } from '../store/authStore';
 
 interface AuthContextType {
     isAuthenticated: boolean;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
     user: any;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
     login: (credentials: any) => Promise<void>;
     logout: () => void;
 }

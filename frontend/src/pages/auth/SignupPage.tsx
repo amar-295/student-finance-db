@@ -45,7 +45,7 @@ export default function SignupPage() {
         setIsLoading(true);
         try {
             // Backend doesn't need 'terms'
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
             const { terms, ...registrationData } = data;
             const response = await authService.register(registrationData);
             setAuth(response);
