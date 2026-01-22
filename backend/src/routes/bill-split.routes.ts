@@ -7,8 +7,9 @@ import {
     settleShare,
     remove,
     addComment,
-    getComments
-} from '../controllers/billSplit.controller';
+    getComments,
+    sendReminderController
+} from '../controllers/bill-split.controller';
 
 const router = express.Router();
 
@@ -63,5 +64,12 @@ router.post('/:id/comments', asyncHandler(addComment));
  * @access  Private
  */
 router.get('/:id/comments', asyncHandler(getComments));
+
+/**
+ * @route   POST /api/splits/:id/reminders
+ * @desc    Send payment reminder
+ * @access  Private
+ */
+router.post('/:id/reminders', asyncHandler(sendReminderController));
 
 export default router;
