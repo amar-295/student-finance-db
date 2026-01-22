@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { Analytics } from '@vercel/analytics/react';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { Toaster } from 'sonner';
 import LandingPage from './pages/LandingPage';
@@ -51,6 +52,7 @@ function App() {
             </Route>
           </Routes>
         </BrowserRouter>
+        <Analytics />
         <Toaster position="top-right" richColors closeButton expand={false} />
       </ErrorBoundary>
     </ThemeProvider>
