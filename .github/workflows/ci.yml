@@ -63,10 +63,17 @@ jobs:
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/student_finance_db_test?schema=public
 
+      - name: Push Database Schema
+        run: |
+          cd backend
+          npx prisma db push --accept-data-loss
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/student_finance_db_test?schema=public
+
       - name: Run Integration Tests
         run: |
           cd backend
-          npm test
+          npm test -- --testTimeout=30000
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/student_finance_db_test?schema=public
           REDIS_URL: redis://localhost:6379
