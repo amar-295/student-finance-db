@@ -32,7 +32,8 @@ export const validateOwnership = (
                 return next();
             }
 
-            // @ts-expect-error - Dynamic prisma access
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
             const resource = await prisma[modelName].findUnique({
                 where: { id: resourceId },
                 select: { [userIdField]: true },
@@ -42,7 +43,8 @@ export const validateOwnership = (
                 throw new ApiError(404, `${modelName} not found`);
             }
 
-            // @ts-expect-error - Dynamic access
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
             if (resource[userIdField] !== req.user.userId) {
                 throw new ApiError(403, 'Access denied: You do not own this resource');
             }

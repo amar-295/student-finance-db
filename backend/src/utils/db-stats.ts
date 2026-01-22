@@ -28,7 +28,8 @@ async function getDbStats() {
 
     for (const table of tables) {
         try {
-            // @ts-expect-error - dynamic access to prisma models
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
             const count = await prisma[table].count();
             stats[table] = count;
         } catch (error: any) {
