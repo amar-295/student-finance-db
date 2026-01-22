@@ -63,10 +63,10 @@ jobs:
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/student_finance_db_test?schema=public
 
-      - name: Push Database Schema
+      - name: Deploy Database Migrations
         run: |
           cd backend
-          npx prisma db push
+          npx prisma migrate deploy
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/student_finance_db_test?schema=public
 
