@@ -217,7 +217,6 @@ export const getAccountHistory = async (userId: string, accountId: string, days:
   const account = await getAccountById(userId, accountId);
 
   // Define time window
-  const endDate = new Date(); // Today
   const startDate = new Date();
   startDate.setDate(startDate.getDate() - days);
 
