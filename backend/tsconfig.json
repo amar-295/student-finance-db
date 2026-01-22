@@ -28,17 +28,18 @@
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "types": [
-      "node",
-      "jest"
+      "node"
     ]
   },
   "include": [
     "src/**/*",
-    "tests/**/*.ts",
     "prisma/**/*"
   ],
   "exclude": [
     "node_modules",
-    "dist"
+    "dist",
+    "tests",
+    "**/*.test.ts",
+    "**/*.spec.ts"
   ]
 }
