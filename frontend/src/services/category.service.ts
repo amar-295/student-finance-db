@@ -1,6 +1,5 @@
 import axios from 'axios';
-
-const API_URL = '/api/categories';
+import { API_ENDPOINTS } from '../config/api';
 
 export interface Category {
     id: string;
@@ -18,14 +17,14 @@ const getAuthHeader = () => {
 
 export const categoryService = {
     async getCategories() {
-        const response = await axios.get<Category[]>(API_URL, {
+        const response = await axios.get<Category[]>(API_ENDPOINTS.CATEGORIES, {
             headers: getAuthHeader()
         });
         return response.data;
     },
 
     async createCategory(data: Partial<Category>) {
-        const response = await axios.post<Category>(API_URL, data, {
+        const response = await axios.post<Category>(API_ENDPOINTS.CATEGORIES, data, {
             headers: getAuthHeader()
         });
         return response.data;

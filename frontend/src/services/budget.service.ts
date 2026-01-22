@@ -1,6 +1,5 @@
 import axios from 'axios';
-
-const API_URL = '/api/budgets';
+import { API_ENDPOINTS } from '../config/api';
 
 export interface Budget {
     id: string;
@@ -88,7 +87,7 @@ export const budgetService = {
         if (filters.periodType) params.append('periodType', filters.periodType);
         if (filters.isActive !== undefined) params.append('isActive', filters.isActive.toString());
 
-        const response = await axios.get<Budget[]>(API_URL, {
+        const response = await axios.get<Budget[]>(API_ENDPOINTS.BUDGETS, {
             headers: getAuthHeader(),
             params
         });
@@ -96,62 +95,62 @@ export const budgetService = {
     },
 
     async getBudget(id: string) {
-        const response = await axios.get<Budget>(`${API_URL}/${id}`, {
+        const response = await axios.get<Budget>(`${API_ENDPOINTS.BUDGETS}/${id}`, {
             headers: getAuthHeader()
         });
         return response.data;
     },
 
     async createBudget(data: CreateBudgetDto) {
-        const response = await axios.post<Budget>(API_URL, data, {
+        const response = await axios.post<Budget>(API_ENDPOINTS.BUDGETS, data, {
             headers: getAuthHeader()
         });
         return response.data;
     },
 
     async updateBudget(id: string, data: UpdateBudgetDto) {
-        const response = await axios.put<Budget>(`${API_URL}/${id}`, data, {
+        const response = await axios.put<Budget>(`${API_ENDPOINTS.BUDGETS}/${id}`, data, {
             headers: getAuthHeader()
         });
         return response.data;
     },
 
     async deleteBudget(id: string) {
-        await axios.delete(`${API_URL}/${id}`, {
+        await axios.delete(`${API_ENDPOINTS.BUDGETS}/${id}`, {
             headers: getAuthHeader()
         });
     },
 
     async getBudgetStatus(id: string) { // Single status
-        const response = await axios.get<BudgetStatus>(`${API_URL}/${id}/status`, {
+        const response = await axios.get<BudgetStatus>(`${API_ENDPOINTS.BUDGETS}/${id}/status`, {
             headers: getAuthHeader()
         });
         return response.data;
     },
 
     async getBudgetStatuses() { // All statuses
-        const response = await axios.get<BudgetStatus[]>(`${API_URL}/status`, {
+        const response = await axios.get<BudgetStatus[]>(API_ENDPOINTS.BUDGETS_STATUS, {
             headers: getAuthHeader()
         });
         return response.data;
     },
 
     async getRecommendations() {
-        const response = await axios.get<any>(`${API_URL}/recommend`, { // Type as any for now or specific DTO
+        const response = await axios.get<any>(`${API_ENDPOINTS.BUDGETS}/recommend`, { // Type as any for now or specific DTO
             headers: getAuthHeader()
         });
         return response.data;
     },
 
     async getBudgetAnalytics(budgetId: string) {
-        const response = await axios.get<any>(`${API_URL}/${budgetId}/analytics`, {
+        const response = await axios.get<any>(`${API_ENDPOINTS.BUDGETS}/${budgetId}/analytics`, {
             headers: getAuthHeader()
         });
         return response.data;
     },
 
     async getBudgetTransactions(budgetId: string, params?: { startDate?: string; endDate?: string, limit?: number }) {
-        const response = await axios.get<any>(`${API_URL}/${budgetId}/transactions`, {
+        const response = await axios.get<any>(`${API_ENDPOINTS.BUDGETS}/${budgetId}/transactions`, {
             headers: getAuthHeader(),
             params
         });

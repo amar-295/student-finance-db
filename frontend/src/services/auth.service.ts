@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { API_ENDPOINTS } from '../config/api';
 
 // Interfaces based on Backend Types
 export interface User {
@@ -37,12 +38,9 @@ export const loginSchema = z.object({
 export type RegisterInput = z.infer<typeof registerSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;
 
-// API Service
-const API_URL = '/api/auth'; // Proxied to http://localhost:5000
-
 export const authService = {
     async register(data: RegisterInput): Promise<AuthResponse> {
-        const response = await fetch(`${API_URL}/register`, {
+        const response = await fetch(API_ENDPOINTS.REGISTER, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -60,7 +58,7 @@ export const authService = {
     },
 
     async login(data: LoginInput): Promise<AuthResponse> {
-        const response = await fetch(`${API_URL}/login`, {
+        const response = await fetch(API_ENDPOINTS.LOGIN, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

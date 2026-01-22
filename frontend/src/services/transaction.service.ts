@@ -1,7 +1,5 @@
 import axios from 'axios';
-
-
-const API_URL = '/api/transactions';
+import { API_ENDPOINTS } from '../config/api';
 
 export interface Transaction {
     id: string;
@@ -76,7 +74,7 @@ export const transactionService = {
         if (f.sortBy) params.append('sortBy', f.sortBy);
         if (f.sortOrder) params.append('sortOrder', f.sortOrder);
 
-        const response = await axios.get<PaginatedResponse<Transaction>>(API_URL, {
+        const response = await axios.get<PaginatedResponse<Transaction>>(API_ENDPOINTS.TRANSACTIONS, {
             headers: getAuthHeader(),
             params
         });
@@ -84,28 +82,28 @@ export const transactionService = {
     },
 
     async createTransaction(data: Partial<Transaction>) {
-        const response = await axios.post<Transaction>(API_URL, data, {
+        const response = await axios.post<Transaction>(API_ENDPOINTS.TRANSACTIONS, data, {
             headers: getAuthHeader()
         });
         return response.data;
     },
 
     async updateTransaction(id: string, data: Partial<Transaction>) {
-        const response = await axios.put<Transaction>(`${API_URL}/${id}`, data, {
+        const response = await axios.put<Transaction>(`${API_ENDPOINTS.TRANSACTIONS}/${id}`, data, {
             headers: getAuthHeader()
         });
         return response.data;
     },
 
     async deleteTransaction(id: string) {
-        await axios.delete(`${API_URL}/${id}`, {
+        await axios.delete(`${API_ENDPOINTS.TRANSACTIONS}/${id}`, {
             headers: getAuthHeader()
         });
     },
 
     async bulkUpdate(data: BulkUpdateInput) {
         const response = await axios.put<{ success: boolean; data: Transaction[] }>(
-            `${API_URL}/bulk/update`,
+            `${API_ENDPOINTS.TRANSACTIONS}/bulk/update`,
             data,
             { headers: getAuthHeader() }
         );
@@ -114,7 +112,7 @@ export const transactionService = {
 
     async bulkDelete(transactionIds: string[]) {
         const response = await axios.post<{ success: boolean; data: string[] }>(
-            `${API_URL}/bulk/delete`,
+            `${API_ENDPOINTS.TRANSACTIONS}/bulk/delete`,
             { transactionIds },
             { headers: getAuthHeader() }
         );

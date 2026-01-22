@@ -1,6 +1,5 @@
 import axios from 'axios';
-
-const API_URL = '/api/reports';
+import { API_ENDPOINTS } from '../config/api';
 
 const getAuthHeader = () => {
     const token = localStorage.getItem('accessToken');
@@ -9,7 +8,7 @@ const getAuthHeader = () => {
 
 export const reportService = {
     async getMonthlyReport(date: Date) {
-        const response = await axios.get(`${API_URL}/monthly`, {
+        const response = await axios.get(`${API_ENDPOINTS.REPORTS}/monthly`, {
             headers: getAuthHeader(),
             params: { date: date.toISOString() }
         });
@@ -17,7 +16,7 @@ export const reportService = {
     },
 
     async getSpendingReport(startDate: Date, endDate: Date) {
-        const response = await axios.get(`${API_URL}/spending`, {
+        const response = await axios.get(`${API_ENDPOINTS.REPORTS}/spending`, {
             headers: getAuthHeader(),
             params: {
                 startDate: startDate.toISOString(),

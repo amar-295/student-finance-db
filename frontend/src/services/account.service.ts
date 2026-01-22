@@ -1,6 +1,4 @@
-
-
-const API_URL = '/api';
+import { API_ENDPOINTS } from '../config/api';
 
 export type AccountType = 'checking' | 'savings' | 'credit' | 'cash' | 'other';
 
@@ -29,7 +27,7 @@ export interface HistoryPoint {
 export const accountService = {
     async getAccounts(): Promise<Account[]> {
         const token = localStorage.getItem('accessToken');
-        const response = await fetch(`${API_URL}/accounts`, {
+        const response = await fetch(API_ENDPOINTS.ACCOUNTS, {
             headers: {
                 Authorization: `Bearer ${token}`,
             },
@@ -48,7 +46,7 @@ export const accountService = {
 
     async getAccountById(id: string): Promise<Account> {
         const token = localStorage.getItem('accessToken');
-        const response = await fetch(`${API_URL}/accounts/${id}`, {
+        const response = await fetch(`${API_ENDPOINTS.ACCOUNTS}/${id}`, {
             headers: { Authorization: `Bearer ${token}` }
         });
         const json = await response.json();
@@ -57,7 +55,7 @@ export const accountService = {
 
     async transferFunds(data: { fromId: string; toId: string; amount: number; date: string; note?: string }) {
         const token = localStorage.getItem('accessToken');
-        const response = await fetch(`${API_URL}/accounts/transfer`, {
+        const response = await fetch(`${API_ENDPOINTS.ACCOUNTS}/transfer`, {
             method: 'POST',
             headers: {
                 Authorization: `Bearer ${token}`,
@@ -71,7 +69,7 @@ export const accountService = {
 
     async getAccountHistory(id: string, days = 30): Promise<HistoryPoint[]> {
         const token = localStorage.getItem('accessToken');
-        const response = await fetch(`${API_URL}/accounts/${id}/history?days=${days}`, {
+        const response = await fetch(`${API_ENDPOINTS.ACCOUNTS}/${id}/history?days=${days}`, {
             headers: { Authorization: `Bearer ${token}` }
         });
         const json = await response.json();
