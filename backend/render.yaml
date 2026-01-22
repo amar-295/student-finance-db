@@ -1,0 +1,84 @@
+services:
+  # PostgreSQL Database
+  - type: pserv
+    name: student-finance-db
+    plan: free
+    region: oregon
+    databaseName: student_finance_db
+    databaseUser: student_finance_user
+
+  # Backend API Service
+  - type: web
+    name: student-finance-backend
+    env: node
+    region: oregon
+    plan: free
+    buildCommand: npm install && npm run prisma:deploy && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      
+      # Database URL - will be auto-populated by Render from the database service above
+      - key: DATABASE_URL
+        fromDatabase:
+          name: student-finance-db
+          property: connectionString
+      
+      # JWT Secrets - IMPORTANT: Generate strong secrets (32+ characters)
+      # You can generate secrets using: node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+      - key: JWT_SECRET
+        generateValue: true
+      
+      - key: JWT_REFRESH_SECRET
+        generateValue: true
+      
+      - key: JWT_EXPIRES_IN
+        value: 15m
+      
+      - key: JWT_REFRESH_EXPIRES_IN
+        value: 7d
+      
+      # CORS Configuration - Update this with your actual frontend URL
+      - key: FRONTEND_URL
+        value: https://your-frontend-app.onrender.com
+      
+      # Rate Limiting
+      - key: RATE_LIMIT_WINDOW_MS
+        value: 900000
+      
+      - key: RATE_LIMIT_MAX_REQUESTS
+        value: 100
+      
+      # Redis URL - Optional, only if you add a Redis service
+      # - key: REDIS_URL
+      #   fromService:
+      #     name: student-finance-redis
+      #     type: redis
+      #     property: connectionString
+      
+      # Account Lockout Settings
+      - key: LOCKOUT_THRESHOLD
+        value: 5
+      
+      - key: LOCKOUT_DURATION_MINUTES
+        value: 15
+      
+      # SMTP Email Configuration - Optional, add these manually in Render dashboard
+      # - key: SMTP_HOST
+      #   sync: false
+      # - key: SMTP_PORT
+      #   sync: false
+      # - key: SMTP_SECURE
+      #   sync: false
+      # - key: SMTP_USER
+      #   sync: false
+      # - key: SMTP_PASSWORD
+      #   sync: false
+      # - key: EMAIL_FROM
+      #   sync: false
+      
+      # Hugging Face API - Optional, add manually in Render dashboard
+      # - key: HUGGING_FACE_API_KEY
+      #   sync: false

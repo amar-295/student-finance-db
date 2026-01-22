@@ -19,6 +19,15 @@ const envSchema = z.object({
   REDIS_URL: z.string().optional(),
   LOCKOUT_THRESHOLD: z.string().default('5'),
   LOCKOUT_DURATION_MINUTES: z.string().default('15'),
+  // Optional SMTP configuration
+  SMTP_HOST: z.string().optional(),
+  SMTP_PORT: z.string().optional(),
+  SMTP_SECURE: z.string().optional(),
+  SMTP_USER: z.string().optional(),
+  SMTP_PASSWORD: z.string().optional(),
+  EMAIL_FROM: z.string().optional(),
+  // Optional AI configuration
+  HUGGING_FACE_API_KEY: z.string().optional(),
 });
 
 // Validate and parse environment variables
