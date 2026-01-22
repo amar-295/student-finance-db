@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useContext, useEffect, useState } from 'react';
 
 type Theme = 'light' | 'dark' | 'system';
@@ -20,6 +21,24 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     });
 
     const [resolvedTheme, setResolvedTheme] = useState<ResolvedTheme>('light');
+
+    const updateDOM = (resolvedTheme: ResolvedTheme) => {
+        const root = document.documentElement;
+
+        // Add transition class
+        root.classList.add('theme-transitioning');
+
+        if (resolvedTheme === 'dark') {
+            root.classList.add('dark');
+        } else {
+            root.classList.remove('dark');
+        }
+
+        // Remove transition class after animation
+        setTimeout(() => {
+            root.classList.remove('theme-transitioning');
+        }, 300);
+    };
 
     // Detect system preference
     useEffect(() => {
@@ -51,24 +70,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
         setResolvedTheme(newResolvedTheme);
         updateDOM(newResolvedTheme);
     }, [theme]);
-
-    const updateDOM = (resolvedTheme: ResolvedTheme) => {
-        const root = document.documentElement;
-
-        // Add transition class
-        root.classList.add('theme-transitioning');
-
-        if (resolvedTheme === 'dark') {
-            root.classList.add('dark');
-        } else {
-            root.classList.remove('dark');
-        }
-
-        // Remove transition class after animation
-        setTimeout(() => {
-            root.classList.remove('theme-transitioning');
-        }, 300);
-    };
 
     const setTheme = (newTheme: Theme) => {
         setThemeState(newTheme);

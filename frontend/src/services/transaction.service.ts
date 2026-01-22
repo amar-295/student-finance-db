@@ -71,6 +71,7 @@ export const transactionService = {
         // but for page/sort they are passed mixed. 
         // We really should extend TransactionFilters to include them or pass separate args.
         // For now, let's coerce filters to any to read page/sort
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const f = filters as any;
         if (f.page) params.append('page', f.page.toString());
         if (f.sortBy) params.append('sortBy', f.sortBy);
