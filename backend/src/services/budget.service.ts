@@ -253,7 +253,7 @@ export const getAllBudgetStatuses = async (userId: string): Promise<BudgetStatus
  */
 const calculateBudgetStatus = async (userId: string, budget: any): Promise<BudgetStatus> => {
     // Get transactions in budget period
-    const transactions = await prisma.transaction.findMany({
+    const aggregations = await prisma.transaction.aggregate({
         where: {
             userId,
             categoryId: budget.categoryId,
@@ -264,12 +264,12 @@ const calculateBudgetStatus = async (userId: string, budget: any): Promise<Budge
             amount: { lt: 0 }, // Only expenses
             deletedAt: null,
         },
+        _sum: {
+            amount: true,
+        },
     });
 
-    const spent = transactions.reduce(
-        (sum, t) => sum + Math.abs(Number(t.amount)),
-        0
-    );
+    const spent = Math.abs(Number(aggregations._sum.amount || 0));
 
     const limit = Number(budget.amount);
     const remaining = limit - spent;
