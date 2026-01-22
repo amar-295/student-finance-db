@@ -337,6 +337,7 @@ export default function TransactionsPage() {
                                 date: editingTransaction.transactionDate?.split('T')[0]
                             } : undefined}
                             isLoading={createMutation.isPending || updateMutation.isPending}
+                            onCancel={() => setIsFormOpen(false)}
                         />
                     </DialogPanel>
                 </div>

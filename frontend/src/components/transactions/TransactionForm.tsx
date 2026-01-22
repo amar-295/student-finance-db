@@ -26,9 +26,10 @@ interface TransactionFormProps {
     accounts: Account[];
     initialData?: any;
     isLoading?: boolean;
+    onCancel?: () => void;
 }
 
-export default function TransactionForm({ onSubmit, accounts, initialData, isLoading }: TransactionFormProps) {
+export default function TransactionForm({ onSubmit, accounts, initialData, isLoading, onCancel }: TransactionFormProps) {
     const {
         register,
         handleSubmit,
@@ -106,7 +107,9 @@ export default function TransactionForm({ onSubmit, accounts, initialData, isLoa
             </div>
 
             <div className="flex flex-col gap-2">
-                <label className="text-sm font-semibold text-text-main dark:text-dark-text-secondary" htmlFor="description">Description</label>
+                <label className="text-sm font-semibold text-text-main dark:text-dark-text-secondary" htmlFor="description">
+                    Description <span className="text-red-500">*</span>
+                </label>
                 <input
                     {...register('description')}
                     id="description"
@@ -119,7 +122,9 @@ export default function TransactionForm({ onSubmit, accounts, initialData, isLoa
             </div>
 
             <div className="flex flex-col gap-2">
-                <label className="text-sm font-semibold text-text-main dark:text-dark-text-secondary" htmlFor="amount">Amount</label>
+                <label className="text-sm font-semibold text-text-main dark:text-dark-text-secondary" htmlFor="amount">
+                    Amount <span className="text-red-500">*</span>
+                </label>
                 <input
                     {...register('amount')}
                     id="amount"
@@ -134,7 +139,9 @@ export default function TransactionForm({ onSubmit, accounts, initialData, isLoa
             </div>
 
             <div className="flex flex-col gap-2">
-                <label className="text-sm font-semibold text-text-main dark:text-dark-text-secondary" htmlFor="date">Date</label>
+                <label className="text-sm font-semibold text-text-main dark:text-dark-text-secondary" htmlFor="date">
+                    Date <span className="text-red-500">*</span>
+                </label>
                 <input
                     {...register('date')}
                     id="date"
@@ -147,7 +154,9 @@ export default function TransactionForm({ onSubmit, accounts, initialData, isLoa
             </div>
 
             <div className="flex flex-col gap-2">
-                <label className="text-sm font-semibold text-text-main dark:text-dark-text-secondary" htmlFor="account">Account</label>
+                <label className="text-sm font-semibold text-text-main dark:text-dark-text-secondary" htmlFor="account">
+                    Account <span className="text-red-500">*</span>
+                </label>
                 <select
                     {...register('accountId')}
                     id="account"
@@ -175,13 +184,32 @@ export default function TransactionForm({ onSubmit, accounts, initialData, isLoa
                 {errors.category && <p className="text-xs text-red-500">{errors.category.message}</p>}
             </div>
 
-            <button
-                type="submit"
-                className="mt-4 w-full h-12 bg-primary hover:bg-primary-dark text-white font-bold rounded-xl shadow-lg shadow-primary/20 transition-all disabled:opacity-50"
-                disabled={isLoading}
-            >
-                Save Transaction
-            </button>
+            <div className="flex gap-3 mt-4">
+                {onCancel && (
+                    <button
+                        type="button"
+                        onClick={onCancel}
+                        className="flex-1 h-12 bg-gray-100 hover:bg-gray-200 dark:bg-dark-bg-tertiary dark:hover:bg-dark-bg-hover text-text-main dark:text-dark-text-primary font-bold rounded-xl transition-all disabled:opacity-50"
+                        disabled={isLoading}
+                    >
+                        Cancel
+                    </button>
+                )}
+                <button
+                    type="submit"
+                    className={`${onCancel ? 'flex-[2]' : 'w-full'} h-12 bg-primary hover:bg-primary-dark text-white font-bold rounded-xl shadow-lg shadow-primary/20 transition-all disabled:opacity-70 disabled:grayscale flex items-center justify-center gap-2`}
+                    disabled={isLoading}
+                >
+                    {isLoading ? (
+                        <>
+                            <span className="material-symbols-outlined animate-spin text-[20px]">progress_activity</span>
+                            Saving...
+                        </>
+                    ) : (
+                        'Save Transaction'
+                    )}
+                </button>
+            </div>
         </form>
     );
 }
