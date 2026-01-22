@@ -15,11 +15,6 @@
     "resolveJsonModule": true,
     "moduleResolution": "node",
     "baseUrl": ".",
-    "paths": {
-      "@prisma/client": [
-        "src/generated/prisma"
-      ]
-    },
     "allowSyntheticDefaultImports": true,
     "declaration": true,
     "declarationMap": true,
