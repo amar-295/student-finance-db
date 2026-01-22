@@ -6,25 +6,6 @@ import { authService } from '../../services/auth.service';
 import { useAuthStore } from '../../store/authStore';
 
 // Mock dependencies
-vi.mock('../../services/auth.service', () => ({
-    authService: {
-        register: vi.fn(),
-    },
-    // We also need to export the schema if it's used directly, but here we just mock the service function
-    // The component imports registerSchema from service but uses it for validation logic.
-    // Ideally we shouldn't mock the schema if we want to test validation real logic,
-    // but the component imports it.
-    // Wait, in the component: import { authService, registerSchema } from ...
-    // If I mock the whole module, registerSchema will be undefined unless I include it.
-    // A better approach is to mock only the register function if possible, or include schema in mock.
-    // However, since schema is a Zod schema, reproducing it in mock is tedious.
-    // I will try to use `vi.importActual` to keep the schema.
-    registerSchema: {
-        extend: () => ({ safeParse: () => ({ success: true }) }) // simplistic mock if needed, but better use actual
-    }
-}));
-
-// Better mock strategy for auth.service to keep schema
 vi.mock('../../services/auth.service', async () => {
     const actual = await vi.importActual<any>('../../services/auth.service');
     return {
@@ -156,24 +137,15 @@ describe('SignupPage', () => {
 
         const passwordInput = screen.getByLabelText(/^password$/i);
 
-        // Initial state - likely gray/unchecked
-        // We can check classes or icons, but easier to just check text existence for now
-        // The component has indicators like "8+ Characters", "1 Number", etc.
+        // Initial state - indicators are present
         expect(screen.getByText('8+ Characters')).toBeInTheDocument();
-
-        // Type weak password
-        await user.type(passwordInput, 'weak');
-        // Not enough chars, no number, no upper, no symbol.
+        expect(screen.getByText('1 Number')).toBeInTheDocument();
 
         // Type strong password
         await user.clear(passwordInput);
         await user.type(passwordInput, 'Strong1!');
 
-        // We could check if classes changed to "text-emerald-500", but that's brittle.
-        // For unit test, verifying the logic handles input is enough if we trust the rendering logic tested visually or via snapshots.
-        // But we can check if "check" icon appears for indicators.
-        // The indicators use material symbols "check" or "close".
-
-        // Let's just trust user interaction works for now.
+        // Verify indicators are present (logic handled by component state)
+        expect(screen.getByText('1 Symbol')).toBeInTheDocument();
     });
 });

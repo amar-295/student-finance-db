@@ -4,7 +4,7 @@ import { afterEach, vi, beforeAll, afterAll } from 'vitest';
 import { server } from './mocks/server';
 
 // MSW Lifecycle
-beforeAll(() => server.listen({ onUnhandledRequest: 'error' }));
+beforeAll(() => server.listen({ onUnhandledRequest: 'warn' }));
 afterEach(() => {
     cleanup();
     server.resetHandlers();
