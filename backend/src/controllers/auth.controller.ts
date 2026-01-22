@@ -1,19 +1,27 @@
-import { Request, Response } from 'express';
+import { Request, Response } from "express";
 import {
   registerUser,
   loginUser,
   getUserProfile,
   updateUserProfile,
-} from '../services/auth.service';
+} from "../services/auth.service";
 import {
   registerSchema,
   loginSchema,
   refreshTokenSchema,
   updateProfileSchema,
-} from '../types/auth.types';
-import { verifyRefreshToken, generateTokenPair, UnauthorizedError } from '../utils';
-import { blacklistTokenPair, blacklistToken, isTokenBlacklisted } from '../services/tokenBlacklist.service';
-import { logAuthEvent } from '../services/audit.service';
+} from "../types/auth.types";
+import {
+  verifyRefreshToken,
+  generateTokenPair,
+  UnauthorizedError,
+} from "../utils";
+import {
+  blacklistTokenPair,
+  blacklistToken,
+  isTokenBlacklisted,
+} from "../services/tokenBlacklist.service";
+import { logAuthEvent } from "../services/audit.service";
 
 /**
  * Register a new user
@@ -28,7 +36,7 @@ export const register = async (req: Request, res: Response) => {
 
   res.status(201).json({
     success: true,
-    message: 'User registered successfully',
+    message: "User registered successfully",
     data: result,
   });
 };
@@ -45,11 +53,16 @@ export const login = async (req: Request, res: Response) => {
   const result = await loginUser(input);
 
   // Log successful login
-  logAuthEvent(result.user.id, 'login', req.ip, req.headers['user-agent'] as string);
+  logAuthEvent(
+    result.user.id,
+    "login",
+    req.ip,
+    req.headers["user-agent"] as string,
+  );
 
   res.status(200).json({
     success: true,
-    message: 'Login successful',
+    message: "Login successful",
     data: result,
   });
 };
@@ -65,7 +78,7 @@ export const refreshToken = async (req: Request, res: Response) => {
   // Check if refresh token is blacklisted (Reuse Detection)
   const isBlacklisted = await isTokenBlacklisted(input.refreshToken);
   if (isBlacklisted) {
-    throw new UnauthorizedError('Refresh token has been revoked');
+    throw new UnauthorizedError("Refresh token has been revoked");
   }
 
   // Verify refresh token
@@ -82,7 +95,7 @@ export const refreshToken = async (req: Request, res: Response) => {
 
   res.status(200).json({
     success: true,
-    message: 'Token refreshed successfully',
+    message: "Token refreshed successfully",
     data: tokens,
   });
 };
@@ -113,11 +126,16 @@ export const updateMe = async (req: Request, res: Response) => {
   const user = await updateUserProfile(req.user!.userId, input);
 
   // Log profile update
-  logAuthEvent(req.user!.userId, 'update_profile', req.ip, req.headers['user-agent'] as string);
+  logAuthEvent(
+    req.user!.userId,
+    "update_profile",
+    req.ip,
+    req.headers["user-agent"] as string,
+  );
 
   res.status(200).json({
     success: true,
-    message: 'Profile updated successfully',
+    message: "Profile updated successfully",
     data: user,
   });
 };
@@ -140,11 +158,16 @@ export const logout = async (req: Request, res: Response) => {
 
   // Log logout
   if (req.user) {
-    logAuthEvent(req.user.userId, 'logout', req.ip, req.headers['user-agent'] as string);
+    logAuthEvent(
+      req.user.userId,
+      "logout",
+      req.ip,
+      req.headers["user-agent"] as string,
+    );
   }
 
   res.status(200).json({
     success: true,
-    message: 'Logout successful. Tokens have been invalidated.',
+    message: "Logout successful. Tokens have been invalidated.",
   });
 };

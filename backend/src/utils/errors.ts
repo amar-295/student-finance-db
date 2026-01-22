@@ -5,7 +5,7 @@ export class ApiError extends Error {
   constructor(
     public statusCode: number,
     public message: string,
-    public isOperational = true
+    public isOperational = true,
   ) {
     super(message);
     Object.setPrototypeOf(this, ApiError.prototype);
@@ -17,7 +17,7 @@ export class ApiError extends Error {
  * 400 Bad Request
  */
 export class BadRequestError extends ApiError {
-  constructor(message = 'Bad Request') {
+  constructor(message = "Bad Request") {
     super(400, message);
     Object.setPrototypeOf(this, BadRequestError.prototype);
   }
@@ -27,7 +27,7 @@ export class BadRequestError extends ApiError {
  * 401 Unauthorized
  */
 export class UnauthorizedError extends ApiError {
-  constructor(message = 'Unauthorized') {
+  constructor(message = "Unauthorized") {
     super(401, message);
     Object.setPrototypeOf(this, UnauthorizedError.prototype);
   }
@@ -37,7 +37,7 @@ export class UnauthorizedError extends ApiError {
  * 403 Forbidden
  */
 export class ForbiddenError extends ApiError {
-  constructor(message = 'Forbidden') {
+  constructor(message = "Forbidden") {
     super(403, message);
     Object.setPrototypeOf(this, ForbiddenError.prototype);
   }
@@ -47,7 +47,7 @@ export class ForbiddenError extends ApiError {
  * 404 Not Found
  */
 export class NotFoundError extends ApiError {
-  constructor(message = 'Resource not found') {
+  constructor(message = "Resource not found") {
     super(404, message);
     Object.setPrototypeOf(this, NotFoundError.prototype);
   }
@@ -57,7 +57,7 @@ export class NotFoundError extends ApiError {
  * 409 Conflict
  */
 export class ConflictError extends ApiError {
-  constructor(message = 'Conflict') {
+  constructor(message = "Conflict") {
     super(409, message);
     Object.setPrototypeOf(this, ConflictError.prototype);
   }
@@ -67,7 +67,10 @@ export class ConflictError extends ApiError {
  * 422 Unprocessable Entity
  */
 export class ValidationError extends ApiError {
-  constructor(message = 'Validation failed', public errors?: any) {
+  constructor(
+    message = "Validation failed",
+    public errors?: any,
+  ) {
     super(422, message);
     Object.setPrototypeOf(this, ValidationError.prototype);
   }
@@ -77,7 +80,7 @@ export class ValidationError extends ApiError {
  * 500 Internal Server Error
  */
 export class InternalServerError extends ApiError {
-  constructor(message = 'Internal Server Error') {
+  constructor(message = "Internal Server Error") {
     super(500, message, false); // Not operational
     Object.setPrototypeOf(this, InternalServerError.prototype);
   }

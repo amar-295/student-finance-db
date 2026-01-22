@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import { Request, Response } from "express";
 import {
   createAccount,
   getUserAccounts,
@@ -6,16 +6,16 @@ import {
   updateAccount,
   deleteAccount,
   transferFunds,
-  getAccountHistory
-} from '../services/account.service';
+  getAccountHistory,
+} from "../services/account.service";
 import {
   createAccountSchema,
   updateAccountSchema,
   accountIdSchema,
   transferFundsSchema,
-  getHistoryQuerySchema
-} from '../types/account.types';
-import { logAction } from '../services/audit.service';
+  getHistoryQuerySchema,
+} from "../types/account.types";
+import { logAction } from "../services/audit.service";
 
 /**
  * Create account
@@ -28,17 +28,19 @@ export const create = async (req: Request, res: Response) => {
   // Log account creation
   logAction({
     userId: req.user!.userId,
-    action: 'create_account',
-    entityType: 'account',
+    action: "create_account",
+    entityType: "account",
     entityId: account.id,
     ipAddress: (req.ip as string) || undefined,
-    userAgent: Array.isArray(req.headers['user-agent']) ? req.headers['user-agent'][0] : req.headers['user-agent'],
-    metadata: { name: account.name, type: account.accountType }
+    userAgent: Array.isArray(req.headers["user-agent"])
+      ? req.headers["user-agent"][0]
+      : req.headers["user-agent"],
+    metadata: { name: account.name, type: account.accountType },
   });
 
   res.status(201).json({
     success: true,
-    message: 'Account created successfully',
+    message: "Account created successfully",
     data: account,
   });
 };
@@ -85,7 +87,7 @@ export const update = async (req: Request, res: Response) => {
 
   res.status(200).json({
     success: true,
-    message: 'Account updated successfully',
+    message: "Account updated successfully",
     data: account,
   });
 };
@@ -101,11 +103,13 @@ export const remove = async (req: Request, res: Response) => {
   // Log account deletion
   logAction({
     userId: req.user!.userId,
-    action: 'delete_account',
-    entityType: 'account',
+    action: "delete_account",
+    entityType: "account",
     entityId: id as string,
     ipAddress: (req.ip as string) || undefined,
-    userAgent: Array.isArray(req.headers['user-agent']) ? req.headers['user-agent'][0] : req.headers['user-agent']
+    userAgent: Array.isArray(req.headers["user-agent"])
+      ? req.headers["user-agent"][0]
+      : req.headers["user-agent"],
   });
 
   res.status(200).json({
@@ -124,8 +128,8 @@ export const transfer = async (req: Request, res: Response) => {
 
   res.status(200).json({
     success: true,
-    message: 'Transfer successful',
-    data: result
+    message: "Transfer successful",
+    data: result,
   });
 };
 
@@ -140,6 +144,6 @@ export const getHistory = async (req: Request, res: Response) => {
 
   res.status(200).json({
     success: true,
-    data: history
+    data: history,
   });
 };

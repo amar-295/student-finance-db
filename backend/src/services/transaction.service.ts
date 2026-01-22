@@ -1,6 +1,6 @@
-import prisma from '../config/database';
-import { categorizeTransaction } from './ai-categorization.service';
-import { NotFoundError } from '../utils';
+import prisma from "../config/database";
+import { categorizeTransaction } from "./ai-categorization.service";
+import { NotFoundError } from "../utils";
 import type {
   CreateTransactionInput,
   UpdateTransactionInput,
@@ -8,14 +8,14 @@ import type {
   TransactionSummaryQuery,
   BulkUpdateTransactionsInput,
   BulkDeleteTransactionsInput,
-} from '../types/transaction.types';
+} from "../types/transaction.types";
 
 /**
  * Create a new transaction with AI categorization
  */
 export const createTransaction = async (
   userId: string,
-  input: CreateTransactionInput
+  input: CreateTransactionInput,
 ) => {
   // Verify account belongs to user
   const account = await prisma.account.findFirst({
@@ -26,7 +26,7 @@ export const createTransaction = async (
   });
 
   if (!account) {
-    throw new NotFoundError('Account not found or does not belong to you');
+    throw new NotFoundError("Account not found or does not belong to you");
   }
 
   // AI categorization if category not provided
@@ -37,7 +37,7 @@ export const createTransaction = async (
   if (!categoryId) {
     const categorization = await categorizeTransaction(
       input.merchant,
-      Math.abs(input.amount)
+      Math.abs(input.amount),
     );
 
     // Find or create category
@@ -54,7 +54,7 @@ export const createTransaction = async (
         data: {
           userId,
           name: categorization.category,
-          type: 'expense', // AI categorized are expenses
+          type: "expense", // AI categorized are expenses
           color: generateCategoryColor(categorization.category),
         },
       });
@@ -73,7 +73,9 @@ export const createTransaction = async (
     });
 
     if (!category) {
-      throw new NotFoundError('Category not found or you do not have permission to use it');
+      throw new NotFoundError(
+        "Category not found or you do not have permission to use it",
+      );
     }
   }
 
@@ -85,14 +87,14 @@ export const createTransaction = async (
     });
 
     if (!category) {
-      throw new NotFoundError('Category not found');
+      throw new NotFoundError("Category not found");
     }
 
     // Ensure expense amounts are negative and income amounts are positive
     let finalAmount = Number(input.amount);
-    if (category.type === 'expense') {
+    if (category.type === "expense") {
       finalAmount = -Math.abs(finalAmount);
-    } else if (category.type === 'income') {
+    } else if (category.type === "income") {
       finalAmount = Math.abs(finalAmount);
     }
 
@@ -141,7 +143,7 @@ export const createTransaction = async (
  */
 export const getTransactions = async (
   userId: string,
-  query: GetTransactionsQuery
+  query: GetTransactionsQuery,
 ) => {
   const {
     page = 1,
@@ -154,8 +156,8 @@ export const getTransactions = async (
     maxAmount,
     merchant,
     search,
-    sortBy = 'date',
-    sortOrder = 'desc',
+    sortBy = "date",
+    sortOrder = "desc",
   } = query;
 
   // Build where clause
@@ -180,30 +182,46 @@ export const getTransactions = async (
   }
 
   if (merchant) {
-    where.merchant = { contains: merchant, mode: 'insensitive' };
+    where.merchant = { contains: merchant, mode: "insensitive" };
   }
 
   // Parse advanced search syntax if present
   if (search) {
-    const searchTerms = search.split(' ');
+    const searchTerms = search.split(" ");
     // const advancedFilters: any = []; // Unused
     const textTerms: string[] = [];
 
-    searchTerms.forEach(term => {
-      if (term.includes(':')) {
-        const [key, value] = term.split(':');
+    searchTerms.forEach((term) => {
+      if (term.includes(":")) {
+        const [key, value] = term.split(":");
         // Handle comparison operators for amount: amount:>50, amount:<50
-        if (key === 'amount') {
-          if (value.startsWith('>=')) where.amount = { ...where.amount, gte: parseFloat(value.substring(2)) };
-          else if (value.startsWith('<=')) where.amount = { ...where.amount, lte: parseFloat(value.substring(2)) };
-          else if (value.startsWith('>')) where.amount = { ...where.amount, gt: parseFloat(value.substring(1)) };
-          else if (value.startsWith('<')) where.amount = { ...where.amount, lt: parseFloat(value.substring(1)) };
+        if (key === "amount") {
+          if (value.startsWith(">="))
+            where.amount = {
+              ...where.amount,
+              gte: parseFloat(value.substring(2)),
+            };
+          else if (value.startsWith("<="))
+            where.amount = {
+              ...where.amount,
+              lte: parseFloat(value.substring(2)),
+            };
+          else if (value.startsWith(">"))
+            where.amount = {
+              ...where.amount,
+              gt: parseFloat(value.substring(1)),
+            };
+          else if (value.startsWith("<"))
+            where.amount = {
+              ...where.amount,
+              lt: parseFloat(value.substring(1)),
+            };
           else where.amount = parseFloat(value);
-        } else if (key === 'category') {
-          where.category = { name: { contains: value, mode: 'insensitive' } };
-        } else if (key === 'merchant') {
-          where.merchant = { contains: value, mode: 'insensitive' };
-        } else if (key === 'status') {
+        } else if (key === "category") {
+          where.category = { name: { contains: value, mode: "insensitive" } };
+        } else if (key === "merchant") {
+          where.merchant = { contains: value, mode: "insensitive" };
+        } else if (key === "status") {
           where.status = value;
         } else {
           textTerms.push(term);
@@ -214,21 +232,21 @@ export const getTransactions = async (
     });
 
     if (textTerms.length > 0) {
-      const textSearch = textTerms.join(' ');
+      const textSearch = textTerms.join(" ");
       where.OR = [
-        { merchant: { contains: textSearch, mode: 'insensitive' } },
-        { description: { contains: textSearch, mode: 'insensitive' } },
-        { notes: { contains: textSearch, mode: 'insensitive' } },
+        { merchant: { contains: textSearch, mode: "insensitive" } },
+        { description: { contains: textSearch, mode: "insensitive" } },
+        { notes: { contains: textSearch, mode: "insensitive" } },
       ];
     }
   }
 
   // Build order by
   const orderBy: any = {};
-  if (sortBy === 'date') orderBy.transactionDate = sortOrder;
-  if (sortBy === 'amount') orderBy.amount = sortOrder;
-  if (sortBy === 'merchant') orderBy.merchant = sortOrder;
-  if (sortBy === 'category') orderBy.category = { name: sortOrder };
+  if (sortBy === "date") orderBy.transactionDate = sortOrder;
+  if (sortBy === "amount") orderBy.amount = sortOrder;
+  if (sortBy === "merchant") orderBy.merchant = sortOrder;
+  if (sortBy === "category") orderBy.category = { name: sortOrder };
 
   // Get total count
   const total = await prisma.transaction.count({ where });
@@ -260,7 +278,10 @@ export const getTransactions = async (
 /**
  * Get single transaction
  */
-export const getTransactionById = async (userId: string, transactionId: string) => {
+export const getTransactionById = async (
+  userId: string,
+  transactionId: string,
+) => {
   const transaction = await prisma.transaction.findFirst({
     where: {
       id: transactionId,
@@ -274,7 +295,7 @@ export const getTransactionById = async (userId: string, transactionId: string) 
   });
 
   if (!transaction) {
-    throw new NotFoundError('Transaction not found');
+    throw new NotFoundError("Transaction not found");
   }
 
   return transaction;
@@ -286,7 +307,7 @@ export const getTransactionById = async (userId: string, transactionId: string) 
 export const updateTransaction = async (
   userId: string,
   transactionId: string,
-  input: UpdateTransactionInput
+  input: UpdateTransactionInput,
 ) => {
   // Check transaction exists and belongs to user
   const existing = await prisma.transaction.findFirst({
@@ -298,7 +319,7 @@ export const updateTransaction = async (
   });
 
   if (!existing) {
-    throw new NotFoundError('Transaction not found');
+    throw new NotFoundError("Transaction not found");
   }
 
   // If changing account, verify new account belongs to user
@@ -311,7 +332,7 @@ export const updateTransaction = async (
     });
 
     if (!account) {
-      throw new NotFoundError('Account not found');
+      throw new NotFoundError("Account not found");
     }
   }
 
@@ -327,9 +348,9 @@ export const updateTransaction = async (
         newAmount = parseInt(input.amount.toString());
       } else {
         const category = await tx.category.findUnique({ where: { id: catId } });
-        if (category?.type === 'expense') {
+        if (category?.type === "expense") {
           newAmount = -Math.abs(Number(input.amount));
-        } else if (category?.type === 'income') {
+        } else if (category?.type === "income") {
           newAmount = Math.abs(Number(input.amount));
         } else {
           newAmount = Number(input.amount);
@@ -341,17 +362,17 @@ export const updateTransaction = async (
         where: {
           id: input.categoryId,
           OR: [{ userId }, { isSystem: true }],
-        }
+        },
       });
 
       if (!category) {
-        throw new NotFoundError('Category not found or access denied');
+        throw new NotFoundError("Category not found or access denied");
       }
 
       // Amount didn't change, but category might have changed type
-      if (category?.type === 'expense') {
+      if (category?.type === "expense") {
         newAmount = -Math.abs(Number(existing.amount));
-      } else if (category?.type === 'income') {
+      } else if (category?.type === "income") {
         newAmount = Math.abs(Number(existing.amount));
       }
     }
@@ -413,7 +434,10 @@ export const updateTransaction = async (
 /**
  * Delete transaction (soft delete)
  */
-export const deleteTransaction = async (userId: string, transactionId: string) => {
+export const deleteTransaction = async (
+  userId: string,
+  transactionId: string,
+) => {
   const transaction = await prisma.transaction.findFirst({
     where: {
       id: transactionId,
@@ -423,7 +447,7 @@ export const deleteTransaction = async (userId: string, transactionId: string) =
   });
 
   if (!transaction) {
-    throw new NotFoundError('Transaction not found');
+    throw new NotFoundError("Transaction not found");
   }
 
   // Soft delete and update balance atomically
@@ -440,7 +464,7 @@ export const deleteTransaction = async (userId: string, transactionId: string) =
     });
   });
 
-  return { message: 'Transaction deleted successfully' };
+  return { message: "Transaction deleted successfully" };
 };
 
 /**
@@ -448,7 +472,7 @@ export const deleteTransaction = async (userId: string, transactionId: string) =
  */
 export const getTransactionSummary = async (
   userId: string,
-  query: TransactionSummaryQuery
+  query: TransactionSummaryQuery,
 ) => {
   const { startDate, endDate } = query;
 
@@ -467,7 +491,7 @@ export const getTransactionSummary = async (
 
   // 1. Get totals by category ID
   const categoryStats = await prisma.transaction.groupBy({
-    by: ['categoryId'],
+    by: ["categoryId"],
     where,
     _sum: { amount: true },
     _count: { id: true },
@@ -476,14 +500,14 @@ export const getTransactionSummary = async (
   // 2. Fetch required categories to get metadata (name, type)
   // categoryId can be null, filter those out
   const categoryIds = categoryStats
-    .map(s => s.categoryId)
+    .map((s) => s.categoryId)
     .filter((id): id is string => id !== null);
 
   const categories = await prisma.category.findMany({
-    where: { id: { in: categoryIds } }
+    where: { id: { in: categoryIds } },
   });
 
-  const categoryMap = new Map(categories.map(c => [c.id, c]));
+  const categoryMap = new Map(categories.map((c) => [c.id, c]));
 
   // 3. Aggregate results
   let totalIncome = 0;
@@ -491,18 +515,18 @@ export const getTransactionSummary = async (
   const byCategory: Record<string, any> = {};
 
   // Initialize Uncategorized if needed
-  const uncategorizedStats = categoryStats.find(s => s.categoryId === null);
+  const uncategorizedStats = categoryStats.find((s) => s.categoryId === null);
   if (uncategorizedStats) {
     const amount = Number(uncategorizedStats._sum.amount || 0);
     if (amount > 0) totalIncome += amount;
     else totalExpenses += Math.abs(amount);
 
-    byCategory['Uncategorized'] = {
-      category: 'Uncategorized',
+    byCategory["Uncategorized"] = {
+      category: "Uncategorized",
       totalAmount: amount,
       count: uncategorizedStats._count.id,
       isIncome: amount > 0,
-      color: '#95A5A6'
+      color: "#95A5A6",
     };
   }
 
@@ -512,9 +536,9 @@ export const getTransactionSummary = async (
     const category = categoryMap.get(stat.categoryId);
     const amount = Number(stat._sum.amount || 0);
     const count = stat._count.id;
-    const categoryName = category?.name || 'Unknown';
+    const categoryName = category?.name || "Unknown";
 
-    if (category?.type === 'income') {
+    if (category?.type === "income") {
       totalIncome += Math.abs(amount); // Typically positive
     } else {
       totalExpenses += Math.abs(amount); // Typically negative, but we want magnitude
@@ -525,8 +549,8 @@ export const getTransactionSummary = async (
         category: categoryName,
         totalAmount: 0,
         count: 0,
-        isIncome: category?.type === 'income',
-        color: category ? category.color : generateCategoryColor(categoryName)
+        isIncome: category?.type === "income",
+        color: category ? category.color : generateCategoryColor(categoryName),
       };
     }
 
@@ -544,7 +568,7 @@ export const getTransactionSummary = async (
       transactionCount: await prisma.transaction.count({ where }),
     },
     breakdown: Object.values(byCategory).sort(
-      (a: any, b: any) => Math.abs(b.totalAmount) - Math.abs(a.totalAmount)
+      (a: any, b: any) => Math.abs(b.totalAmount) - Math.abs(a.totalAmount),
     ),
   };
 };
@@ -554,19 +578,19 @@ export const getTransactionSummary = async (
  */
 const generateCategoryColor = (categoryName: string): string => {
   const colors: Record<string, string> = {
-    'Food & Dining': '#FF6B6B',
-    'Transportation': '#4ECDC4',
-    'Shopping': '#45B7D1',
-    'Entertainment': '#F7B731',
-    'Education': '#5F27CD',
-    'Healthcare': '#00D2D3',
-    'Utilities': '#FFA502',
-    'Rent': '#2E86DE',
-    'Groceries': '#26DE81',
-    'Other': '#A5B1C2',
+    "Food & Dining": "#FF6B6B",
+    Transportation: "#4ECDC4",
+    Shopping: "#45B7D1",
+    Entertainment: "#F7B731",
+    Education: "#5F27CD",
+    Healthcare: "#00D2D3",
+    Utilities: "#FFA502",
+    Rent: "#2E86DE",
+    Groceries: "#26DE81",
+    Other: "#A5B1C2",
   };
 
-  return colors[categoryName] || '#95A5A6';
+  return colors[categoryName] || "#95A5A6";
 };
 
 /**
@@ -574,7 +598,7 @@ const generateCategoryColor = (categoryName: string): string => {
  */
 export const bulkUpdateTransactions = async (
   userId: string,
-  input: BulkUpdateTransactionsInput
+  input: BulkUpdateTransactionsInput,
 ) => {
   const results = [];
 
@@ -589,7 +613,7 @@ export const bulkUpdateTransactions = async (
       const updated = await updateTransaction(userId, id, updateData);
       results.push(updated);
     } catch (error) {
-      // Continue updating others? Or fail all? 
+      // Continue updating others? Or fail all?
       // For now, let's fail partial if critical, but arguably user expects "as many as possible".
       // But updateTransaction throws if not found.
       // We'll catch and log/ignore errors for missing IDs to allow others to proceed.
@@ -605,7 +629,7 @@ export const bulkUpdateTransactions = async (
  */
 export const bulkDeleteTransactions = async (
   userId: string,
-  input: BulkDeleteTransactionsInput
+  input: BulkDeleteTransactionsInput,
 ) => {
   if (!input.transactionIds.length) return { deletedCount: 0, ids: [] };
 
@@ -614,20 +638,20 @@ export const bulkDeleteTransactions = async (
     where: {
       id: { in: input.transactionIds },
       userId,
-      deletedAt: null
+      deletedAt: null,
     },
     select: {
       id: true,
       amount: true,
-      accountId: true
-    }
+      accountId: true,
+    },
   });
 
   if (transactions.length === 0) {
     return { deletedCount: 0, ids: [] };
   }
 
-  const idsToDelete = transactions.map(t => t.id);
+  const idsToDelete = transactions.map((t) => t.id);
 
   // Group refund amounts by account
   const accountAdjustments = new Map<string, number>();
@@ -646,7 +670,7 @@ export const bulkDeleteTransactions = async (
     // 1. Soft delete all
     await tx.transaction.updateMany({
       where: { id: { in: idsToDelete } },
-      data: { deletedAt: new Date() }
+      data: { deletedAt: new Date() },
     });
 
     // 2. Update account balances - requires one query per account affected
@@ -655,7 +679,7 @@ export const bulkDeleteTransactions = async (
       if (adjustment !== 0) {
         await tx.account.update({
           where: { id: accountId },
-          data: { balance: { increment: adjustment } }
+          data: { balance: { increment: adjustment } },
         });
       }
     }

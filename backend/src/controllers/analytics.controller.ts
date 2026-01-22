@@ -1,23 +1,23 @@
-import { Request, Response } from 'express';
+import { Request, Response } from "express";
 import {
-    getAnalyticsOverview,
-    getSpendingTrends,
-    getCategoryBreakdown,
-    getTopMerchants
-} from '../services/analytics.service';
+  getAnalyticsOverview,
+  getSpendingTrends,
+  getCategoryBreakdown,
+  getTopMerchants,
+} from "../services/analytics.service";
 
 /**
  * Get analytics overview stats
  * GET /api/analytics/overview
  */
 export const getOverview = async (req: Request, res: Response) => {
-    const userId = req.user!.userId;
-    const overview = await getAnalyticsOverview(userId);
+  const userId = req.user!.userId;
+  const overview = await getAnalyticsOverview(userId);
 
-    res.json({
-        success: true,
-        data: overview
-    });
+  res.json({
+    success: true,
+    data: overview,
+  });
 };
 
 /**
@@ -25,14 +25,14 @@ export const getOverview = async (req: Request, res: Response) => {
  * GET /api/analytics/trends?period=week|month|year
  */
 export const getTrends = async (req: Request, res: Response) => {
-    const userId = req.user!.userId;
-    const period = (req.query.period as 'week' | 'month' | 'year') || 'month';
-    const trends = await getSpendingTrends(userId, period);
+  const userId = req.user!.userId;
+  const period = (req.query.period as "week" | "month" | "year") || "month";
+  const trends = await getSpendingTrends(userId, period);
 
-    res.json({
-        success: true,
-        data: trends
-    });
+  res.json({
+    success: true,
+    data: trends,
+  });
 };
 
 /**
@@ -40,13 +40,13 @@ export const getTrends = async (req: Request, res: Response) => {
  * GET /api/analytics/categories
  */
 export const getCategories = async (req: Request, res: Response) => {
-    const userId = req.user!.userId;
-    const breakdown = await getCategoryBreakdown(userId);
+  const userId = req.user!.userId;
+  const breakdown = await getCategoryBreakdown(userId);
 
-    res.json({
-        success: true,
-        data: breakdown
-    });
+  res.json({
+    success: true,
+    data: breakdown,
+  });
 };
 
 /**
@@ -54,13 +54,13 @@ export const getCategories = async (req: Request, res: Response) => {
  * GET /api/analytics/merchants
  */
 export const getMerchants = async (req: Request, res: Response) => {
-    const userId = req.user!.userId;
-    const merchants = await getTopMerchants(userId);
+  const userId = req.user!.userId;
+  const merchants = await getTopMerchants(userId);
 
-    res.json({
-        success: true,
-        data: merchants
-    });
+  res.json({
+    success: true,
+    data: merchants,
+  });
 };
 
 /**
@@ -68,21 +68,21 @@ export const getMerchants = async (req: Request, res: Response) => {
  * GET /api/analytics/ai-insights
  */
 export const getInsights = async (_req: Request, res: Response) => {
-    // Placeholder for AI insights logic
-    // In a real app, this would analyze patterns or call an LLM
-    res.json({
-        success: true,
-        data: [
-            {
-                type: 'warning',
-                title: 'Higher than usual spending',
-                message: 'Your spending is up 15% compared to last week.'
-            },
-            {
-                type: 'suggestion',
-                title: 'Save on subscriptions',
-                message: 'You have 3 recurring payments totaling $45 this week.'
-            }
-        ]
-    });
+  // Placeholder for AI insights logic
+  // In a real app, this would analyze patterns or call an LLM
+  res.json({
+    success: true,
+    data: [
+      {
+        type: "warning",
+        title: "Higher than usual spending",
+        message: "Your spending is up 15% compared to last week.",
+      },
+      {
+        type: "suggestion",
+        title: "Save on subscriptions",
+        message: "You have 3 recurring payments totaling $45 this week.",
+      },
+    ],
+  });
 };

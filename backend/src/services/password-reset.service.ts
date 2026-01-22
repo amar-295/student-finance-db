@@ -1,19 +1,19 @@
-import crypto from 'crypto';
-import { sendPasswordResetEmail } from './email.service';
-import prisma from '../config/database';
-import { hashPassword } from '../utils/password';
-import { BadRequestError } from '../utils/errors';
+import crypto from "crypto";
+import { sendPasswordResetEmail } from "./email.service";
+import prisma from "../config/database";
+import { hashPassword } from "../utils/password";
+import { BadRequestError } from "../utils/errors";
 import type {
   RequestPasswordResetInput,
   ResetPasswordInput,
   VerifyResetTokenInput,
-} from '../types/password-reset.types';
+} from "../types/password-reset.types";
 
 /**
  * Generate a secure random token
  */
 const generateResetToken = (): string => {
-  return crypto.randomBytes(32).toString('hex');
+  return crypto.randomBytes(32).toString("hex");
 };
 
 /**
@@ -21,14 +21,16 @@ const generateResetToken = (): string => {
  * (Don't store plain tokens in database)
  */
 const hashToken = (token: string): string => {
-  return crypto.createHash('sha256').update(token).digest('hex');
+  return crypto.createHash("sha256").update(token).digest("hex");
 };
 
 /**
  * Request password reset
  * Generates token and sends email (or returns token for testing)
  */
-export const requestPasswordReset = async (input: RequestPasswordResetInput) => {
+export const requestPasswordReset = async (
+  input: RequestPasswordResetInput,
+) => {
   const { email } = input;
 
   // Find user by email
@@ -41,9 +43,11 @@ export const requestPasswordReset = async (input: RequestPasswordResetInput) => 
   if (!user) {
     // Still return success to prevent user enumeration
     return {
-      message: 'If an account exists with that email, a password reset link has been sent.',
+      message:
+        "If an account exists with that email, a password reset link has been sent.",
       // In production, this would be hidden
-      debug: process.env.NODE_ENV === 'development' ? 'User not found' : undefined,
+      debug:
+        process.env.NODE_ENV === "development" ? "User not found" : undefined,
     };
   }
 
@@ -70,18 +74,22 @@ export const requestPasswordReset = async (input: RequestPasswordResetInput) => 
   });
 
   // Send email with reset link
-  const resetUrl = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/reset-password?token=${resetToken}`;
+  const resetUrl = `${process.env.FRONTEND_URL || "http://localhost:3000"}/reset-password?token=${resetToken}`;
 
   // In production, send email here
-  if (process.env.NODE_ENV === 'production' || process.env.ENABLE_EMAIL === 'true') {
+  if (
+    process.env.NODE_ENV === "production" ||
+    process.env.ENABLE_EMAIL === "true"
+  ) {
     await sendPasswordResetEmail(user.email, resetUrl);
-    console.log('📧 Password reset email sent to:', user.email);
+    console.log("📧 Password reset email sent to:", user.email);
   }
 
   return {
-    message: 'If an account exists with that email, a password reset link has been sent.',
+    message:
+      "If an account exists with that email, a password reset link has been sent.",
     // Only include these in development
-    ...(process.env.NODE_ENV === 'development' && {
+    ...(process.env.NODE_ENV === "development" && {
       debug: {
         resetToken,
         resetUrl,
@@ -109,7 +117,7 @@ export const verifyResetToken = async (input: VerifyResetTokenInput) => {
 
   // Check if token exists
   if (!resetRecord) {
-    throw new BadRequestError('Invalid or expired reset token');
+    throw new BadRequestError("Invalid or expired reset token");
   }
 
   // Check if token is expired
@@ -118,7 +126,7 @@ export const verifyResetToken = async (input: VerifyResetTokenInput) => {
     await prisma.passwordReset.delete({
       where: { id: resetRecord.id },
     });
-    throw new BadRequestError('Reset token has expired');
+    throw new BadRequestError("Reset token has expired");
   }
 
   // Token is valid
@@ -147,7 +155,7 @@ export const resetPassword = async (input: ResetPasswordInput) => {
 
   // Check if token exists
   if (!resetRecord) {
-    throw new BadRequestError('Invalid or expired reset token');
+    throw new BadRequestError("Invalid or expired reset token");
   }
 
   // Check if token is expired
@@ -156,7 +164,7 @@ export const resetPassword = async (input: ResetPasswordInput) => {
     await prisma.passwordReset.delete({
       where: { id: resetRecord.id },
     });
-    throw new BadRequestError('Reset token has expired');
+    throw new BadRequestError("Reset token has expired");
   }
 
   // Hash new password
@@ -180,7 +188,7 @@ export const resetPassword = async (input: ResetPasswordInput) => {
   });
 
   return {
-    message: 'Password has been reset successfully',
+    message: "Password has been reset successfully",
     email: resetRecord.user.email,
   };
 };

@@ -1,12 +1,12 @@
-import axios from 'axios';
-import { getRedisClient } from '../config/redis';
+import axios from "axios";
+import { getRedisClient } from "../config/redis";
 
 /**
  * Hugging Face AI Service (100% FREE)
- * 
+ *
  * Uses Hugging Face Inference API for transaction categorization
  * No credit card required, 30,000 requests/month free
- * 
+ *
  * Setup:
  * 1. Go to https://huggingface.co/
  * 2. Sign up (free, no payment info needed)
@@ -15,9 +15,9 @@ import { getRedisClient } from '../config/redis';
  * 5. Add to .env: HUGGING_FACE_API_KEY=hf_...
  */
 
-const HF_API_URL = 'https://api-inference.huggingface.co/models/';
+const HF_API_URL = "https://api-inference.huggingface.co/models/";
 const HF_API_KEY = process.env.HUGGING_FACE_API_KEY;
-const CACHE_PREFIX = 'ai:category:';
+const CACHE_PREFIX = "ai:category:";
 const CACHE_TTL = 24 * 60 * 60; // 24 hours in seconds
 
 // Fallback in-memory cache (used when Redis is not available)
@@ -25,16 +25,16 @@ const fallbackCache = new Map<string, AICategorizationResult>();
 
 // Available categories for classification
 const CATEGORIES = [
-  'Food & Dining',
-  'Transportation',
-  'Shopping',
-  'Entertainment',
-  'Education',
-  'Healthcare',
-  'Utilities',
-  'Rent',
-  'Groceries',
-  'Other',
+  "Food & Dining",
+  "Transportation",
+  "Shopping",
+  "Entertainment",
+  "Education",
+  "Healthcare",
+  "Utilities",
+  "Rent",
+  "Groceries",
+  "Other",
 ];
 
 interface AICategorizationResult {
@@ -46,7 +46,9 @@ interface AICategorizationResult {
 /**
  * Get cached category from Redis or fallback
  */
-const getCachedCategory = async (key: string): Promise<AICategorizationResult | null> => {
+const getCachedCategory = async (
+  key: string,
+): Promise<AICategorizationResult | null> => {
   const redis = getRedisClient();
 
   if (redis) {
@@ -56,7 +58,7 @@ const getCachedCategory = async (key: string): Promise<AICategorizationResult | 
         return JSON.parse(cached);
       }
     } catch (error) {
-      console.error('Redis cache get error:', error);
+      console.error("Redis cache get error:", error);
     }
   }
 
@@ -67,15 +69,22 @@ const getCachedCategory = async (key: string): Promise<AICategorizationResult | 
 /**
  * Set cached category in Redis or fallback
  */
-const setCachedCategory = async (key: string, result: AICategorizationResult): Promise<void> => {
+const setCachedCategory = async (
+  key: string,
+  result: AICategorizationResult,
+): Promise<void> => {
   const redis = getRedisClient();
 
   if (redis) {
     try {
-      await redis.setex(`${CACHE_PREFIX}${key}`, CACHE_TTL, JSON.stringify(result));
+      await redis.setex(
+        `${CACHE_PREFIX}${key}`,
+        CACHE_TTL,
+        JSON.stringify(result),
+      );
       return;
     } catch (error) {
-      console.error('Redis cache set error:', error);
+      console.error("Redis cache set error:", error);
     }
   }
 
@@ -88,12 +97,14 @@ const setCachedCategory = async (key: string, result: AICategorizationResult): P
  */
 export const categorizeWithAI = async (
   merchant: string,
-  amount?: number
+  amount?: number,
 ): Promise<AICategorizationResult> => {
   try {
     // If no API key, fall back to rule-based
     if (!HF_API_KEY) {
-      console.warn('⚠️ No Hugging Face API key found. Using rule-based categorization.');
+      console.warn(
+        "⚠️ No Hugging Face API key found. Using rule-based categorization.",
+      );
       return categorizeWithRules(merchant, amount);
     }
 
@@ -111,7 +122,7 @@ export const categorizeWithAI = async (
           Authorization: `Bearer ${HF_API_KEY}`,
         },
         timeout: 10000, // 10 second timeout
-      }
+      },
     );
 
     // Extract result
@@ -125,7 +136,7 @@ export const categorizeWithAI = async (
       aiGenerated: true,
     };
   } catch (error: any) {
-    console.error('AI categorization failed:', error.message);
+    console.error("AI categorization failed:", error.message);
 
     // Fallback to rule-based if AI fails
     return categorizeWithRules(merchant, amount);
@@ -137,58 +148,82 @@ export const categorizeWithAI = async (
  */
 const categorizeWithRules = (
   merchant: string,
-  amount?: number
+  amount?: number,
 ): AICategorizationResult => {
   const normalized = merchant.toLowerCase().trim();
 
   // Food & Dining patterns
-  if (/starbucks|ccd|cafe|coffee|restaurant|zomato|swiggy|dominos|mcdonald|kfc|burger/i.test(normalized)) {
-    return { category: 'Food & Dining', confidence: 0.9, aiGenerated: false };
+  if (
+    /starbucks|ccd|cafe|coffee|restaurant|zomato|swiggy|dominos|mcdonald|kfc|burger/i.test(
+      normalized,
+    )
+  ) {
+    return { category: "Food & Dining", confidence: 0.9, aiGenerated: false };
   }
 
   // Transportation patterns
   // Transportation patterns
-  if (/\b(uber|ola|rapido|metro|petrol|diesel|fuel|parking|toll)\b/i.test(normalized)) {
-    return { category: 'Transportation', confidence: 0.9, aiGenerated: false };
+  if (
+    /\b(uber|ola|rapido|metro|petrol|diesel|fuel|parking|toll)\b/i.test(
+      normalized,
+    )
+  ) {
+    return { category: "Transportation", confidence: 0.9, aiGenerated: false };
   }
 
   // Shopping patterns
   if (/amazon|flipkart|myntra|ajio|shopping|mall|store/i.test(normalized)) {
-    return { category: 'Shopping', confidence: 0.85, aiGenerated: false };
+    return { category: "Shopping", confidence: 0.85, aiGenerated: false };
   }
 
   // Entertainment patterns
-  if (/netflix|prime|hotstar|spotify|movie|pvr|inox|cinema|game/i.test(normalized)) {
-    return { category: 'Entertainment', confidence: 0.85, aiGenerated: false };
+  if (
+    /netflix|prime|hotstar|spotify|movie|pvr|inox|cinema|game/i.test(normalized)
+  ) {
+    return { category: "Entertainment", confidence: 0.85, aiGenerated: false };
   }
 
   // Education patterns
-  if (/udemy|coursera|college|university|tuition|book|course/i.test(normalized)) {
-    return { category: 'Education', confidence: 0.9, aiGenerated: false };
+  if (
+    /udemy|coursera|college|university|tuition|book|course/i.test(normalized)
+  ) {
+    return { category: "Education", confidence: 0.9, aiGenerated: false };
   }
 
   // Healthcare patterns
   if (/hospital|clinic|doctor|pharmacy|medicine|health/i.test(normalized)) {
-    return { category: 'Healthcare', confidence: 0.9, aiGenerated: false };
+    return { category: "Healthcare", confidence: 0.9, aiGenerated: false };
   }
 
   // Utilities patterns
-  if (/electricity|water|gas|internet|wifi|broadband|mobile|phone/i.test(normalized)) {
-    return { category: 'Utilities', confidence: 0.9, aiGenerated: false };
+  if (
+    /electricity|water|gas|internet|wifi|broadband|mobile|phone/i.test(
+      normalized,
+    )
+  ) {
+    return { category: "Utilities", confidence: 0.9, aiGenerated: false };
   }
 
   // Groceries patterns
-  if (/grocery|supermarket|reliance|dmart|bigbazaar|vegetables|fruits/i.test(normalized)) {
-    return { category: 'Groceries', confidence: 0.85, aiGenerated: false };
+  if (
+    /grocery|supermarket|reliance|dmart|bigbazaar|vegetables|fruits/i.test(
+      normalized,
+    )
+  ) {
+    return { category: "Groceries", confidence: 0.85, aiGenerated: false };
   }
 
   // Rent patterns (usually large amounts)
   if (/rent|lease|housing/i.test(normalized) || (amount && amount > 5000)) {
-    return { category: 'Rent', confidence: amount ? 0.8 : 0.7, aiGenerated: false };
+    return {
+      category: "Rent",
+      confidence: amount ? 0.8 : 0.7,
+      aiGenerated: false,
+    };
   }
 
   // Default
-  return { category: 'Other', confidence: 0.5, aiGenerated: false };
+  return { category: "Other", confidence: 0.5, aiGenerated: false };
 };
 
 /**
@@ -197,7 +232,7 @@ const categorizeWithRules = (
  */
 export const categorizeTransaction = async (
   merchant: string,
-  amount?: number
+  amount?: number,
 ): Promise<AICategorizationResult> => {
   const cacheKey = merchant.toLowerCase().trim();
 
@@ -222,10 +257,10 @@ export const categorizeTransaction = async (
  * Batch categorization (more efficient for multiple transactions)
  */
 export const categorizeBatch = async (
-  merchants: string[]
+  merchants: string[],
 ): Promise<AICategorizationResult[]> => {
   const results = await Promise.all(
-    merchants.map((merchant) => categorizeTransaction(merchant))
+    merchants.map((merchant) => categorizeTransaction(merchant)),
   );
   return results;
 };
@@ -240,17 +275,17 @@ export const getCategorizationStats = async () => {
     try {
       const keys = await redis.keys(`${CACHE_PREFIX}*`);
       return {
-        cacheType: 'redis',
+        cacheType: "redis",
         cacheSize: keys.length,
-        cachedMerchants: keys.map((k: string) => k.replace(CACHE_PREFIX, '')),
+        cachedMerchants: keys.map((k: string) => k.replace(CACHE_PREFIX, "")),
       };
     } catch (error) {
-      console.error('Failed to get Redis stats:', error);
+      console.error("Failed to get Redis stats:", error);
     }
   }
 
   return {
-    cacheType: 'in-memory',
+    cacheType: "in-memory",
     cacheSize: fallbackCache.size,
     cachedMerchants: Array.from(fallbackCache.keys()),
   };
@@ -270,7 +305,7 @@ export const clearCategorizationCache = async () => {
       }
       return;
     } catch (error) {
-      console.error('Failed to clear Redis cache:', error);
+      console.error("Failed to clear Redis cache:", error);
     }
   }
 

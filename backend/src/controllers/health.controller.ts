@@ -1,7 +1,7 @@
-import { Request, Response } from 'express';
-import * as client from 'prom-client';
-import prisma from '../config/database';
-import config from '../config/env';
+import { Request, Response } from "express";
+import * as client from "prom-client";
+import prisma from "../config/database";
+import config from "../config/env";
 
 // Enable default metrics collection
 const register = new client.Registry();
@@ -14,8 +14,8 @@ client.collectDefaultMetrics({ register });
 export const healthCheck = async (_req: Request, res: Response) => {
   res.status(200).json({
     success: true,
-    message: 'Backend is up and running',
-    track_metrics: '/health/metrics',
+    message: "Backend is up and running",
+    track_metrics: "/health/metrics",
     timestamp: new Date().toISOString(),
   });
 };
@@ -25,7 +25,7 @@ export const healthCheck = async (_req: Request, res: Response) => {
  * GET /health/metrics
  */
 export const getMetrics = async (_req: Request, res: Response) => {
-  res.set('Content-Type', register.contentType);
+  res.set("Content-Type", register.contentType);
   res.end(await register.metrics());
 };
 
@@ -34,27 +34,27 @@ export const getMetrics = async (_req: Request, res: Response) => {
  */
 export const detailedHealthCheck = async (_req: Request, res: Response) => {
   const checks = {
-    server: 'ok',
-    database: 'unknown',
+    server: "ok",
+    database: "unknown",
     timestamp: new Date().toISOString(),
     environment: config.env,
     uptime: process.uptime(),
     memory: {
       used: Math.round(process.memoryUsage().heapUsed / 1024 / 1024),
       total: Math.round(process.memoryUsage().heapTotal / 1024 / 1024),
-      unit: 'MB',
+      unit: "MB",
     },
   };
 
   try {
     // Test database connection
     await prisma.$queryRaw`SELECT 1`;
-    checks.database = 'ok';
+    checks.database = "ok";
   } catch (error) {
-    checks.database = 'error';
+    checks.database = "error";
   }
 
-  const isHealthy = checks.server === 'ok' && checks.database === 'ok';
+  const isHealthy = checks.server === "ok" && checks.database === "ok";
 
   res.status(isHealthy ? 200 : 503).json({
     success: isHealthy,

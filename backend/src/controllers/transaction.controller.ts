@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import { Request, Response } from "express";
 import {
   createTransaction,
   getTransactions,
@@ -8,7 +8,7 @@ import {
   getTransactionSummary,
   bulkUpdateTransactions,
   bulkDeleteTransactions,
-} from '../services/transaction.service';
+} from "../services/transaction.service";
 import {
   createTransactionSchema,
   updateTransactionSchema,
@@ -16,7 +16,7 @@ import {
   transactionSummarySchema,
   bulkUpdateTransactionsSchema,
   bulkDeleteTransactionsSchema,
-} from '../types/transaction.types';
+} from "../types/transaction.types";
 
 /**
  * Create a new transaction
@@ -49,7 +49,10 @@ export const getAll = async (req: Request, res: Response) => {
  * Get single transaction
  */
 export const getOne = async (req: Request, res: Response) => {
-  const transaction = await getTransactionById(req.user!.userId, req.params.id as string);
+  const transaction = await getTransactionById(
+    req.user!.userId,
+    req.params.id as string,
+  );
 
   res.json({
     success: true,
@@ -62,7 +65,11 @@ export const getOne = async (req: Request, res: Response) => {
  */
 export const update = async (req: Request, res: Response) => {
   const input = updateTransactionSchema.parse(req.body);
-  const transaction = await updateTransaction(req.user!.userId, req.params.id as string, input);
+  const transaction = await updateTransaction(
+    req.user!.userId,
+    req.params.id as string,
+    input,
+  );
 
   res.json({
     success: true,
@@ -74,7 +81,10 @@ export const update = async (req: Request, res: Response) => {
  * Delete transaction
  */
 export const remove = async (req: Request, res: Response) => {
-  const result = await deleteTransaction(req.user!.userId, req.params.id as string);
+  const result = await deleteTransaction(
+    req.user!.userId,
+    req.params.id as string,
+  );
 
   res.json({
     success: true,

@@ -1,6 +1,6 @@
-import jwt, { SignOptions } from 'jsonwebtoken';
-import config from '../config/env';
-import { UnauthorizedError } from './errors';
+import jwt, { SignOptions } from "jsonwebtoken";
+import config from "../config/env";
+import { UnauthorizedError } from "./errors";
 
 export interface JwtPayload {
   userId: string;
@@ -35,12 +35,12 @@ export const verifyAccessToken = (token: string): JwtPayload => {
     return jwt.verify(token, config.jwt.secret) as JwtPayload;
   } catch (error) {
     if (error instanceof jwt.TokenExpiredError) {
-      throw new UnauthorizedError('Token expired');
+      throw new UnauthorizedError("Token expired");
     }
     if (error instanceof jwt.JsonWebTokenError) {
-      throw new UnauthorizedError('Invalid token');
+      throw new UnauthorizedError("Invalid token");
     }
-    throw new UnauthorizedError('Token verification failed');
+    throw new UnauthorizedError("Token verification failed");
   }
 };
 
@@ -52,12 +52,12 @@ export const verifyRefreshToken = (token: string): JwtPayload => {
     return jwt.verify(token, config.jwt.refreshSecret) as JwtPayload;
   } catch (error) {
     if (error instanceof jwt.TokenExpiredError) {
-      throw new UnauthorizedError('Refresh token expired');
+      throw new UnauthorizedError("Refresh token expired");
     }
     if (error instanceof jwt.JsonWebTokenError) {
-      throw new UnauthorizedError('Invalid refresh token');
+      throw new UnauthorizedError("Invalid refresh token");
     }
-    throw new UnauthorizedError('Token verification failed');
+    throw new UnauthorizedError("Token verification failed");
   }
 };
 

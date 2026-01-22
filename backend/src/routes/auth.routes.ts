@@ -1,5 +1,5 @@
-import express from 'express';
-import { asyncHandler, authenticate } from '../middleware';
+import express from "express";
+import { asyncHandler, authenticate } from "../middleware";
 import {
   register,
   login,
@@ -7,8 +7,8 @@ import {
   getMe,
   updateMe,
   logout,
-} from '../controllers/auth.controller';
-import * as PasswordResetController from '../controllers/password-reset.controller';
+} from "../controllers/auth.controller";
+import * as PasswordResetController from "../controllers/password-reset.controller";
 
 const router = express.Router();
 
@@ -55,7 +55,7 @@ const router = express.Router();
  *       400:
  *         description: Invalid input or email already exists
  */
-router.post('/register', asyncHandler(register));
+router.post("/register", asyncHandler(register));
 
 /**
  * @swagger
@@ -102,7 +102,7 @@ router.post('/register', asyncHandler(register));
  *       401:
  *         description: Invalid credentials
  */
-router.post('/login', asyncHandler(login));
+router.post("/login", asyncHandler(login));
 
 /**
  * @swagger
@@ -127,7 +127,7 @@ router.post('/login', asyncHandler(login));
  *       401:
  *         description: Invalid or expired refresh token
  */
-router.post('/refresh', asyncHandler(refreshToken));
+router.post("/refresh", asyncHandler(refreshToken));
 
 /**
  * @swagger
@@ -152,7 +152,7 @@ router.post('/refresh', asyncHandler(refreshToken));
  *       200:
  *         description: Logout successful
  */
-router.post('/logout', authenticate, asyncHandler(logout));
+router.post("/logout", authenticate, asyncHandler(logout));
 
 /**
  * @swagger
@@ -166,7 +166,7 @@ router.post('/logout', authenticate, asyncHandler(logout));
  *       200:
  *         description: User profile data
  */
-router.get('/me', authenticate, asyncHandler(getMe));
+router.get("/me", authenticate, asyncHandler(getMe));
 
 /**
  * @swagger
@@ -192,11 +192,11 @@ router.get('/me', authenticate, asyncHandler(getMe));
  *       200:
  *         description: Profile updated successfully
  */
-router.put('/me', authenticate, asyncHandler(updateMe));
+router.put("/me", authenticate, asyncHandler(updateMe));
 
 // Password Reset Routes
-router.post('/forgot-password', PasswordResetController.forgotPassword);
-router.post('/verify-reset-token', PasswordResetController.verifyResetToken);
-router.post('/reset-password', PasswordResetController.resetPassword);
+router.post("/forgot-password", PasswordResetController.forgotPassword);
+router.post("/verify-reset-token", PasswordResetController.verifyResetToken);
+router.post("/reset-password", PasswordResetController.resetPassword);
 
 export default router;

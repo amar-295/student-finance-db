@@ -1,5 +1,5 @@
-import express from 'express';
-import { asyncHandler, authenticate } from '../middleware';
+import express from "express";
+import { asyncHandler, authenticate } from "../middleware";
 import {
   create,
   getAll,
@@ -9,7 +9,7 @@ import {
   getSummary,
   bulkUpdate,
   bulkDelete,
-} from '../controllers/transaction.controller';
+} from "../controllers/transaction.controller";
 
 const router = express.Router();
 
@@ -47,21 +47,21 @@ router.use(authenticate);
  *                   items:
  *                     $ref: '#/components/schemas/Transaction'
  */
-router.get('/summary', asyncHandler(getSummary));
+router.get("/summary", asyncHandler(getSummary));
 
 /**
  * @route   PUT /api/transactions/bulk/update
  * @desc    Bulk update transactions
  * @access  Private
  */
-router.put('/bulk/update', asyncHandler(bulkUpdate));
+router.put("/bulk/update", asyncHandler(bulkUpdate));
 
 /**
  * @route   POST /api/transactions/bulk/delete
  * @desc    Bulk delete transactions
  * @access  Private
  */
-router.post('/bulk/delete', asyncHandler(bulkDelete));
+router.post("/bulk/delete", asyncHandler(bulkDelete));
 
 /**
  * @swagger
@@ -105,7 +105,7 @@ router.post('/bulk/delete', asyncHandler(bulkDelete));
  *       400:
  *         description: Invalid input
  */
-router.post('/', asyncHandler(create));
+router.post("/", asyncHandler(create));
 
 /**
  * @swagger
@@ -148,7 +148,7 @@ router.post('/', asyncHandler(create));
  *                     total: { type: number }
  *                     pages: { type: number }
  */
-router.get('/', asyncHandler(getAll));
+router.get("/", asyncHandler(getAll));
 
 /**
  * @swagger
@@ -173,7 +173,7 @@ router.get('/', asyncHandler(getAll));
  *       404:
  *         description: Transaction not found
  */
-router.get('/:id', asyncHandler(getOne));
+router.get("/:id", asyncHandler(getOne));
 
 /**
  * @swagger
@@ -201,7 +201,7 @@ router.get('/:id', asyncHandler(getOne));
  *             schema:
  *               $ref: '#/components/schemas/Transaction'
  */
-router.put('/:id', asyncHandler(update));
+router.put("/:id", asyncHandler(update));
 
 /**
  * @swagger
@@ -220,6 +220,6 @@ router.put('/:id', asyncHandler(update));
  *       200:
  *         description: Transaction deleted
  */
-router.delete('/:id', asyncHandler(remove));
+router.delete("/:id", asyncHandler(remove));
 
 export default router;

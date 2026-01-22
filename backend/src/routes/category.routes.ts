@@ -1,10 +1,6 @@
-import express from 'express';
-import { asyncHandler, authenticate } from '../middleware';
-import {
-    getAll,
-    getOne,
-    create,
-} from '../controllers/category.controller';
+import express from "express";
+import { asyncHandler, authenticate } from "../middleware";
+import { getAll, getOne, create } from "../controllers/category.controller";
 
 const router = express.Router();
 
@@ -16,20 +12,20 @@ router.use(authenticate);
  * @desc    Get all categories (system + user)
  * @access  Private
  */
-router.get('/', asyncHandler(getAll));
+router.get("/", asyncHandler(getAll));
 
 /**
  * @route   POST /api/categories
  * @desc    Create custom category
  * @access  Private
  */
-router.post('/', asyncHandler(create));
+router.post("/", asyncHandler(create));
 
 /**
  * @route   GET /api/categories/:id
  * @desc    Get category details
  * @access  Private
  */
-router.get('/:id', asyncHandler(getOne));
+router.get("/:id", asyncHandler(getOne));
 
 export default router;

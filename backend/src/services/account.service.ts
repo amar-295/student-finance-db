@@ -1,18 +1,24 @@
-import prisma from '../config/database';
-import { NotFoundError, BadRequestError } from '../utils';
-import type { CreateAccountInput, UpdateAccountInput } from '../types/account.types';
+import prisma from "../config/database";
+import { NotFoundError, BadRequestError } from "../utils";
+import type {
+  CreateAccountInput,
+  UpdateAccountInput,
+} from "../types/account.types";
 
 /**
  * Create a new account
  */
-export const createAccount = async (userId: string, input: CreateAccountInput) => {
+export const createAccount = async (
+  userId: string,
+  input: CreateAccountInput,
+) => {
   const account = await prisma.account.create({
     data: {
       userId,
       name: input.name,
       accountType: input.accountType,
       balance: input.balance || 0,
-      currency: input.currency || 'USD',
+      currency: input.currency || "USD",
       institution: input.institution,
       accountNumber: input.accountNumber,
     },
@@ -31,7 +37,7 @@ export const getUserAccounts = async (userId: string) => {
       deletedAt: null,
     },
     orderBy: {
-      createdAt: 'desc',
+      createdAt: "desc",
     },
   });
 
@@ -51,7 +57,7 @@ export const getAccountById = async (userId: string, accountId: string) => {
   });
 
   if (!account) {
-    throw new NotFoundError('Account not found');
+    throw new NotFoundError("Account not found");
   }
 
   return account;
@@ -63,7 +69,7 @@ export const getAccountById = async (userId: string, accountId: string) => {
 export const updateAccount = async (
   userId: string,
   accountId: string,
-  input: UpdateAccountInput
+  input: UpdateAccountInput,
 ) => {
   // Verify account belongs to user
   const existing = await prisma.account.findFirst({
@@ -75,7 +81,7 @@ export const updateAccount = async (
   });
 
   if (!existing) {
-    throw new NotFoundError('Account not found');
+    throw new NotFoundError("Account not found");
   }
 
   const account = await prisma.account.update({
@@ -99,7 +105,7 @@ export const deleteAccount = async (userId: string, accountId: string) => {
   });
 
   if (!account) {
-    throw new NotFoundError('Account not found');
+    throw new NotFoundError("Account not found");
   }
 
   // Check if account has transactions
@@ -112,7 +118,7 @@ export const deleteAccount = async (userId: string, accountId: string) => {
 
   if (transactionCount > 0) {
     throw new BadRequestError(
-      `Cannot delete account with ${transactionCount} transaction(s). Delete or move transactions first.`
+      `Cannot delete account with ${transactionCount} transaction(s). Delete or move transactions first.`,
     );
   }
 
@@ -122,7 +128,7 @@ export const deleteAccount = async (userId: string, accountId: string) => {
     data: { deletedAt: new Date() },
   });
 
-  return { message: 'Account deleted successfully' };
+  return { message: "Account deleted successfully" };
 };
 
 /**
@@ -130,36 +136,46 @@ export const deleteAccount = async (userId: string, accountId: string) => {
  */
 export const transferFunds = async (
   userId: string,
-  input: { fromId: string; toId: string; amount: number; date: Date; note?: string }
+  input: {
+    fromId: string;
+    toId: string;
+    amount: number;
+    date: Date;
+    note?: string;
+  },
 ) => {
   if (input.fromId === input.toId) {
-    throw new BadRequestError('Cannot transfer to the same account');
+    throw new BadRequestError("Cannot transfer to the same account");
   }
 
   const { fromId, toId, amount, date, note } = input;
 
   // Verify ownership
-  const fromAccount = await prisma.account.findFirst({ where: { id: fromId, userId } });
-  const toAccount = await prisma.account.findFirst({ where: { id: toId, userId } });
+  const fromAccount = await prisma.account.findFirst({
+    where: { id: fromId, userId },
+  });
+  const toAccount = await prisma.account.findFirst({
+    where: { id: toId, userId },
+  });
 
   if (!fromAccount || !toAccount) {
-    throw new NotFoundError('One or both accounts not found');
+    throw new NotFoundError("One or both accounts not found");
   }
 
   // Find or create "Transfer" category
   let transferCategory = await prisma.category.findFirst({
-    where: { name: 'Transfer', OR: [{ userId }, { isSystem: true }] }
+    where: { name: "Transfer", OR: [{ userId }, { isSystem: true }] },
   });
 
   if (!transferCategory) {
     transferCategory = await prisma.category.create({
       data: {
-        name: 'Transfer',
-        type: 'expense', // Neutral, but needs type
+        name: "Transfer",
+        type: "expense", // Neutral, but needs type
         isSystem: true,
-        icon: 'swap_horiz',
-        color: '#8e44ad'
-      }
+        icon: "swap_horiz",
+        color: "#8e44ad",
+      },
     });
   }
 
@@ -172,12 +188,12 @@ export const transferFunds = async (
         accountId: fromId,
         categoryId: transferCategory!.id,
         amount: -amount,
-        merchant: 'Transfer to ' + toAccount.name,
-        description: note || 'Transfer',
+        merchant: "Transfer to " + toAccount.name,
+        description: note || "Transfer",
         transactionDate: date,
-        status: 'cleared',
-        currency: fromAccount.currency
-      }
+        status: "cleared",
+        currency: fromAccount.currency,
+      },
     });
 
     // 2. Create credit txn (to)
@@ -187,23 +203,23 @@ export const transferFunds = async (
         accountId: toId,
         categoryId: transferCategory!.id,
         amount: amount,
-        merchant: 'Transfer from ' + fromAccount.name,
-        description: note || 'Transfer',
+        merchant: "Transfer from " + fromAccount.name,
+        description: note || "Transfer",
         transactionDate: date,
-        status: 'cleared',
-        currency: toAccount.currency
-      }
+        status: "cleared",
+        currency: toAccount.currency,
+      },
     });
 
     // 3. Update balances
     await tx.account.update({
       where: { id: fromId },
-      data: { balance: { decrement: amount } }
+      data: { balance: { decrement: amount } },
     });
 
     await tx.account.update({
       where: { id: toId },
-      data: { balance: { increment: amount } }
+      data: { balance: { increment: amount } },
     });
 
     return { success: true };
@@ -213,7 +229,11 @@ export const transferFunds = async (
 /**
  * Get account balance history
  */
-export const getAccountHistory = async (userId: string, accountId: string, days: number = 30) => {
+export const getAccountHistory = async (
+  userId: string,
+  accountId: string,
+  days: number = 30,
+) => {
   const account = await getAccountById(userId, accountId);
 
   // Define time window
@@ -221,8 +241,8 @@ export const getAccountHistory = async (userId: string, accountId: string, days:
   startDate.setDate(startDate.getDate() - days);
 
   // We need ALL transactions after the start date to calculate history correctly
-  // (Actually, we need all transactions impacting the future if we worked forward, 
-  // but working backward from current balance (which is "now"), we need transactions 
+  // (Actually, we need all transactions impacting the future if we worked forward,
+  // but working backward from current balance (which is "now"), we need transactions
   // from now back to the start date)
 
   const transactions = await prisma.transaction.findMany({
@@ -232,10 +252,10 @@ export const getAccountHistory = async (userId: string, accountId: string, days:
       deletedAt: null,
       transactionDate: {
         gte: startDate,
-        lte: new Date() // include up to this exact moment 
-      }
+        lte: new Date(), // include up to this exact moment
+      },
     },
-    orderBy: { transactionDate: 'desc' } // Process newest first
+    orderBy: { transactionDate: "desc" }, // Process newest first
   });
 
   const history = [];
@@ -245,7 +265,7 @@ export const getAccountHistory = async (userId: string, accountId: string, days:
   const txnsByDay: Record<string, number> = {};
 
   for (const t of transactions) {
-    const dateStr = t.transactionDate.toISOString().split('T')[0];
+    const dateStr = t.transactionDate.toISOString().split("T")[0];
     // Transaction amount: + for Income, - for Expense
     // If we are at End of Day X, and want Start of Day X (or End of Day X-1),
     // We SUBTRACT the Day X transactions.
@@ -256,16 +276,16 @@ export const getAccountHistory = async (userId: string, accountId: string, days:
   for (let i = 0; i < days; i++) {
     const d = new Date();
     d.setDate(d.getDate() - i);
-    const dateStr = d.toISOString().split('T')[0];
+    const dateStr = d.toISOString().split("T")[0];
 
     // Push current END OF DAY balance
     history.push({
       date: dateStr,
-      balance: parseFloat(currentBalance.toFixed(2))
+      balance: parseFloat(currentBalance.toFixed(2)),
     });
 
     // Adjust balance for the previous day
-    // Current Balance represents "Now". 
+    // Current Balance represents "Now".
     // To get "Yesterday's Closure", we remove "Today's Net Flow".
     // If Today Flow = +100, Yesterday was (Balance - 100).
     const dayNetFlow = txnsByDay[dateStr] || 0;

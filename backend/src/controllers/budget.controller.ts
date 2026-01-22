@@ -1,28 +1,28 @@
-import { Request, Response } from 'express';
+import { Request, Response } from "express";
 import {
-    createBudget,
-    getUserBudgets,
-    getBudgetById,
-    updateBudget,
-    deleteBudget,
-    getAllBudgetStatuses,
-    getBudgetRecommendations,
-    checkBudgetAlerts,
-    getBudgetTransactions,
-    getBudgetAnalytics,
-} from '../services/budget.service';
+  createBudget,
+  getUserBudgets,
+  getBudgetById,
+  updateBudget,
+  deleteBudget,
+  getAllBudgetStatuses,
+  getBudgetRecommendations,
+  checkBudgetAlerts,
+  getBudgetTransactions,
+  getBudgetAnalytics,
+} from "../services/budget.service";
 import {
-    createBudgetSchema,
-    updateBudgetSchema,
-    budgetQuerySchema,
-} from '../types/budget.types';
-import { z } from 'zod';
+  createBudgetSchema,
+  updateBudgetSchema,
+  budgetQuerySchema,
+} from "../types/budget.types";
+import { z } from "zod";
 
 // Schema for date range query
 const dateRangeSchema = z.object({
-    startDate: z.string().optional(),
-    endDate: z.string().optional(),
-    limit: z.string().transform(Number).optional(),
+  startDate: z.string().optional(),
+  endDate: z.string().optional(),
+  limit: z.string().transform(Number).optional(),
 });
 
 /**
@@ -30,14 +30,14 @@ const dateRangeSchema = z.object({
  * POST /api/budgets
  */
 export const create = async (req: Request, res: Response) => {
-    const input = createBudgetSchema.parse(req.body);
-    const budget = await createBudget(req.user!.userId, input);
+  const input = createBudgetSchema.parse(req.body);
+  const budget = await createBudget(req.user!.userId, input);
 
-    res.status(201).json({
-        success: true,
-        message: 'Budget created successfully',
-        data: budget,
-    });
+  res.status(201).json({
+    success: true,
+    message: "Budget created successfully",
+    data: budget,
+  });
 };
 
 /**
@@ -45,13 +45,13 @@ export const create = async (req: Request, res: Response) => {
  * GET /api/budgets
  */
 export const getAll = async (req: Request, res: Response) => {
-    const query = budgetQuerySchema.parse(req.query);
-    const budgets = await getUserBudgets(req.user!.userId, query);
+  const query = budgetQuerySchema.parse(req.query);
+  const budgets = await getUserBudgets(req.user!.userId, query);
 
-    res.status(200).json({
-        success: true,
-        data: budgets,
-    });
+  res.status(200).json({
+    success: true,
+    data: budgets,
+  });
 };
 
 /**
@@ -59,12 +59,12 @@ export const getAll = async (req: Request, res: Response) => {
  * GET /api/budgets/:id
  */
 export const getOne = async (req: Request, res: Response) => {
-    const budget = await getBudgetById(req.user!.userId, req.params.id as string);
+  const budget = await getBudgetById(req.user!.userId, req.params.id as string);
 
-    res.status(200).json({
-        success: true,
-        data: budget,
-    });
+  res.status(200).json({
+    success: true,
+    data: budget,
+  });
 };
 
 /**
@@ -72,14 +72,18 @@ export const getOne = async (req: Request, res: Response) => {
  * PUT /api/budgets/:id
  */
 export const update = async (req: Request, res: Response) => {
-    const input = updateBudgetSchema.parse(req.body);
-    const budget = await updateBudget(req.user!.userId, req.params.id as string, input);
+  const input = updateBudgetSchema.parse(req.body);
+  const budget = await updateBudget(
+    req.user!.userId,
+    req.params.id as string,
+    input,
+  );
 
-    res.status(200).json({
-        success: true,
-        message: 'Budget updated successfully',
-        data: budget,
-    });
+  res.status(200).json({
+    success: true,
+    message: "Budget updated successfully",
+    data: budget,
+  });
 };
 
 /**
@@ -87,12 +91,12 @@ export const update = async (req: Request, res: Response) => {
  * DELETE /api/budgets/:id
  */
 export const remove = async (req: Request, res: Response) => {
-    const result = await deleteBudget(req.user!.userId, req.params.id as string);
+  const result = await deleteBudget(req.user!.userId, req.params.id as string);
 
-    res.status(200).json({
-        success: true,
-        message: result.message,
-    });
+  res.status(200).json({
+    success: true,
+    message: result.message,
+  });
 };
 
 /**
@@ -100,12 +104,12 @@ export const remove = async (req: Request, res: Response) => {
  * GET /api/budgets/status
  */
 export const getStatus = async (req: Request, res: Response) => {
-    const statuses = await getAllBudgetStatuses(req.user!.userId);
+  const statuses = await getAllBudgetStatuses(req.user!.userId);
 
-    res.status(200).json({
-        success: true,
-        data: statuses,
-    });
+  res.status(200).json({
+    success: true,
+    data: statuses,
+  });
 };
 
 /**
@@ -113,15 +117,16 @@ export const getStatus = async (req: Request, res: Response) => {
  * GET /api/budgets/recommend
  */
 export const getRecommendations = async (req: Request, res: Response) => {
-    const recommendations = await getBudgetRecommendations(req.user!.userId);
+  const recommendations = await getBudgetRecommendations(req.user!.userId);
 
-    res.status(200).json({
-        success: true,
-        message: recommendations.length > 0
-            ? 'Budget recommendations generated based on your spending patterns'
-            : 'Not enough spending data to generate recommendations. Add more transactions!',
-        data: recommendations,
-    });
+  res.status(200).json({
+    success: true,
+    message:
+      recommendations.length > 0
+        ? "Budget recommendations generated based on your spending patterns"
+        : "Not enough spending data to generate recommendations. Add more transactions!",
+    data: recommendations,
+  });
 };
 
 /**
@@ -129,12 +134,12 @@ export const getRecommendations = async (req: Request, res: Response) => {
  * GET /api/budgets/alerts
  */
 export const getAlerts = async (req: Request, res: Response) => {
-    const alerts = await checkBudgetAlerts(req.user!.userId);
+  const alerts = await checkBudgetAlerts(req.user!.userId);
 
-    res.json({
-        success: true,
-        data: alerts,
-    });
+  res.json({
+    success: true,
+    data: alerts,
+  });
 };
 
 /**
@@ -142,20 +147,16 @@ export const getAlerts = async (req: Request, res: Response) => {
  * GET /api/budgets/:id/transactions
  */
 export const getTransactions = async (req: Request, res: Response) => {
-    const userId = req.user!.userId;
-    const budgetId = req.params.id as string;
-    const query = dateRangeSchema.parse(req.query);
+  const userId = req.user!.userId;
+  const budgetId = req.params.id as string;
+  const query = dateRangeSchema.parse(req.query);
 
-    const transactions = await getBudgetTransactions(
-        userId,
-        budgetId,
-        query
-    );
+  const transactions = await getBudgetTransactions(userId, budgetId, query);
 
-    res.json({
-        success: true,
-        data: transactions
-    });
+  res.json({
+    success: true,
+    data: transactions,
+  });
 };
 
 /**
@@ -163,13 +164,13 @@ export const getTransactions = async (req: Request, res: Response) => {
  * GET /api/budgets/:id/analytics
  */
 export const getAnalytics = async (req: Request, res: Response) => {
-    const userId = req.user!.userId;
-    const budgetId = req.params.id as string;
+  const userId = req.user!.userId;
+  const budgetId = req.params.id as string;
 
-    const analytics = await getBudgetAnalytics(userId, budgetId);
+  const analytics = await getBudgetAnalytics(userId, budgetId);
 
-    res.json({
-        success: true,
-        data: analytics
-    });
+  res.json({
+    success: true,
+    data: analytics,
+  });
 };

@@ -1,8 +1,17 @@
-import prisma from '../config/database';
-import { hashPassword, comparePassword, generateTokenPair } from '../utils';
-import { ConflictError, UnauthorizedError, NotFoundError, ForbiddenError } from '../utils';
-import config from '../config/env';
-import type { RegisterInput, LoginInput, UpdateProfileInput } from '../types/auth.types';
+import prisma from "../config/database";
+import { hashPassword, comparePassword, generateTokenPair } from "../utils";
+import {
+  ConflictError,
+  UnauthorizedError,
+  NotFoundError,
+  ForbiddenError,
+} from "../utils";
+import config from "../config/env";
+import type {
+  RegisterInput,
+  LoginInput,
+  UpdateProfileInput,
+} from "../types/auth.types";
 
 /**
  * Register a new user
@@ -14,7 +23,7 @@ export const registerUser = async (input: RegisterInput) => {
   });
 
   if (existingUser) {
-    throw new ConflictError('Email already registered');
+    throw new ConflictError("Email already registered");
   }
 
   // Hash password
@@ -28,7 +37,7 @@ export const registerUser = async (input: RegisterInput) => {
         passwordHash,
         name: input.name,
         university: input.university,
-        baseCurrency: input.baseCurrency || 'USD',
+        baseCurrency: input.baseCurrency || "USD",
       },
       select: {
         id: true,
@@ -85,21 +94,24 @@ export const loginUser = async (input: LoginInput) => {
   });
 
   if (!user || user.deletedAt) {
-    throw new UnauthorizedError('Invalid email or password');
+    throw new UnauthorizedError("Invalid email or password");
   }
 
   // Check if account is locked
   if (user.lockedUntil && user.lockedUntil > new Date()) {
     const remainingMinutes = Math.ceil(
-      (user.lockedUntil.getTime() - Date.now()) / (1000 * 60)
+      (user.lockedUntil.getTime() - Date.now()) / (1000 * 60),
     );
     throw new ForbiddenError(
-      `Account is locked. Please try again in ${remainingMinutes} minute(s).`
+      `Account is locked. Please try again in ${remainingMinutes} minute(s).`,
     );
   }
 
   // Verify password
-  const isPasswordValid = await comparePassword(input.password, user.passwordHash);
+  const isPasswordValid = await comparePassword(
+    input.password,
+    user.passwordHash,
+  );
 
   if (!isPasswordValid) {
     // Increment failed attempts
@@ -118,11 +130,11 @@ export const loginUser = async (input: LoginInput) => {
 
     if (shouldLock) {
       throw new ForbiddenError(
-        `Too many failed attempts. Account locked for ${config.lockout.durationMinutes} minutes.`
+        `Too many failed attempts. Account locked for ${config.lockout.durationMinutes} minutes.`,
       );
     }
 
-    throw new UnauthorizedError('Invalid email or password');
+    throw new UnauthorizedError("Invalid email or password");
   }
 
   // Reset failed attempts on successful login
@@ -143,7 +155,13 @@ export const loginUser = async (input: LoginInput) => {
   });
 
   // Remove sensitive fields from response
-  const { passwordHash, deletedAt, failedLoginAttempts, lockedUntil, ...userWithoutSensitive } = user;
+  const {
+    passwordHash,
+    deletedAt,
+    failedLoginAttempts,
+    lockedUntil,
+    ...userWithoutSensitive
+  } = user;
 
   return {
     user: userWithoutSensitive,
@@ -170,7 +188,7 @@ export const getUserProfile = async (userId: string) => {
   });
 
   if (!user) {
-    throw new NotFoundError('User not found');
+    throw new NotFoundError("User not found");
   }
 
   return user;
@@ -181,7 +199,7 @@ export const getUserProfile = async (userId: string) => {
  */
 export const updateUserProfile = async (
   userId: string,
-  input: UpdateProfileInput
+  input: UpdateProfileInput,
 ) => {
   const user = await prisma.user.update({
     where: { id: userId },

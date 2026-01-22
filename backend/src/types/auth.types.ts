@@ -1,33 +1,41 @@
-import { z } from 'zod';
+import { z } from "zod";
 
 /**
  * User registration schema
  */
 export const registerSchema = z.object({
-  email: z.string().email('Invalid email address'),
+  email: z.string().email("Invalid email address"),
   password: z
-    .string({ required_error: 'Password is required' })
-    .min(8, 'Password must be at least 8 characters')
-    .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
-    .regex(/[0-9]/, 'Password must contain at least one number'),
-  name: z.string({ required_error: 'Name is required' }).min(1, 'Name is required').max(100, 'Name is too long'),
+    .string({ required_error: "Password is required" })
+    .min(8, "Password must be at least 8 characters")
+    .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
+    .regex(/[0-9]/, "Password must contain at least one number"),
+  name: z
+    .string({ required_error: "Name is required" })
+    .min(1, "Name is required")
+    .max(100, "Name is too long"),
   university: z.string().max(150).optional(),
-  baseCurrency: z.string().length(3, 'Currency must be 3-letter ISO code').default('USD'),
+  baseCurrency: z
+    .string()
+    .length(3, "Currency must be 3-letter ISO code")
+    .default("USD"),
 });
 
 /**
  * User login schema
  */
 export const loginSchema = z.object({
-  email: z.string().email('Invalid email address'),
-  password: z.string({ required_error: 'Password is required' }).min(1, 'Password is required'),
+  email: z.string().email("Invalid email address"),
+  password: z
+    .string({ required_error: "Password is required" })
+    .min(1, "Password is required"),
 });
 
 /**
  * Refresh token schema
  */
 export const refreshTokenSchema = z.object({
-  refreshToken: z.string().min(1, 'Refresh token is required'),
+  refreshToken: z.string().min(1, "Refresh token is required"),
 });
 
 /**
@@ -36,7 +44,10 @@ export const refreshTokenSchema = z.object({
 export const updateProfileSchema = z.object({
   name: z.string().min(1).max(100).optional(),
   university: z.string().max(150).optional(),
-  baseCurrency: z.string().length(3, 'Currency must be 3-letter ISO code').optional(),
+  baseCurrency: z
+    .string()
+    .length(3, "Currency must be 3-letter ISO code")
+    .optional(),
 });
 
 export type RegisterInput = z.infer<typeof registerSchema>;
