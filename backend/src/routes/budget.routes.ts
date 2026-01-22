@@ -9,6 +9,8 @@ import {
     getStatus,
     getRecommendations,
     getAlerts,
+    getTransactions,
+    getAnalytics,
 } from '../controllers/budget.controller';
 
 const router = express.Router();
@@ -36,6 +38,20 @@ router.get('/recommend', asyncHandler(getRecommendations));
  * @access  Private
  */
 router.get('/alerts', asyncHandler(getAlerts));
+
+/**
+ * @route   GET /api/budgets/:id/transactions
+ * @desc    Get transactions for a specific budget
+ * @access  Private
+ */
+router.get('/:id/transactions', asyncHandler(getTransactions));
+
+/**
+ * @route   GET /api/budgets/:id/analytics
+ * @desc    Get analytics for a specific budget
+ * @access  Private
+ */
+router.get('/:id/analytics', asyncHandler(getAnalytics));
 
 /**
  * @route   POST /api/budgets

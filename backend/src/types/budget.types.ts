@@ -8,6 +8,7 @@ import { z } from 'zod';
  * Create budget schema
  */
 export const createBudgetSchema = z.object({
+    name: z.string().min(1, 'Budget name is required'),
     categoryId: z.string().uuid('Invalid category ID'),
     amount: z.number().positive('Budget amount must be positive'),
     period: z.enum(['monthly', 'semester', 'yearly']).default('monthly'),
@@ -21,6 +22,7 @@ export const createBudgetSchema = z.object({
  * Update budget schema
  */
 export const updateBudgetSchema = z.object({
+    name: z.string().min(1).optional(),
     categoryId: z.string().uuid().optional(),
     amount: z.number().positive().optional(),
     period: z.enum(['monthly', 'semester', 'yearly']).optional(),
@@ -34,6 +36,7 @@ export const updateBudgetSchema = z.object({
  * Budget query schema
  */
 export const budgetQuerySchema = z.object({
+    name: z.string().optional(),
     categoryId: z.string().uuid().optional(),
     period: z.enum(['monthly', 'semester', 'yearly']).optional(),
     active: z.string().optional().transform(val => val === 'true'),

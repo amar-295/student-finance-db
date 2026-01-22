@@ -1,0 +1,383 @@
+
+> frontend@0.0.0 test
+> vitest src/components/LoginForm.test.tsx --run
+
+
+[1m[46m RUN [49m[22m [36mv4.0.17 [39m[90mC:/Users/amar/Desktop/student-finance-db/frontend[39m
+
+[90mstdout[2m | src/components/LoginForm.test.tsx[2m > [22m[2mLoginForm[2m > [22m[2mtoggles password visibility
+[22m[39m[36m<body>[39m
+  [36m<div>[39m
+    [36m<form>[39m
+      [36m<div>[39m
+        [36m<label[39m
+          [33mfor[39m=[32m"email"[39m
+        [36m>[39m
+          [0mEmail[0m
+        [36m</label>[39m
+        [36m<input[39m
+          [33mid[39m=[32m"email"[39m
+          [33mname[39m=[32m"email"[39m
+          [33mtype[39m=[32m"email"[39m
+        [36m/>[39m
+      [36m</div>[39m
+      [36m<div>[39m
+        [36m<label[39m
+          [33mfor[39m=[32m"password"[39m
+        [36m>[39m
+          [0mPassword[0m
+        [36m</label>[39m
+        [36m<input[39m
+          [33mid[39m=[32m"password"[39m
+          [33mname[39m=[32m"password"[39m
+          [33mtype[39m=[32m"password"[39m
+        [36m/>[39m
+        [36m<button[39m
+          [33maria-label[39m=[32m"Show password"[39m
+          [33mtype[39m=[32m"button"[39m
+        [36m>[39m
+          [0mvisibility[0m
+        [36m</button>[39m
+      [36m</div>[39m
+      [36m<button[39m
+        [33mtype[39m=[32m"submit"[39m
+      [36m>[39m
+        [0mLog In[0m
+      [36m</button>[39m
+    [36m</form>[39m
+  [36m</div>[39m
+[36m</body>[39m
+
+ [31m❯[39m src/components/LoginForm.test.tsx [2m([22m[2m7 tests[22m[2m | [22m[31m4 failed[39m[2m)[22m[33m 576[2mms[22m[39m
+[31m     [31m×[31m renders login form with email and password fields[39m[32m 36[2mms[22m[39m
+     [33m[2m✓[22m[39m validates email format [33m 328[2mms[22m[39m
+[31m     [31m×[31m requires password to be at least 8 characters[39m[32m 5[2mms[22m[39m
+[31m     [31m×[31m submits form with valid credentials[39m[32m 181[2mms[22m[39m
+     [32m✓[39m disables submit button while loading[32m 15[2mms[22m[39m
+     [32m✓[39m shows error message when login fails[32m 3[2mms[22m[39m
+[31m     [31m×[31m toggles password visibility[39m[32m 6[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 4 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m src/components/LoginForm.test.tsx[2m > [22mLoginForm[2m > [22mrenders login form with email and password fields
+[31m[1mTestingLibraryElementError[22m: Found multiple elements with the text of: /password/i
+
+Here are the matching elements:
+
+Ignored nodes: comments, script, style
+[36m<input[31m
+  [33mid[31m=[32m"password"[31m
+  [33mname[31m=[32m"password"[31m
+  [33mtype[31m=[32m"password"[31m
+[36m/>[31m
+
+Ignored nodes: comments, script, style
+[36m<button[31m
+  [33maria-label[31m=[32m"Show password"[31m
+  [33mtype[31m=[32m"button"[31m
+[36m>[31m
+  [0mvisibility[0m
+[36m</button>[31m
+
+(If this is intentional, then use the `*AllBy*` variant of the query (like `queryAllByText`, `getAllByText`, or `findAllByText`)).
+
+Ignored nodes: comments, script, style
+[36m<body>[31m
+  [36m<div>[31m
+    [36m<form>[31m
+      [36m<div>[31m
+        [36m<label[31m
+          [33mfor[31m=[32m"email"[31m
+        [36m>[31m
+          [0mEmail[0m
+        [36m</label>[31m
+        [36m<input[31m
+          [33mid[31m=[32m"email"[31m
+          [33mname[31m=[32m"email"[31m
+          [33mtype[31m=[32m"email"[31m
+        [36m/>[31m
+      [36m</div>[31m
+      [36m<div>[31m
+        [36m<label[31m
+          [33mfor[31m=[32m"password"[31m
+        [36m>[31m
+          [0mPassword[0m
+        [36m</label>[31m
+        [36m<input[31m
+          [33mid[31m=[32m"password"[31m
+          [33mname[31m=[32m"password"[31m
+          [33mtype[31m=[32m"password"[31m
+        [36m/>[31m
+        [36m<button[31m
+          [33maria-label[31m=[32m"Show password"[31m
+          [33mtype[31m=[32m"button"[31m
+        [36m>[31m
+          [0mvisibility[0m
+        [36m</button>[31m
+      [36m</div>[31m
+      [36m<button[31m
+        [33mtype[31m=[32m"submit"[31m
+      [36m>[31m
+        [0mLog In[0m
+      [36m</button>[31m
+    [36m</form>[31m
+  [36m</div>[31m
+[36m</body>[31m[39m
+[90m [2m❯[22m Object.getElementError node_modules/@testing-library/dom/dist/config.js:[2m37:19[22m[39m
+[90m [2m❯[22m getElementError node_modules/@testing-library/dom/dist/query-helpers.js:[2m20:35[22m[39m
+[90m [2m❯[22m getMultipleElementsFoundError node_modules/@testing-library/dom/dist/query-helpers.js:[2m23:10[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m55:13[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m95:19[22m[39m
+[36m [2m❯[22m src/components/LoginForm.test.tsx:[2m17:23[22m[39m
+    [90m 15| [39m
+    [90m 16| [39m        [34mexpect[39m(screen[33m.[39m[34mgetByLabelText[39m([36m/email/i[39m))[33m.[39m[34mtoBeInTheDocument[39m()[33m;[39m
+    [90m 17| [39m        [34mexpect[39m(screen[33m.[39m[34mgetByLabelText[39m([36m/password/i[39m))[33m.[39m[34mtoBeInTheDocument[39m()[33m;[39m
+    [90m   | [39m                      [31m^[39m
+    [90m 18| [39m        expect(screen.getByRole('button', { name: /log in/i })).toBeIn…
+    [90m 19| [39m    })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/components/LoginForm.test.tsx[2m > [22mLoginForm[2m > [22mrequires password to be at least 8 characters
+[31m[1mTestingLibraryElementError[22m: Found multiple elements with the text of: /password/i
+
+Here are the matching elements:
+
+Ignored nodes: comments, script, style
+[36m<input[31m
+  [33mid[31m=[32m"password"[31m
+  [33mname[31m=[32m"password"[31m
+  [33mtype[31m=[32m"password"[31m
+[36m/>[31m
+
+Ignored nodes: comments, script, style
+[36m<button[31m
+  [33maria-label[31m=[32m"Show password"[31m
+  [33mtype[31m=[32m"button"[31m
+[36m>[31m
+  [0mvisibility[0m
+[36m</button>[31m
+
+(If this is intentional, then use the `*AllBy*` variant of the query (like `queryAllByText`, `getAllByText`, or `findAllByText`)).
+
+Ignored nodes: comments, script, style
+[36m<body>[31m
+  [36m<div>[31m
+    [36m<form>[31m
+      [36m<div>[31m
+        [36m<label[31m
+          [33mfor[31m=[32m"email"[31m
+        [36m>[31m
+          [0mEmail[0m
+        [36m</label>[31m
+        [36m<input[31m
+          [33mid[31m=[32m"email"[31m
+          [33mname[31m=[32m"email"[31m
+          [33mtype[31m=[32m"email"[31m
+        [36m/>[31m
+      [36m</div>[31m
+      [36m<div>[31m
+        [36m<label[31m
+          [33mfor[31m=[32m"password"[31m
+        [36m>[31m
+          [0mPassword[0m
+        [36m</label>[31m
+        [36m<input[31m
+          [33mid[31m=[32m"password"[31m
+          [33mname[31m=[32m"password"[31m
+          [33mtype[31m=[32m"password"[31m
+        [36m/>[31m
+        [36m<button[31m
+          [33maria-label[31m=[32m"Show password"[31m
+          [33mtype[31m=[32m"button"[31m
+        [36m>[31m
+          [0mvisibility[0m
+        [36m</button>[31m
+      [36m</div>[31m
+      [36m<button[31m
+        [33mtype[31m=[32m"submit"[31m
+      [36m>[31m
+        [0mLog In[0m
+      [36m</button>[31m
+    [36m</form>[31m
+  [36m</div>[31m
+[36m</body>[31m[39m
+[90m [2m❯[22m Object.getElementError node_modules/@testing-library/dom/dist/config.js:[2m37:19[22m[39m
+[90m [2m❯[22m getElementError node_modules/@testing-library/dom/dist/query-helpers.js:[2m20:35[22m[39m
+[90m [2m❯[22m getMultipleElementsFoundError node_modules/@testing-library/dom/dist/query-helpers.js:[2m23:10[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m55:13[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m95:19[22m[39m
+[36m [2m❯[22m src/components/LoginForm.test.tsx:[2m38:38[22m[39m
+    [90m 36| [39m        [34mrender[39m([33m<[39m[33mLoginForm[39m [33monSubmit[39m[33m=[39m[33m{[39mmockOnSubmit[33m}[39m [33m/[39m[33m>[39m)[33m;[39m
+    [90m 37| [39m
+    [90m 38| [39m        [35mconst[39m passwordInput [33m=[39m screen[33m.[39m[34mgetByLabelText[39m([36m/password/i[39m)[33m;[39m
+    [90m   | [39m                                     [31m^[39m
+    [90m 39| [39m        [35mawait[39m user[33m.[39m[34mtype[39m(passwordInput[33m,[39m [32m'short'[39m)[33m;[39m
+    [90m 40| [39m        [35mawait[39m user[33m.[39m[34mtab[39m()[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/components/LoginForm.test.tsx[2m > [22mLoginForm[2m > [22msubmits form with valid credentials
+[31m[1mTestingLibraryElementError[22m: Found multiple elements with the text of: /password/i
+
+Here are the matching elements:
+
+Ignored nodes: comments, script, style
+[36m<input[31m
+  [33mid[31m=[32m"password"[31m
+  [33mname[31m=[32m"password"[31m
+  [33mtype[31m=[32m"password"[31m
+[36m/>[31m
+
+Ignored nodes: comments, script, style
+[36m<button[31m
+  [33maria-label[31m=[32m"Show password"[31m
+  [33mtype[31m=[32m"button"[31m
+[36m>[31m
+  [0mvisibility[0m
+[36m</button>[31m
+
+(If this is intentional, then use the `*AllBy*` variant of the query (like `queryAllByText`, `getAllByText`, or `findAllByText`)).
+
+Ignored nodes: comments, script, style
+[36m<body>[31m
+  [36m<div>[31m
+    [36m<form>[31m
+      [36m<div>[31m
+        [36m<label[31m
+          [33mfor[31m=[32m"email"[31m
+        [36m>[31m
+          [0mEmail[0m
+        [36m</label>[31m
+        [36m<input[31m
+          [33mid[31m=[32m"email"[31m
+          [33mname[31m=[32m"email"[31m
+          [33mtype[31m=[32m"email"[31m
+        [36m/>[31m
+      [36m</div>[31m
+      [36m<div>[31m
+        [36m<label[31m
+          [33mfor[31m=[32m"password"[31m
+        [36m>[31m
+          [0mPassword[0m
+        [36m</label>[31m
+        [36m<input[31m
+          [33mid[31m=[32m"password"[31m
+          [33mname[31m=[32m"password"[31m
+          [33mtype[31m=[32m"password"[31m
+        [36m/>[31m
+        [36m<button[31m
+          [33maria-label[31m=[32m"Show password"[31m
+          [33mtype[31m=[32m"button"[31m
+        [36m>[31m
+          [0mvisibility[0m
+        [36m</button>[31m
+      [36m</div>[31m
+      [36m<button[31m
+        [33mtype[31m=[32m"submit"[31m
+      [36m>[31m
+        [0mLog In[0m
+      [36m</button>[31m
+    [36m</form>[31m
+  [36m</div>[31m
+[36m</body>[31m[39m
+[90m [2m❯[22m Object.getElementError node_modules/@testing-library/dom/dist/config.js:[2m37:19[22m[39m
+[90m [2m❯[22m getElementError node_modules/@testing-library/dom/dist/query-helpers.js:[2m20:35[22m[39m
+[90m [2m❯[22m getMultipleElementsFoundError node_modules/@testing-library/dom/dist/query-helpers.js:[2m23:10[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m55:13[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m95:19[22m[39m
+[36m [2m❯[22m src/components/LoginForm.test.tsx:[2m52:32[22m[39m
+    [90m 50| [39m
+    [90m 51| [39m        await user.type(screen.getByLabelText(/email/i), 'alex@demo.co…
+    [90m 52| [39m        await user.type(screen.getByLabelText(/password/i), 'DemoPassw…
+    [90m   | [39m                               [31m^[39m
+    [90m 53| [39m        await user.click(screen.getByRole('button', { name: /log in/i …
+    [90m 54| [39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/components/LoginForm.test.tsx[2m > [22mLoginForm[2m > [22mtoggles password visibility
+[31m[1mTestingLibraryElementError[22m: Found multiple elements with the text of: /password/i
+
+Here are the matching elements:
+
+Ignored nodes: comments, script, style
+[36m<input[31m
+  [33mid[31m=[32m"password"[31m
+  [33mname[31m=[32m"password"[31m
+  [33mtype[31m=[32m"password"[31m
+[36m/>[31m
+
+Ignored nodes: comments, script, style
+[36m<button[31m
+  [33maria-label[31m=[32m"Show password"[31m
+  [33mtype[31m=[32m"button"[31m
+[36m>[31m
+  [0mvisibility[0m
+[36m</button>[31m
+
+(If this is intentional, then use the `*AllBy*` variant of the query (like `queryAllByText`, `getAllByText`, or `findAllByText`)).
+
+Ignored nodes: comments, script, style
+[36m<body>[31m
+  [36m<div>[31m
+    [36m<form>[31m
+      [36m<div>[31m
+        [36m<label[31m
+          [33mfor[31m=[32m"email"[31m
+        [36m>[31m
+          [0mEmail[0m
+        [36m</label>[31m
+        [36m<input[31m
+          [33mid[31m=[32m"email"[31m
+          [33mname[31m=[32m"email"[31m
+          [33mtype[31m=[32m"email"[31m
+        [36m/>[31m
+      [36m</div>[31m
+      [36m<div>[31m
+        [36m<label[31m
+          [33mfor[31m=[32m"password"[31m
+        [36m>[31m
+          [0mPassword[0m
+        [36m</label>[31m
+        [36m<input[31m
+          [33mid[31m=[32m"password"[31m
+          [33mname[31m=[32m"password"[31m
+          [33mtype[31m=[32m"password"[31m
+        [36m/>[31m
+        [36m<button[31m
+          [33maria-label[31m=[32m"Show password"[31m
+          [33mtype[31m=[32m"button"[31m
+        [36m>[31m
+          [0mvisibility[0m
+        [36m</button>[31m
+      [36m</div>[31m
+      [36m<button[31m
+        [33mtype[31m=[32m"submit"[31m
+      [36m>[31m
+        [0mLog In[0m
+      [36m</button>[31m
+    [36m</form>[31m
+  [36m</div>[31m
+[36m</body>[31m[39m
+[90m [2m❯[22m Object.getElementError node_modules/@testing-library/dom/dist/config.js:[2m37:19[22m[39m
+[90m [2m❯[22m getElementError node_modules/@testing-library/dom/dist/query-helpers.js:[2m20:35[22m[39m
+[90m [2m❯[22m getMultipleElementsFoundError node_modules/@testing-library/dom/dist/query-helpers.js:[2m23:10[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m55:13[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m95:19[22m[39m
+[36m [2m❯[22m src/components/LoginForm.test.tsx:[2m83:38[22m[39m
+    [90m 81| [39m        screen[33m.[39m[34mdebug[39m()[33m;[39m [90m// ADDED DEBUG HERE[39m
+    [90m 82| [39m
+    [90m 83| [39m        const passwordInput = screen.getByLabelText(/password/i) as HT…
+    [90m   | [39m                                     [31m^[39m
+    [90m 84| [39m        [34mexpect[39m(passwordInput[33m.[39mtype)[33m.[39m[34mtoBe[39m([32m'password'[39m)[33m;[39m
+    [90m 85| [39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m4 failed[39m[22m[2m | [22m[1m[32m3 passed[39m[22m[90m (7)[39m
+[2m   Start at [22m 11:52:57
+[2m   Duration [22m 1.74s[2m (transform 79ms, setup 175ms, import 204ms, tests 576ms, environment 646ms)[22m
+

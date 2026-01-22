@@ -18,6 +18,15 @@ export interface Transaction {
     date: string; // ISO string
     isSplit?: boolean;
     aiCategorized?: boolean;
+    status?: 'pending' | 'cleared' | 'reconciled';
+    receiptUrl?: string;
+}
+
+export interface BulkUpdateInput {
+    transactionIds: string[];
+    categoryId?: string;
+    status?: 'pending' | 'cleared' | 'reconciled';
+    accountId?: string;
 }
 
 export interface TransactionFilters {
@@ -28,12 +37,26 @@ export interface TransactionFilters {
     minAmount?: number;
     maxAmount?: number;
     limit?: number;
+    page?: number;
+    sortBy?: 'date' | 'amount' | 'merchant' | 'category';
+    sortOrder?: 'asc' | 'desc';
 }
 
 const getAuthHeader = () => {
     const token = localStorage.getItem('accessToken');
     return { Authorization: `Bearer ${token}` };
 };
+
+export interface PaginatedResponse<T> {
+    data: T[];
+    pagination: {
+        page: number;
+        limit: number;
+        total: number;
+        totalPages: number;
+        hasMore: boolean;
+    };
+}
 
 export const transactionService = {
     async getTransactions(filters: TransactionFilters = {}) {
@@ -44,8 +67,16 @@ export const transactionService = {
         if (filters.categoryId) params.append('categoryId', filters.categoryId);
         if (filters.search) params.append('search', filters.search);
         if (filters.limit) params.append('limit', filters.limit.toString());
+        // Add other params manually passed in filter object if they exist in type, 
+        // but for page/sort they are passed mixed. 
+        // We really should extend TransactionFilters to include them or pass separate args.
+        // For now, let's coerce filters to any to read page/sort
+        const f = filters as any;
+        if (f.page) params.append('page', f.page.toString());
+        if (f.sortBy) params.append('sortBy', f.sortBy);
+        if (f.sortOrder) params.append('sortOrder', f.sortOrder);
 
-        const response = await axios.get<Transaction[]>(API_URL, {
+        const response = await axios.get<PaginatedResponse<Transaction>>(API_URL, {
             headers: getAuthHeader(),
             params
         });
@@ -70,6 +101,24 @@ export const transactionService = {
         await axios.delete(`${API_URL}/${id}`, {
             headers: getAuthHeader()
         });
+    },
+
+    async bulkUpdate(data: BulkUpdateInput) {
+        const response = await axios.put<{ success: boolean; data: Transaction[] }>(
+            `${API_URL}/bulk/update`,
+            data,
+            { headers: getAuthHeader() }
+        );
+        return response.data.data;
+    },
+
+    async bulkDelete(transactionIds: string[]) {
+        const response = await axios.post<{ success: boolean; data: string[] }>(
+            `${API_URL}/bulk/delete`,
+            { transactionIds },
+            { headers: getAuthHeader() }
+        );
+        return response.data.data;
     },
 
     // Mock data function for development until backend is fully ready

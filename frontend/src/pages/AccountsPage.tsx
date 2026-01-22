@@ -1,8 +1,12 @@
 import Skeleton from '../components/common/Skeleton';
 import { useAccounts } from '../hooks/useAccounts';
 
+import { useState } from 'react';
+import TransferModal from '../components/accounts/TransferModal';
+
 export default function AccountsPage() {
     const { data: accounts = [], isLoading: loading, refetch } = useAccounts();
+    const [isTransferOpen, setIsTransferOpen] = useState(false);
 
     const totalAssets = accounts
         .filter(a => a.balance > 0)
@@ -47,25 +51,34 @@ export default function AccountsPage() {
             {/* Page Heading & Actions */}
             <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
                 <div className="space-y-1">
-                    <h1 className="text-4xl font-extrabold tracking-tight text-text-main dark:text-white">My Accounts</h1>
+                    <h1 className="text-4xl font-extrabold tracking-tight text-text-main dark:text-dark-text-primary">My Accounts</h1>
                     <p className="text-text-muted text-sm font-medium flex items-center gap-2">
                         <span className="size-2 rounded-full bg-emerald-500 animate-pulse"></span>
                         Live updates active • Last synced just now
                     </p>
                 </div>
                 <button
+                    onClick={() => setIsTransferOpen(true)}
+                    className="flex items-center justify-center gap-2 bg-white dark:bg-dark-bg-tertiary text-text-main dark:text-dark-text-primary px-6 py-3 rounded-xl font-bold shadow-sm hover:bg-gray-50 dark:hover:bg-dark-bg-hover transition-all border border-gray-200 dark:border-dark-border-primary"
+                >
+                    <span className="material-symbols-outlined text-[20px]">swap_horiz</span>
+                    <span>Transfer</span>
+                </button>
+                <button
                     onClick={() => refetch()}
-                    className="group flex items-center justify-center gap-2 bg-text-main dark:bg-white text-white dark:text-text-main px-6 py-3 rounded-xl font-bold shadow-lg shadow-gray-200 dark:shadow-none hover:-translate-y-0.5 transition-all"
+                    className="group flex items-center justify-center gap-2 bg-text-main dark:bg-primary-500 text-white dark:text-text-main px-6 py-3 rounded-xl font-bold shadow-lg shadow-gray-200 dark:shadow-none hover:-translate-y-0.5 transition-all"
                 >
                     <span className="material-symbols-outlined text-[20px]">add</span>
                     <span>Link Account</span>
                 </button>
             </div>
 
+            <TransferModal isOpen={isTransferOpen} onClose={() => setIsTransferOpen(false)} />
+
             {/* Summary Cards */}
             <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {/* Asset Card */}
-                <div className="bg-surface-light dark:bg-white/5 rounded-2xl p-6 shadow-sm hover:shadow-md border border-gray-100 dark:border-gray-800 transition-all duration-300 group">
+                <div className="bg-surface-light dark:bg-dark-bg-secondary rounded-2xl p-6 shadow-sm hover:shadow-md border border-gray-100 dark:border-dark-border-primary transition-all duration-300 group">
                     <div className="flex items-start justify-between mb-4">
                         <div className="p-3 bg-primary/10 dark:bg-primary/20 rounded-xl text-primary">
                             <span className="material-symbols-outlined filled-icon">savings</span>
@@ -79,13 +92,13 @@ export default function AccountsPage() {
                         {loading ? (
                             <Skeleton variant="text" width="60%" className="h-9" />
                         ) : (
-                            <p className="text-3xl font-bold text-text-main dark:text-white group-hover:text-primary transition-colors">{formatCurrency(totalAssets)}</p>
+                            <p className="text-3xl font-bold text-text-main dark:text-dark-text-primary group-hover:text-primary transition-colors">{formatCurrency(totalAssets)}</p>
                         )}
                     </div>
                 </div>
 
                 {/* Liabilities Card */}
-                <div className="bg-surface-light dark:bg-white/5 rounded-2xl p-6 shadow-sm hover:shadow-md border border-gray-100 dark:border-gray-800 transition-all duration-300 group">
+                <div className="bg-surface-light dark:bg-dark-bg-secondary rounded-2xl p-6 shadow-sm hover:shadow-md border border-gray-100 dark:border-dark-border-primary transition-all duration-300 group">
                     <div className="flex items-start justify-between mb-4">
                         <div className="p-3 bg-rose/10 dark:bg-rose/20 rounded-xl text-rose">
                             <span className="material-symbols-outlined filled-icon">credit_card</span>
@@ -99,7 +112,7 @@ export default function AccountsPage() {
                         {loading ? (
                             <Skeleton variant="text" width="60%" className="h-9" />
                         ) : (
-                            <p className="text-3xl font-bold text-text-main dark:text-white group-hover:text-rose transition-colors">{formatCurrency(totalLiabilities)}</p>
+                            <p className="text-3xl font-bold text-text-main dark:text-dark-text-primary group-hover:text-rose transition-colors">{formatCurrency(totalLiabilities)}</p>
                         )}
                     </div>
                 </div>
@@ -136,7 +149,7 @@ export default function AccountsPage() {
                 {loading ? (
                     // Skeleton List
                     [...Array(3)].map((_, i) => (
-                        <div key={i} className="group relative bg-surface-light dark:bg-white/5 rounded-2xl p-5 border border-transparent flex flex-col md:flex-row items-center gap-6">
+                        <div key={i} className="group relative bg-surface-light dark:bg-dark-bg-secondary rounded-2xl p-5 border border-transparent flex flex-col md:flex-row items-center gap-6">
                             <Skeleton variant="rect" width={56} height={56} className="rounded-2xl shrink-0" />
                             <div className="flex-grow w-full space-y-2">
                                 <Skeleton variant="text" width="150px" className="h-6" />
@@ -154,7 +167,7 @@ export default function AccountsPage() {
                     ))
                 ) : accounts.length > 0 ? (
                     accounts.map(account => (
-                        <div key={account.id} className="group relative bg-surface-light dark:bg-white/5 rounded-2xl p-5 border border-transparent hover:border-gray-200 dark:hover:border-gray-700 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 flex flex-col md:flex-row items-center gap-6">
+                        <div key={account.id} className="group relative bg-surface-light dark:bg-dark-bg-secondary rounded-2xl p-5 border border-transparent hover:border-gray-200 dark:hover:border-dark-border-primary shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 flex flex-col md:flex-row items-center gap-6">
                             {/* Left: Icon */}
                             <div className="shrink-0 relative">
                                 <div className={`size-14 rounded-2xl bg-gradient-to-br flex items-center justify-center ${getAccountColorClass(account.accountType)}`}>
@@ -166,7 +179,7 @@ export default function AccountsPage() {
                             </div>
                             {/* Middle: Details */}
                             <div className="flex-grow text-center md:text-left space-y-1">
-                                <h3 className="text-lg font-bold text-text-main dark:text-white">{account.name}</h3>
+                                <h3 className="text-lg font-bold text-text-main dark:text-dark-text-primary">{account.name}</h3>
                                 <div className="flex items-center justify-center md:justify-start gap-3 text-sm text-text-muted">
                                     <span className="font-mono bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded text-xs">•••• {account.accountNumber}</span>
                                     <span className="w-1 h-1 rounded-full bg-gray-300"></span>
@@ -182,11 +195,11 @@ export default function AccountsPage() {
                                     {formatCurrency(account.balance)}
                                 </span>
                             </div>
-                            <div className="w-full md:w-auto border-t md:border-t-0 md:border-l border-gray-100 dark:border-gray-700 pt-4 md:pt-0 md:pl-6 flex items-center justify-center gap-3">
+                            <div className="w-full md:w-auto border-t md:border-t-0 md:border-l border-gray-100 dark:border-dark-border-primary pt-4 md:pt-0 md:pl-6 flex items-center justify-center gap-3">
                                 <button className="px-4 py-2 rounded-lg text-sm font-bold text-primary hover:bg-primary/10 transition-colors">
                                     View Details
                                 </button>
-                                <button className="size-9 flex items-center justify-center rounded-lg text-text-muted hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                                <button className="size-9 flex items-center justify-center rounded-lg text-text-muted hover:bg-gray-100 dark:hover:bg-dark-bg-tertiary transition-colors">
                                     <span className="material-symbols-outlined">more_vert</span>
                                 </button>
                             </div>
@@ -201,7 +214,7 @@ export default function AccountsPage() {
 
                 {/* Add Account Placeholder */}
                 {!loading && (
-                    <div className="opacity-50 pointer-events-none select-none border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-2xl p-6 flex flex-col items-center justify-center gap-4 text-center hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors cursor-pointer group">
+                    <div className="opacity-50 pointer-events-none select-none border-2 border-dashed border-gray-200 dark:border-dark-border-primary rounded-2xl p-6 flex flex-col items-center justify-center gap-4 text-center hover:bg-gray-50 dark:hover:bg-dark-bg-hover transition-colors cursor-pointer group">
                         <div className="size-12 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-400 group-hover:scale-110 transition-transform">
                             <span className="material-symbols-outlined">add</span>
                         </div>
@@ -211,7 +224,7 @@ export default function AccountsPage() {
             </section>
 
             {/* Footer */}
-            <footer className="border-t border-gray-200 dark:border-gray-800 py-8 mt-auto">
+            <footer className="border-t border-gray-200 dark:border-dark-border-primary py-8 mt-auto">
                 <div className="max-w-7xl mx-auto px-4 text-center text-sm text-text-muted">
                     <p>© 2026 UniFlow Inc. All rights reserved.</p>
                 </div>

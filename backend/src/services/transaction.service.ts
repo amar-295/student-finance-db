@@ -6,6 +6,8 @@ import type {
   UpdateTransactionInput,
   GetTransactionsQuery,
   TransactionSummaryQuery,
+  BulkUpdateTransactionsInput,
+  BulkDeleteTransactionsInput,
 } from '../types/transaction.types';
 
 /**
@@ -97,6 +99,8 @@ export const createTransaction = async (
         currency: input.currency || account.currency,
         aiCategorized,
         aiConfidence,
+        status: input.status,
+        receiptUrl: input.receiptUrl,
       },
       include: {
         category: true,
@@ -167,12 +171,44 @@ export const getTransactions = async (
     where.merchant = { contains: merchant, mode: 'insensitive' };
   }
 
+  // Parse advanced search syntax if present
   if (search) {
-    where.OR = [
-      { merchant: { contains: search, mode: 'insensitive' } },
-      { description: { contains: search, mode: 'insensitive' } },
-      { notes: { contains: search, mode: 'insensitive' } },
-    ];
+    const searchTerms = search.split(' ');
+    // const advancedFilters: any = []; // Unused
+    const textTerms: string[] = [];
+
+    searchTerms.forEach(term => {
+      if (term.includes(':')) {
+        const [key, value] = term.split(':');
+        // Handle comparison operators for amount: amount:>50, amount:<50
+        if (key === 'amount') {
+          if (value.startsWith('>=')) where.amount = { ...where.amount, gte: parseFloat(value.substring(2)) };
+          else if (value.startsWith('<=')) where.amount = { ...where.amount, lte: parseFloat(value.substring(2)) };
+          else if (value.startsWith('>')) where.amount = { ...where.amount, gt: parseFloat(value.substring(1)) };
+          else if (value.startsWith('<')) where.amount = { ...where.amount, lt: parseFloat(value.substring(1)) };
+          else where.amount = parseFloat(value);
+        } else if (key === 'category') {
+          where.category = { name: { contains: value, mode: 'insensitive' } };
+        } else if (key === 'merchant') {
+          where.merchant = { contains: value, mode: 'insensitive' };
+        } else if (key === 'status') {
+          where.status = value;
+        } else {
+          textTerms.push(term);
+        }
+      } else {
+        textTerms.push(term);
+      }
+    });
+
+    if (textTerms.length > 0) {
+      const textSearch = textTerms.join(' ');
+      where.OR = [
+        { merchant: { contains: textSearch, mode: 'insensitive' } },
+        { description: { contains: textSearch, mode: 'insensitive' } },
+        { notes: { contains: textSearch, mode: 'insensitive' } },
+      ];
+    }
   }
 
   // Build order by
@@ -310,6 +346,8 @@ export const updateTransaction = async (
         description: input.description,
         currency: input.currency,
         notes: input.notes,
+        status: input.status,
+        receiptUrl: input.receiptUrl,
         // Reset AI flags if manually edited
         aiCategorized: input.categoryId ? false : existing.aiCategorized,
       },
@@ -468,4 +506,56 @@ const generateCategoryColor = (categoryName: string): string => {
   };
 
   return colors[categoryName] || '#95A5A6';
+};
+
+/**
+ * Bulk update transactions
+ */
+export const bulkUpdateTransactions = async (
+  userId: string,
+  input: BulkUpdateTransactionsInput
+) => {
+  const results = [];
+
+  // We process sequentially to handle complex logic like balance updates per transaction
+  for (const id of input.transactionIds) {
+    try {
+      const updateData: UpdateTransactionInput = {};
+      if (input.categoryId) updateData.categoryId = input.categoryId;
+      if (input.accountId) updateData.accountId = input.accountId;
+      if (input.status) updateData.status = input.status;
+
+      const updated = await updateTransaction(userId, id, updateData);
+      results.push(updated);
+    } catch (error) {
+      // Continue updating others? Or fail all? 
+      // For now, let's fail partial if critical, but arguably user expects "as many as possible".
+      // But updateTransaction throws if not found.
+      // We'll catch and log/ignore errors for missing IDs to allow others to proceed.
+      console.error(`Failed to update transaction ${id}`, error);
+    }
+  }
+
+  return results;
+};
+
+/**
+ * Bulk delete transactions
+ */
+export const bulkDeleteTransactions = async (
+  userId: string,
+  input: BulkDeleteTransactionsInput
+) => {
+  const results = [];
+
+  for (const id of input.transactionIds) {
+    try {
+      await deleteTransaction(userId, id);
+      results.push(id);
+    } catch (error) {
+      console.error(`Failed to delete transaction ${id}`, error);
+    }
+  }
+
+  return { deletedCount: results.length, ids: results };
 };

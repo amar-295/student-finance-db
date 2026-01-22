@@ -6,6 +6,7 @@ export interface Budget {
     id: string;
     userId: string;
     categoryId: string;
+    name: string;
     amount: number; // Decimal in backend, number in frontend
     periodType: 'monthly' | 'semester' | 'yearly';
     startDate: string;
@@ -23,6 +24,7 @@ export interface Budget {
 }
 
 export interface CreateBudgetDto {
+    name: string;
     categoryId: string;
     amount: number;
     periodType: 'monthly' | 'semester' | 'yearly';
@@ -61,6 +63,24 @@ const getAuthHeader = () => {
     const token = localStorage.getItem('accessToken');
     return { Authorization: `Bearer ${token}` };
 };
+
+// Analytics Interfaces
+export interface BudgetAnalytics {
+    budget: Budget & {
+        totalSpent: number;
+        remaining: number;
+        percentUsed: number;
+        daysRemaining: number;
+    };
+    stats: {
+        avgDailySpend: number;
+        projectedSpend: number;
+        avgTransaction: number;
+        transactionCount: number;
+    };
+    trend: { date: string; amount: number }[];
+    breakdown: { name: string; value: number; percentage: number }[];
+}
 
 export const budgetService = {
     async getBudgets(filters: BudgetFilters = {}) {
@@ -119,6 +139,21 @@ export const budgetService = {
     async getRecommendations() {
         const response = await axios.get<any>(`${API_URL}/recommend`, { // Type as any for now or specific DTO
             headers: getAuthHeader()
+        });
+        return response.data;
+    },
+
+    async getBudgetAnalytics(budgetId: string) {
+        const response = await axios.get<any>(`${API_URL}/${budgetId}/analytics`, {
+            headers: getAuthHeader()
+        });
+        return response.data;
+    },
+
+    async getBudgetTransactions(budgetId: string, params?: { startDate?: string; endDate?: string, limit?: number }) {
+        const response = await axios.get<any>(`${API_URL}/${budgetId}/transactions`, {
+            headers: getAuthHeader(),
+            params
         });
         return response.data;
     }

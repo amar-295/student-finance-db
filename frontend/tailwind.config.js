@@ -5,38 +5,87 @@ export default {
   theme: {
     extend: {
       colors: {
-        primary: '#2eb8b5',
-        'primary-dark': '#259694',
-        secondary: '#4F46E5',
-        'secondary-light': '#E0E7FF',
-        'background-light': '#f6f8f8',
-        'background-dark': '#131f1f',
-        'text-main': '#101919',
-        'text-muted': '#578e8d',
-        'slate-text-main': '#1e293b',
-        'slate-text-muted': '#64748b',
-        'accent-coral': '#F27B66',
-        'accent-pink': '#F56B9E',
+        primary: {
+          50: '#f0f9ff',
+          DEFAULT: '#2563EB', // blue-600
+          100: '#e0f2fe',
+          200: '#bae6fd',
+          300: '#7dd3fc',
+          400: '#38bdf8',
+          500: '#0ea5e9',
+          600: '#0284c7',
+          700: '#0369a1',
+          800: '#075985',
+          900: '#0c4a6e',
+          light: '#60A5FA', // blue-400
+          dark: '#1D4ED8', // blue-700
+        },
+        // Dark mode specific colors
+        dark: {
+          bg: {
+            primary: '#0F172A',    // slate-900
+            secondary: '#1E293B',  // slate-800
+            tertiary: '#334155',   // slate-700
+            hover: '#475569',      // slate-600
+          },
+          text: {
+            primary: '#F1F5F9',    // slate-100
+            secondary: '#CBD5E1',  // slate-300
+            tertiary: '#94A3B8',   // slate-400
+          },
+          border: {
+            primary: '#334155',    // slate-700
+            secondary: '#475569',  // slate-600
+          }
+        },
+        secondary: '#64748B', // slate-500
+        success: '#22C55E', // green-500
+        warning: '#EAB308', // yellow-500
+        danger: '#EF4444', // red-500
+        background: {
+          light: '#F9FAFB', // gray-50
+          dark: '#0F172A', // slate-900
+        },
+        surface: {
+          light: '#FFFFFF',
+          dark: '#1E293B', // slate-800
+        },
+        text: {
+          main: '#111827', // gray-900
+          muted: '#6B7280', // gray-500
+          inverted: '#FFFFFF'
+        },
+        // Legacy support mapping
+        'background-light': '#F9FAFB',
+        'background-dark': '#0F172A',
+        'text-main': '#111827',
+        'text-muted': '#6B7280',
         'card-white': '#FFFFFF',
-        // New colors from Accounts HTML
-        rose: '#EF6F8F',
-        alert: '#DC2626',
-        'surface-light': '#FFFFFF',
-        'surface-dark': '#222b36',
+      },
+      backgroundColor: {
+        'card-light': '#FFFFFF',
+        'card-dark': '#1E293B',
+      },
+      transitionProperty: {
+        'colors': 'color, background-color, border-color, text-decoration-color, fill, stroke',
+      },
+      animation: {
+        'theme-transition': 'theme-transition 0.3s ease-in-out',
+      },
+      keyframes: {
+        'theme-transition': {
+          '0%': { opacity: '0.8' },
+          '100%': { opacity: '1' },
+        }
       },
       fontFamily: {
-        display: ['Plus Jakarta Sans', 'sans-serif'],
-        body: ['Noto Sans', 'sans-serif'],
-      },
-      borderRadius: {
-        DEFAULT: '0.5rem',
-        lg: '1rem',
-        xl: '1.5rem',
-        full: '9999px',
+        display: ['Inter', 'system-ui', 'sans-serif'],
+        body: ['Inter', 'system-ui', 'sans-serif'],
+        mono: ['JetBrains Mono', 'monospace'],
       },
       boxShadow: {
-        soft: '0 10px 40px -10px rgba(0, 0, 0, 0.08)',
-        glow: '0 0 20px rgba(20, 173, 184, 0.3)',
+        soft: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+        glow: '0 0 15px rgba(37, 99, 235, 0.3)',
       },
     },
   },

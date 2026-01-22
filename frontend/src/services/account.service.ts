@@ -1,6 +1,6 @@
 
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+const API_URL = '/api';
 
 export type AccountType = 'checking' | 'savings' | 'credit' | 'cash' | 'other';
 
@@ -13,8 +13,17 @@ export interface Account {
     currency: string;
     institution?: string;
     accountNumber?: string;
+    color?: string;
+    icon?: string;
+    goalAmount?: number;
+    goalDate?: string;
     createdAt: string;
     updatedAt: string;
+}
+
+export interface HistoryPoint {
+    date: string;
+    balance: number;
 }
 
 export const accountService = {
@@ -33,6 +42,38 @@ export const accountService = {
             throw new Error('Failed to fetch accounts');
         }
 
+        const json = await response.json();
+        return json.data;
+    },
+
+    async getAccountById(id: string): Promise<Account> {
+        const token = localStorage.getItem('accessToken');
+        const response = await fetch(`${API_URL}/accounts/${id}`, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        const json = await response.json();
+        return json.data;
+    },
+
+    async transferFunds(data: { fromId: string; toId: string; amount: number; date: string; note?: string }) {
+        const token = localStorage.getItem('accessToken');
+        const response = await fetch(`${API_URL}/accounts/transfer`, {
+            method: 'POST',
+            headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        });
+        if (!response.ok) throw new Error('Transfer failed');
+        return await response.json();
+    },
+
+    async getAccountHistory(id: string, days = 30): Promise<HistoryPoint[]> {
+        const token = localStorage.getItem('accessToken');
+        const response = await fetch(`${API_URL}/accounts/${id}/history?days=${days}`, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
         const json = await response.json();
         return json.data;
     },

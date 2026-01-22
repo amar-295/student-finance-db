@@ -17,6 +17,8 @@ export const createTransactionSchema = z.object({
   currency: z.string().length(3, 'Currency must be 3-letter ISO code').default('USD'),
   tags: z.array(z.string()).optional(),
   notes: z.string().max(1000).optional(),
+  status: z.enum(['pending', 'cleared', 'reconciled']).optional(),
+  receiptUrl: z.string().url().optional().or(z.literal('')),
 });
 
 /**
@@ -32,6 +34,8 @@ export const updateTransactionSchema = z.object({
   currency: z.string().length(3).optional(),
   tags: z.array(z.string()).optional(),
   notes: z.string().max(1000).optional(),
+  status: z.enum(['pending', 'cleared', 'reconciled']).optional(),
+  receiptUrl: z.string().url().optional().or(z.literal('')),
 });
 
 /**
@@ -41,7 +45,7 @@ export const getTransactionsQuerySchema = z.object({
   // Pagination
   page: z.string().optional().transform(val => parseInt(val || '1')),
   limit: z.string().optional().transform(val => parseInt(val || '20')),
-  
+
   // Filters
   accountId: z.string().uuid().optional(),
   categoryId: z.string().uuid().optional(),
@@ -51,10 +55,27 @@ export const getTransactionsQuerySchema = z.object({
   maxAmount: z.string().optional().transform(val => val ? parseFloat(val) : undefined),
   merchant: z.string().optional(),
   search: z.string().optional(),
-  
+
   // Sorting
   sortBy: z.enum(['date', 'amount', 'merchant', 'category']).optional().default('date'),
   sortOrder: z.enum(['asc', 'desc']).optional().default('desc'),
+});
+
+/**
+ * Bulk update transactions schema
+ */
+export const bulkUpdateTransactionsSchema = z.object({
+  transactionIds: z.array(z.string().uuid()),
+  categoryId: z.string().uuid().optional(),
+  status: z.enum(['pending', 'cleared', 'reconciled']).optional(),
+  accountId: z.string().uuid().optional(),
+});
+
+/**
+ * Bulk delete transactions schema
+ */
+export const bulkDeleteTransactionsSchema = z.object({
+  transactionIds: z.array(z.string().uuid()),
 });
 
 /**
@@ -70,3 +91,5 @@ export type CreateTransactionInput = z.infer<typeof createTransactionSchema>;
 export type UpdateTransactionInput = z.infer<typeof updateTransactionSchema>;
 export type GetTransactionsQuery = z.infer<typeof getTransactionsQuerySchema>;
 export type TransactionSummaryQuery = z.infer<typeof transactionSummarySchema>;
+export type BulkUpdateTransactionsInput = z.infer<typeof bulkUpdateTransactionsSchema>;
+export type BulkDeleteTransactionsInput = z.infer<typeof bulkDeleteTransactionsSchema>;

@@ -16,6 +16,10 @@ import budgetRoutes from './routes/budget.routes';
 import categoryRoutes from './routes/category.routes';
 import groupRoutes from './routes/group.routes';
 import billSplitRoutes from './routes/bill-split.routes';
+import analyticsRoutes from './routes/analytics.routes';
+import aiRoutes from './routes/ai.routes';
+import userRoutes from './routes/user.routes';
+import reportRoutes from './routes/report.routes';
 import swaggerUi from 'swagger-ui-express';
 import { specs } from './config/swagger';
 
@@ -64,6 +68,10 @@ app.use('/api/categories', categoryRoutes);
 app.use('/api/budgets', budgetRoutes);
 app.use('/api/groups', groupRoutes);
 app.use('/api/bill-splits', billSplitRoutes);
+app.use('/api/analytics', analyticsRoutes);
+app.use('/api/ai', aiRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/reports', reportRoutes);
 
 // Swagger Documentation
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));

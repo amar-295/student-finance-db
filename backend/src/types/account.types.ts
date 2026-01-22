@@ -30,3 +30,16 @@ export const accountIdSchema = z.object({
 
 export type CreateAccountInput = z.infer<typeof createAccountSchema>;
 export type UpdateAccountInput = z.infer<typeof updateAccountSchema>;
+
+// New schemas
+export const transferFundsSchema = z.object({
+  fromId: z.string().uuid(),
+  toId: z.string().uuid(),
+  amount: z.number().positive(),
+  date: z.string().transform((str) => new Date(str)),
+  note: z.string().optional()
+});
+
+export const getHistoryQuerySchema = z.object({
+  days: z.string().transform((val) => parseInt(val)).optional()
+});

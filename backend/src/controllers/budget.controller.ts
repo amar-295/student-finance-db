@@ -8,12 +8,22 @@ import {
     getAllBudgetStatuses,
     getBudgetRecommendations,
     checkBudgetAlerts,
+    getBudgetTransactions,
+    getBudgetAnalytics,
 } from '../services/budget.service';
 import {
     createBudgetSchema,
     updateBudgetSchema,
     budgetQuerySchema,
 } from '../types/budget.types';
+import { z } from 'zod';
+
+// Schema for date range query
+const dateRangeSchema = z.object({
+    startDate: z.string().optional(),
+    endDate: z.string().optional(),
+    limit: z.string().transform(Number).optional(),
+});
 
 /**
  * Create budget
@@ -121,8 +131,45 @@ export const getRecommendations = async (req: Request, res: Response) => {
 export const getAlerts = async (req: Request, res: Response) => {
     const alerts = await checkBudgetAlerts(req.user!.userId);
 
-    res.status(200).json({
+    res.json({
         success: true,
         data: alerts,
+    });
+};
+
+/**
+ * Get transactions for a budget
+ * GET /api/budgets/:id/transactions
+ */
+export const getTransactions = async (req: Request, res: Response) => {
+    const userId = req.user!.userId;
+    const budgetId = req.params.id as string;
+    const query = dateRangeSchema.parse(req.query);
+
+    const transactions = await getBudgetTransactions(
+        userId,
+        budgetId,
+        query
+    );
+
+    res.json({
+        success: true,
+        data: transactions
+    });
+};
+
+/**
+ * Get analytics for a budget
+ * GET /api/budgets/:id/analytics
+ */
+export const getAnalytics = async (req: Request, res: Response) => {
+    const userId = req.user!.userId;
+    const budgetId = req.params.id as string;
+
+    const analytics = await getBudgetAnalytics(userId, budgetId);
+
+    res.json({
+        success: true,
+        data: analytics
     });
 };

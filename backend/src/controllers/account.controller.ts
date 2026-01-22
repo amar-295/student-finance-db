@@ -5,11 +5,15 @@ import {
   getAccountById,
   updateAccount,
   deleteAccount,
+  transferFunds,
+  getAccountHistory
 } from '../services/account.service';
 import {
   createAccountSchema,
   updateAccountSchema,
   accountIdSchema,
+  transferFundsSchema,
+  getHistoryQuerySchema
 } from '../types/account.types';
 import { logAction } from '../services/audit.service';
 
@@ -107,5 +111,35 @@ export const remove = async (req: Request, res: Response) => {
   res.status(200).json({
     success: true,
     message: result.message,
+  });
+};
+
+/**
+ * Transfer funds
+ * POST /api/accounts/transfer
+ */
+export const transfer = async (req: Request, res: Response) => {
+  const input = transferFundsSchema.parse(req.body);
+  const result = await transferFunds(req.user!.userId, input);
+
+  res.status(200).json({
+    success: true,
+    message: 'Transfer successful',
+    data: result
+  });
+};
+
+/**
+ * Get account history
+ * GET /api/accounts/:id/history
+ */
+export const getHistory = async (req: Request, res: Response) => {
+  const { id } = accountIdSchema.parse(req.params);
+  const query = getHistoryQuerySchema.parse(req.query);
+  const history = await getAccountHistory(req.user!.userId, id, query.days);
+
+  res.status(200).json({
+    success: true,
+    data: history
   });
 };

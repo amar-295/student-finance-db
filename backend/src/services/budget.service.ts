@@ -50,6 +50,7 @@ export const createBudget = async (userId: string, input: CreateBudgetInput) => 
     // Create budget
     console.log('Creating budget with data:', {
         userId,
+        name: input.name,
         categoryId: input.categoryId,
         amount: input.amount,
         periodType: input.period,
@@ -60,6 +61,7 @@ export const createBudget = async (userId: string, input: CreateBudgetInput) => 
     const budget = await prisma.budget.create({
         data: {
             userId,
+            name: input.name,
             categoryId: input.categoryId,
             amount: input.amount,
             periodType: input.period,
@@ -87,6 +89,10 @@ export const getUserBudgets = async (userId: string, query: BudgetQuery) => {
 
     if (query.categoryId) {
         where.categoryId = query.categoryId;
+    }
+
+    if (query.name) {
+        where.name = { contains: query.name, mode: 'insensitive' };
     }
 
     if (query.period) {
@@ -429,6 +435,159 @@ const calculateBudgetPeriod = (
 
     return { startDate, endDate };
 };
+
+export const getBudgetTransactions = async (
+    userId: string,
+    budgetId: string,
+    query: { startDate?: string; endDate?: string; limit?: number }
+) => {
+    // 1. Get the budget to know the category and dates
+    const budget = await prisma.budget.findUnique({
+        where: { id: budgetId, userId },
+        include: { category: true }
+    });
+
+    if (!budget) {
+        throw new NotFoundError('Budget not found');
+    }
+
+    // 2. Query transactions
+    const where: any = {
+        userId,
+        categoryId: budget.categoryId,
+        transactionDate: {
+            gte: query.startDate ? new Date(query.startDate) : budget.startDate,
+            lte: query.endDate ? new Date(query.endDate) : budget.endDate
+        }
+    };
+
+    const transactions = await prisma.transaction.findMany({
+        where,
+        orderBy: { transactionDate: 'desc' },
+        take: query.limit || 50,
+        include: {
+            category: true,
+            account: {
+                select: {
+                    id: true,
+                    name: true,
+                    accountType: true
+                }
+            }
+        }
+    });
+
+    return transactions;
+};
+
+export const getBudgetAnalytics = async (userId: string, budgetId: string) => {
+    const budget = await prisma.budget.findUnique({
+        where: { id: budgetId, userId },
+        include: { category: true }
+    });
+
+    if (!budget) {
+        throw new NotFoundError('Budget not found');
+    }
+
+    const startDate = budget.startDate;
+    const endDate = budget.endDate;
+    const now = new Date();
+
+    // 1. Total Spent in Period
+    const aggregations = await prisma.transaction.aggregate({
+        where: {
+            userId,
+            categoryId: budget.categoryId,
+            transactionDate: {
+                gte: startDate,
+                lte: endDate
+            }
+        },
+        _sum: { amount: true },
+        _avg: { amount: true },
+        _count: { id: true }
+    });
+
+    const totalSpent = Number(aggregations._sum.amount || 0);
+    const avgTransaction = Number(aggregations._avg.amount || 0);
+    const transactionCount = aggregations._count.id;
+
+    const remaining = Number(budget.amount) - totalSpent;
+    const percentUsed = (totalSpent / Number(budget.amount)) * 100;
+
+    // Days calculation
+    const totalDays = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+    const daysPassed = Math.ceil((now.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+    const daysRemaining = Math.max(0, totalDays - daysPassed);
+
+    const avgDailySpend = daysPassed > 0 ? totalSpent / daysPassed : 0;
+    const projectedSpend = totalSpent + (avgDailySpend * daysRemaining);
+
+    // 2. Daily Spending Trend (for Line Chart)
+    const dailySpending = await prisma.transaction.groupBy({
+        by: ['transactionDate'],
+        where: {
+            userId,
+            categoryId: budget.categoryId,
+            transactionDate: {
+                gte: startDate,
+                lte: endDate
+            }
+        },
+        _sum: { amount: true },
+        orderBy: { transactionDate: 'asc' }
+    });
+
+    const trendData = dailySpending.map(item => ({
+        date: item.transactionDate.toISOString().split('T')[0],
+        amount: Number(item._sum.amount || 0)
+    }));
+
+    // 3. Top Merchants (for Breakdown)
+    const merchantSpending = await prisma.transaction.groupBy({
+        by: ['merchant'],
+        where: {
+            userId,
+            categoryId: budget.categoryId,
+            transactionDate: {
+                gte: startDate,
+                lte: endDate
+            }
+        },
+        _sum: { amount: true },
+        orderBy: {
+            _sum: { amount: 'desc' }
+        },
+        take: 5
+    });
+
+    const merchantBreakdown = merchantSpending.map(item => ({
+        name: item.merchant || 'Unknown',
+        value: Number(item._sum.amount || 0),
+        percentage: (Number(item._sum.amount || 0) / totalSpent) * 100
+    }));
+
+    return {
+        budget: {
+            ...budget,
+            totalSpent,
+            remaining,
+            percentUsed,
+            daysRemaining
+        },
+        stats: {
+            avgDailySpend,
+            projectedSpend,
+            avgTransaction,
+            transactionCount
+        },
+        trend: trendData,
+        breakdown: merchantBreakdown
+    };
+};
+
+
 
 /**
  * Check budgets and create alerts

@@ -1,0 +1,992 @@
+
+> frontend@0.0.0 test
+> vitest src/features/auth/__tests__/authFlow.test.tsx src/features/transactions/__tests__/transactionFlow.test.tsx src/features/budgets/__tests__/budgetFlow.test.tsx --run
+
+
+[1m[46m RUN [49m[22m [36mv4.0.17 [39m[90mC:/Users/amar/Desktop/student-finance-db/frontend[39m
+
+[90mstderr[2m | src/features/budgets/__tests__/budgetFlow.test.tsx[2m > [22m[2mBudget Management Flow[2m > [22m[2mcreates budget and tracks spending
+[22m[39m[MSW] Error: intercepted a request without a matching request handler:
+
+  • GET /api/budgets/recommend
+
+If you still wish to intercept this unhandled request, please create a request handler for it.
+Read more: https://mswjs.io/docs/http/intercepting-requests
+
+[90mstderr[2m | src/features/budgets/__tests__/budgetFlow.test.tsx[2m > [22m[2mBudget Management Flow[2m > [22m[2mwarns when budget is exceeded
+[22m[39m[MSW] Error: intercepted a request without a matching request handler:
+
+  • GET /api/budgets/recommend
+
+If you still wish to intercept this unhandled request, please create a request handler for it.
+Read more: https://mswjs.io/docs/http/intercepting-requests
+
+ [31m❯[39m src/features/budgets/__tests__/budgetFlow.test.tsx [2m([22m[2m2 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[33m 937[2mms[22m[39m
+[31m     [31m×[31m creates budget and tracks spending[39m[33m 721[2mms[22m[39m
+     [32m✓[39m warns when budget is exceeded[32m 210[2mms[22m[39m
+ [31m❯[39m src/features/transactions/__tests__/transactionFlow.test.tsx [2m([22m[2m2 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[33m 3028[2mms[22m[39m
+[31m     [31m×[31m creates, edits, and deletes a transaction[39m[33m 2649[2mms[22m[39m
+     [33m[2m✓[22m[39m filters and searches transactions [33m 373[2mms[22m[39m
+ [31m❯[39m src/features/auth/__tests__/authFlow.test.tsx [2m([22m[2m4 tests[22m[2m | [22m[31m2 failed[39m[2m)[22m[33m 5112[2mms[22m[39m
+[31m     [31m×[31m completes full login flow[39m[33m 2348[2mms[22m[39m
+[31m     [31m×[31m handles login error gracefully[39m[33m 1828[2mms[22m[39m
+     [32m✓[39m redirects to login when accessing protected route[32m 32[2mms[22m[39m
+     [33m[2m✓[22m[39m persists authentication across page reloads [33m 895[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 4 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m src/features/auth/__tests__/authFlow.test.tsx[2m > [22mAuthentication Flow[2m > [22mcompletes full login flow
+[31m[1mTypeError[22m[39m: Cannot read properties of undefined (reading 'accessToken')
+
+Ignored nodes: comments, script, style
+[36m<html[39m
+  [33mclass[39m=[32m""[39m
+[36m>[39m
+  [36m<head />[39m
+  [36m<body>[39m
+    [36m<div>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"flex h-screen w-full flex-row overflow-hidden bg-background-light dark:bg-dark-bg-primary font-display antialiased text-text-main dark:text-dark-text-primary"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"relative hidden lg:flex lg:w-1/2 flex-col justify-between overflow-hidden p-12"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"absolute inset-0 z-0 bg-cover bg-center"[39m
+            [33mstyle[39m=[32m"background-image: url(\"/images/auth-bg.png\");"[39m
+          [36m/>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"absolute inset-0 z-10 bg-gradient-to-br from-primary/90 to-secondary/90 mix-blend-multiply"[39m
+          [36m/>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"absolute inset-0 z-10 bg-black/10"[39m
+          [36m/>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"relative z-20 flex h-full flex-col justify-center text-white"[39m
+          [36m>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m"mb-6 size-12 bg-white/20 backdrop-blur-md rounded-xl flex items-center justify-center border border-white/30 shadow-xl hover:scale-105 transition-transform"[39m
+              [33mdata-discover[39m=[32m"true"[39m
+              [33mhref[39m=[32m"/"[39m
+            [36m>[39m
+              [36m<img[39m
+                [33malt[39m=[32m"UniFlow Logo"[39m
+                [33mclass[39m=[32m"w-7 h-7 object-contain brightness-0 invert"[39m
+                [33msrc[39m=[32m"/images/logo.svg"[39m
+              [36m/>[39m
+            [36m</a>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"min-h-[220px] lg:min-h-[200px] transition-all duration-500 ease-in-out"[39m
+            [36m>[39m
+              [36m<h1[39m
+                [33mclass[39m=[32m"text-5xl font-extrabold leading-tight tracking-tight mb-6 animate-in fade-in slide-in-from-bottom-4 duration-500"[39m
+              [36m>[39m
+                [0mWelcome Back![0m
+              [36m</h1>[39m
+              [36m<p[39m
+                [33mclass[39m=[32m"text-lg font-medium text-white/90 max-w-md leading-relaxed animate-in fade-in slide-in-from-bottom-4 duration-700"[39m
+              [36m>[39m
+                [0mYour path to financial freedom and organized studies starts here. Manage your budget, track assignments, and stay ahead.[0m
+              [36m</p>[39m
+            [36m</div>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"relative z-20 flex gap-2 mb-12"[39m
+          [36m>[39m
+            [36m<button[39m
+              [33maria-label[39m=[32m"Go to slide 1"[39m
+              [33mclass[39m=[32m"h-1.5 rounded-full transition-all duration-300 w-8 bg-white"[39m
+            [36m/>[39m
+            [36m<button[39m
+              [33maria-label[39m=[32m"Go to slide 2"[39m
+              [33mclass[39m=[32m"h-1.5 rounded-full transition-all duration-300 w-2 bg-white/40 hover:bg-white/60"[39m
+            [36m/>[39m
+            [36m<button[39m
+              [33maria-label[39m=[32m"Go to slide 3"[39m
+              [33mclass[39m=[32m"h-1.5 rounded-full transition-all duration-300 w-2 bg-white/40 hover:bg-white/60"[39m
+            [36m/>[39m
+          [36m</div>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"flex w-full lg:w-1/2 flex-col items-center justify-center overflow-y-auto overflow-x-hidden bg-background-light dark:bg-dark-bg-primary p-6 sm:p-12 lg:p-16 relative"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"pointer-events-none absolute -top-20 -right-20 h-96 w-96 rounded-full bg-primary/5 blur-3xl"[39m
+          [36m/>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"pointer-events-none absolute bottom-0 left-0 h-64 w-64 rounded-full bg-secondary/5 blur-3xl"[39m
+          [36m/>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"w-full max-w-[440px] z-10"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"mb-10 text-center lg:text-left"[39m
+            [36m>[39m
+              [36m<a[39m
+                [33mclass[39m=[32m"lg:hidden mb-6 flex justify-center hover:scale-105 transition-transform w-fit mx-auto"[39m
+                [33mdata-discover[39m=[32m"true"[39m
+                [33mhref[39m=[32m"/"[39m
+              [36m>[39m
+                [36m<div[39m
+                  [33mclass[39m=[32m"size-12 bg-gradient-to-br from-primary to-primary-dark rounded-lg flex items-center justify-center text-white shadow-lg shadow-primary/20"[39m
+                [36m>[39m
+                  [36m<img[39m
+                    [33malt[39m=[32m"UniFlow Logo"[39m
+                    [33mclass[39m=[32m"w-7 h-7 object-contain brightness-0 invert"[39m
+                    [33msrc[39m=[32m"/images/logo.svg"[39m
+                  [36m/>[39m
+                [36m</div>[39m
+              [36m</a>[39m
+              [36m<h2[39m
+                [33mclass[39m=[32m"text-3xl font-bold tracking-tight text-text-main dark:text-dark-text-primary mb-2"[39m
+              [36m>[39m
+                [0mLog in to your account[0m
+              [36m</h2>[39m
+              [36m<p[39m
+                [33mclass[39m=[32m"text-text-muted dark:text-dark-text-secondary text-base"[39m
+              [36m>[39m
+                [0mWelcome back! Please enter your details.[0m
+              [36m</p>[39m
+            [36m</div>[39m
+            [36m<form[39m
+              [33mclass[39m=[32m"flex flex-col gap-5"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"flex flex-col gap-2"[39m
+              [36m>[39m
+                [36m<label[39m
+                  [33mclass[39m=[32m"text-sm font-semibold text-text-main dark:text-dark-text-secondary"[39m
+                  [33mfor[39m=[32m"email"[39m
+                [36m>[39m
+                  [0mEmail Address[0m
+                [36m</label>[39m
+                [36m<div[39m
+                  [33mclass[39m=[32m"relative"[39m
+                [36m>[39m
+                  [36m<input[39m
+                    [33mclass[39m=[32m"w-full h-12 pl-4 pr-12 rounded-xl border border-gray-200 dark:border-dark-border-primary bg-[#f9fbfb] dark:bg-dark-bg-tertiary text-text-main dark:text-dark-text-primary placeholder-gray-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-normal shadow-sm disabled:opacity-50"[39m
+                    [33mid[39m=[32m"email"[39m
+                    [33mname[39m=[32m"email"[39m
+                  ...
+[36m [2m❯[22m src/features/auth/__tests__/authFlow.test.tsx:[2m30:35[22m[39m
+    [90m 28| [39m        [35mawait[39m [34mwaitFor[39m(() [33m=>[39m {
+    [90m 29| [39m            const authData = JSON.parse(localStorage.getItem('auth-sto…
+    [90m 30| [39m            [34mexpect[39m(authData[33m.[39mstate[33m.[39maccessToken)[33m.[39m[34mtoBe[39m([32m'mock-token'[39m)[33m;[39m
+    [90m   | [39m                                  [31m^[39m
+    [90m 31| [39m        })[33m;[39m
+    [90m 32| [39m    })[33m;[39m
+[90m [2m❯[22m runWithExpensiveErrorDiagnosticsDisabled node_modules/@testing-library/dom/dist/config.js:[2m47:12[22m[39m
+[90m [2m❯[22m checkCallback node_modules/@testing-library/dom/dist/wait-for.js:[2m124:77[22m[39m
+[90m [2m❯[22m Timeout.checkRealTimersCallback node_modules/@testing-library/dom/dist/wait-for.js:[2m118:16[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/features/auth/__tests__/authFlow.test.tsx[2m > [22mAuthentication Flow[2m > [22mhandles login error gracefully
+[31m[1mTestingLibraryElementError[22m[39m: Unable to find an element with the text: /invalid credentials/i. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"flex h-screen w-full flex-row overflow-hidden bg-background-light dark:bg-dark-bg-primary font-display antialiased text-text-main dark:text-dark-text-primary"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"relative hidden lg:flex lg:w-1/2 flex-col justify-between overflow-hidden p-12"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"absolute inset-0 z-0 bg-cover bg-center"[39m
+          [33mstyle[39m=[32m"background-image: url(\"/images/auth-bg.png\");"[39m
+        [36m/>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"absolute inset-0 z-10 bg-gradient-to-br from-primary/90 to-secondary/90 mix-blend-multiply"[39m
+        [36m/>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"absolute inset-0 z-10 bg-black/10"[39m
+        [36m/>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"relative z-20 flex h-full flex-col justify-center text-white"[39m
+        [36m>[39m
+          [36m<a[39m
+            [33mclass[39m=[32m"mb-6 size-12 bg-white/20 backdrop-blur-md rounded-xl flex items-center justify-center border border-white/30 shadow-xl hover:scale-105 transition-transform"[39m
+            [33mdata-discover[39m=[32m"true"[39m
+            [33mhref[39m=[32m"/"[39m
+          [36m>[39m
+            [36m<img[39m
+              [33malt[39m=[32m"UniFlow Logo"[39m
+              [33mclass[39m=[32m"w-7 h-7 object-contain brightness-0 invert"[39m
+              [33msrc[39m=[32m"/images/logo.svg"[39m
+            [36m/>[39m
+          [36m</a>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"min-h-[220px] lg:min-h-[200px] transition-all duration-500 ease-in-out"[39m
+          [36m>[39m
+            [36m<h1[39m
+              [33mclass[39m=[32m"text-5xl font-extrabold leading-tight tracking-tight mb-6 animate-in fade-in slide-in-from-bottom-4 duration-500"[39m
+            [36m>[39m
+              [0mWelcome Back![0m
+            [36m</h1>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"text-lg font-medium text-white/90 max-w-md leading-relaxed animate-in fade-in slide-in-from-bottom-4 duration-700"[39m
+            [36m>[39m
+              [0mYour path to financial freedom and organized studies starts here. Manage your budget, track assignments, and stay ahead.[0m
+            [36m</p>[39m
+          [36m</div>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"relative z-20 flex gap-2 mb-12"[39m
+        [36m>[39m
+          [36m<button[39m
+            [33maria-label[39m=[32m"Go to slide 1"[39m
+            [33mclass[39m=[32m"h-1.5 rounded-full transition-all duration-300 w-8 bg-white"[39m
+          [36m/>[39m
+          [36m<button[39m
+            [33maria-label[39m=[32m"Go to slide 2"[39m
+            [33mclass[39m=[32m"h-1.5 rounded-full transition-all duration-300 w-2 bg-white/40 hover:bg-white/60"[39m
+          [36m/>[39m
+          [36m<button[39m
+            [33maria-label[39m=[32m"Go to slide 3"[39m
+            [33mclass[39m=[32m"h-1.5 rounded-full transition-all duration-300 w-2 bg-white/40 hover:bg-white/60"[39m
+          [36m/>[39m
+        [36m</div>[39m
+      [36m</div>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"flex w-full lg:w-1/2 flex-col items-center justify-center overflow-y-auto overflow-x-hidden bg-background-light dark:bg-dark-bg-primary p-6 sm:p-12 lg:p-16 relative"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"pointer-events-none absolute -top-20 -right-20 h-96 w-96 rounded-full bg-primary/5 blur-3xl"[39m
+        [36m/>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"pointer-events-none absolute bottom-0 left-0 h-64 w-64 rounded-full bg-secondary/5 blur-3xl"[39m
+        [36m/>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"w-full max-w-[440px] z-10"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"mb-10 text-center lg:text-left"[39m
+          [36m>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m"lg:hidden mb-6 flex justify-center hover:scale-105 transition-transform w-fit mx-auto"[39m
+              [33mdata-discover[39m=[32m"true"[39m
+              [33mhref[39m=[32m"/"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"size-12 bg-gradient-to-br from-primary to-primary-dark rounded-lg flex items-center justify-center text-white shadow-lg shadow-primary/20"[39m
+              [36m>[39m
+                [36m<img[39m
+                  [33malt[39m=[32m"UniFlow Logo"[39m
+                  [33mclass[39m=[32m"w-7 h-7 object-contain brightness-0 invert"[39m
+                  [33msrc[39m=[32m"/images/logo.svg"[39m
+                [36m/>[39m
+              [36m</div>[39m
+            [36m</a>[39m
+            [36m<h2[39m
+              [33mclass[39m=[32m"text-3xl font-bold tracking-tight text-text-main dark:text-dark-text-primary mb-2"[39m
+            [36m>[39m
+              [0mLog in to your account[0m
+            [36m</h2>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"text-text-muted dark:text-dark-text-secondary text-base"[39m
+            [36m>[39m
+              [0mWelcome back! Please enter your details.[0m
+            [36m</p>[39m
+          [36m</div>[39m
+          [36m<form[39m
+            [33mclass[39m=[32m"flex flex-col gap-5"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"flex flex-col gap-2"[39m
+            [36m>[39m
+              [36m<label[39m
+                [33mclass[39m=[32m"text-sm font-semibold text-text-main dark:text-dark-text-secondary"[39m
+                [33mfor[39m=[32m"email"[39m
+              [36m>[39m
+                [0mEmail Address[0m
+              [36m</label>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"relative"[39m
+              [36m>[39m
+                [36m<input[39m
+                  [33mclass[39m=[32m"w-full h-12 pl-4 pr-12 rounded-xl border border-gray-200 dark:border-dark-border-primary bg-[#f9fbfb] dark:bg-dark-bg-tertiary text-text-main dark:text-dark-text-primary placeholder-gray-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-normal shadow-sm disabled:opacity-50"[39m
+                  [33mid[39m=[32m"email"[39m
+                  [33mname[39m=[32m"email"[39m
+                  [33mplaceholder[39m=[32m"student@example.com"[39m
+                  [33mtype[39m=[32m"email"[39m
+                [36m/>[39m
+                [36m<span[39m
+                  [33mclass[39m=[32m"material-symbols-outlined absolute right-4 top-3.5 text-gray-400 pointer-events-none text-[20px]"[39m
+                [3...
+
+Ignored nodes: comments, script, style
+[36m<html[39m
+  [33mclass[39m=[32m""[39m
+[36m>[39m
+  [36m<head />[39m
+  [36m<body>[39m
+    [36m<div>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"flex h-screen w-full flex-row overflow-hidden bg-background-light dark:bg-dark-bg-primary font-display antialiased text-text-main dark:text-dark-text-primary"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"relative hidden lg:flex lg:w-1/2 flex-col justify-between overflow-hidden p-12"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"absolute inset-0 z-0 bg-cover bg-center"[39m
+            [33mstyle[39m=[32m"background-image: url(\"/images/auth-bg.png\");"[39m
+          [36m/>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"absolute inset-0 z-10 bg-gradient-to-br from-primary/90 to-secondary/90 mix-blend-multiply"[39m
+          [36m/>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"absolute inset-0 z-10 bg-black/10"[39m
+          [36m/>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"relative z-20 flex h-full flex-col justify-center text-white"[39m
+          [36m>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m"mb-6 size-12 bg-white/20 backdrop-blur-md rounded-xl flex items-center justify-center border border-white/30 shadow-xl hover:scale-105 transition-transform"[39m
+              [33mdata-discover[39m=[32m"true"[39m
+              [33mhref[39m=[32m"/"[39m
+            [36m>[39m
+              [36m<img[39m
+                [33malt[39m=[32m"UniFlow Logo"[39m
+                [33mclass[39m=[32m"w-7 h-7 object-contain brightness-0 invert"[39m
+                [33msrc[39m=[32m"/images/logo.svg"[39m
+              [36m/>[39m
+            [36m</a>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"min-h-[220px] lg:min-h-[200px] transition-all duration-500 ease-in-out"[39m
+            [36m>[39m
+              [36m<h1[39m
+                [33mclass[39m=[32m"text-5xl font-extrabold leading-tight tracking-tight mb-6 animate-in fade-in slide-in-from-bottom-4 duration-500"[39m
+              [36m>[39m
+                [0mWelcome Back![0m
+              [36m</h1>[39m
+              [36m<p[39m
+                [33mclass[39m=[32m"text-lg font-medium text-white/90 max-w-md leading-relaxed animate-in fade-in slide-in-from-bottom-4 duration-700"[39m
+              [36m>[39m
+                [0mYour path to financial freedom and organized studies starts here. Manage your budget, track assignments, and stay ahead.[0m
+              [36m</p>[39m
+            [36m</div>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"relative z-20 flex gap-2 mb-12"[39m
+          [36m>[39m
+            [36m<button[39m
+              [33maria-label[39m=[32m"Go to slide 1"[39m
+              [33mclass[39m=[32m"h-1.5 rounded-full transition-all duration-300 w-8 bg-white"[39m
+            [36m/>[39m
+            [36m<button[39m
+              [33maria-label[39m=[32m"Go to slide 2"[39m
+              [33mclass[39m=[32m"h-1.5 rounded-full transition-all duration-300 w-2 bg-white/40 hover:bg-white/60"[39m
+            [36m/>[39m
+            [36m<button[39m
+              [33maria-label[39m=[32m"Go to slide 3"[39m
+              [33mclass[39m=[32m"h-1.5 rounded-full transition-all duration-300 w-2 bg-white/40 hover:bg-white/60"[39m
+            [36m/>[39m
+          [36m</div>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"flex w-full lg:w-1/2 flex-col items-center justify-center overflow-y-auto overflow-x-hidden bg-background-light dark:bg-dark-bg-primary p-6 sm:p-12 lg:p-16 relative"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"pointer-events-none absolute -top-20 -right-20 h-96 w-96 rounded-full bg-primary/5 blur-3xl"[39m
+          [36m/>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"pointer-events-none absolute bottom-0 left-0 h-64 w-64 rounded-full bg-secondary/5 blur-3xl"[39m
+          [36m/>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"w-full max-w-[440px] z-10"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"mb-10 text-center lg:text-left"[39m
+            [36m>[39m
+              [36m<a[39m
+                [33mclass[39m=[32m"lg:hidden mb-6 flex justify-center hover:scale-105 transition-transform w-fit mx-auto"[39m
+                [33mdata-discover[39m=[32m"true"[39m
+                [33mhref[39m=[32m"/"[39m
+              [36m>[39m
+                [36m<div[39m
+                  [33mclass[39m=[32m"size-12 bg-gradient-to-br from-primary to-primary-dark rounded-lg flex items-center justify-center text-white shadow-lg shadow-primary/20"[39m
+                [36m>[39m
+                  [36m<img[39m
+                    [33malt[39m=[32m"UniFlow Logo"[39m
+                    [33mclass[39m=[32m"w-7 h-7 object-contain brightness-0 invert"[39m
+                    [33msrc[39m=[32m"/images/logo.svg"[39m
+                  [36m/>[39m
+                [36m</div>[39m
+              [36m</a>[39m
+              [36m<h2[39m
+                [33mclass[39m=[32m"text-3xl font-bold tracking-tight text-text-main dark:text-dark-text-primary mb-2"[39m
+              [36m>[39m
+                [0mLog in to your account[0m
+              [36m</h2>[39m
+              [36m<p[39m
+                [33mclass[39m=[32m"text-text-muted dark:text-dark-text-secondary text-base"[39m
+              [36m>[39m
+                [0mWelcome back! Please enter your details.[0m
+              [36m</p>[39m
+            [36m</div>[39m
+            [36m<form[39m
+              [33mclass[39m=[32m"flex flex-col gap-5"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"flex flex-col gap-2"[39m
+              [36m>[39m
+                [36m<label[39m
+                  [33mclass[39m=[32m"text-sm font-semibold text-text-main dark:text-dark-text-secondary"[39m
+                  [33mfor[39m=[32m"email"[39m
+                [36m>[39m
+                  [0mEmail Address[0m
+                [36m</label>[39m
+                [36m<div[39m
+                  [33mclass[39m=[32m"relative"[39m
+                [36m>[39m
+                  [36m<input[39m
+                    [33mclass[39m=[32m"w-full h-12 pl-4 pr-12 rounded-xl border border-gray-200 dark:border-dark-border-primary bg-[#f9fbfb] dark:bg-dark-bg-tertiary text-text-main dark:text-dark-text-primary placeholder-gray-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-normal shadow-sm disabled:opacity-50"[39m
+                    [33mid[39m=[32m"email"[39m
+                    [33mname[39m=[32m"email"[39m
+                  ...
+[90m [2m❯[22m waitForWrapper node_modules/@testing-library/dom/dist/wait-for.js:[2m163:27[22m[39m
+[36m [2m❯[22m src/features/auth/__tests__/authFlow.test.tsx:[2m53:15[22m[39m
+    [90m 51| [39m        await user.click(screen.getByRole('button', { name: /log in/i …
+    [90m 52| [39m
+    [90m 53| [39m        [35mawait[39m [34mwaitFor[39m(() [33m=>[39m {
+    [90m   | [39m              [31m^[39m
+    [90m 54| [39m            expect(screen.getByText(/invalid credentials/i)).toBeInThe…
+    [90m 55| [39m        })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/features/transactions/__tests__/transactionFlow.test.tsx[2m > [22mTransaction CRUD Flow[2m > [22mcreates, edits, and deletes a transaction
+[31m[1mTestingLibraryElementError[22m[39m: Unable to find an element with the text: Test Transaction. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div[39m
+    [33maria-hidden[39m=[32m"true"[39m
+  [36m>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"p-8 pb-32"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4"[39m
+      [36m>[39m
+        [36m<div>[39m
+          [36m<h2[39m
+            [33mclass[39m=[32m"text-3xl font-black text-text-main dark:text-dark-text-primary"[39m
+          [36m>[39m
+            [0mTransactions[0m
+          [36m</h2>[39m
+          [36m<p[39m
+            [33mclass[39m=[32m"text-text-muted dark:text-dark-text-secondary mt-1"[39m
+          [36m>[39m
+            [0mManage and categorize your spending[0m
+          [36m</p>[39m
+        [36m</div>[39m
+        [36m<button[39m
+          [33mclass[39m=[32m"bg-primary hover:bg-primary-dark text-white font-bold py-3 px-6 rounded-xl shadow-lg shadow-primary/20 transition-all flex items-center gap-2"[39m
+        [36m>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"material-symbols-outlined"[39m
+          [36m>[39m
+            [0madd[0m
+          [36m</span>[39m
+          [0mAdd Transaction[0m
+        [36m</button>[39m
+      [36m</div>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"mb-6 flex gap-4"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"relative flex-1 max-w-2xl"[39m
+        [36m>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"[39m
+          [36m>[39m
+            [0msearch[0m
+          [36m</span>[39m
+          [36m<input[39m
+            [33mclass[39m=[32m"w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 dark:border-dark-border-primary bg-white dark:bg-dark-bg-tertiary focus:ring-2 focus:ring-primary outline-none transition-all text-text-main dark:text-dark-text-primary placeholder-gray-400 dark:placeholder-slate-500"[39m
+            [33mplaceholder[39m=[32m"Search by merchant, category, or try 'amount:>50'"[39m
+            [33mtype[39m=[32m"text"[39m
+            [33mvalue[39m=[32m""[39m
+          [36m/>[39m
+        [36m</div>[39m
+        [36m<button[39m
+          [33mclass[39m=[32m"px-4 py-3 rounded-xl border border-gray-200 dark:border-dark-border-primary bg-white dark:bg-dark-bg-tertiary flex items-center gap-2 font-bold hover:bg-gray-50 dark:hover:bg-dark-bg-hover transition-colors text-text-muted dark:text-dark-text-tertiary"[39m
+        [36m>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"material-symbols-outlined"[39m
+          [36m>[39m
+            [0mfilter_list[0m
+          [36m</span>[39m
+          [0mFilters[0m
+        [36m</button>[39m
+      [36m</div>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"bg-white dark:bg-dark-bg-secondary rounded-2xl border border-gray-100 dark:border-dark-border-primary shadow-sm overflow-hidden"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"overflow-x-auto"[39m
+        [36m>[39m
+          [36m<table[39m
+            [33mclass[39m=[32m"w-full text-left border-collapse"[39m
+          [36m>[39m
+            [36m<thead>[39m
+              [36m<tr[39m
+                [33mclass[39m=[32m"bg-gray-50 dark:bg-dark-bg-tertiary/50 border-b border-gray-100 dark:border-dark-border-primary"[39m
+              [36m>[39m
+                [36m<th[39m
+                  [33mclass[39m=[32m"p-4 w-12"[39m
+                [36m>[39m
+                  [36m<input[39m
+                    [33mclass[39m=[32m"rounded border-gray-300 text-primary focus:ring-primary"[39m
+                    [33mtype[39m=[32m"checkbox"[39m
+                  [36m/>[39m
+                [36m</th>[39m
+                [36m<th[39m
+                  [33mclass[39m=[32m"p-4 font-semibold text-text-muted dark:text-dark-text-tertiary text-sm cursor-pointer hover:text-primary"[39m
+                [36m>[39m
+                  [0mDate [0m
+                  [0m↓[0m
+                [36m</th>[39m
+                [36m<th[39m
+                  [33mclass[39m=[32m"p-4 font-semibold text-text-muted dark:text-dark-text-tertiary text-sm"[39m
+                [36m>[39m
+                  [0mMerchant[0m
+                [36m</th>[39m
+                [36m<th[39m
+                  [33mclass[39m=[32m"p-4 font-semibold text-text-muted dark:text-dark-text-tertiary text-sm"[39m
+                [36m>[39m
+                  [0mCategory[0m
+                [36m</th>[39m
+                [36m<th[39m
+                  [33mclass[39m=[32m"p-4 font-semibold text-text-muted dark:text-dark-text-tertiary text-sm text-center"[39m
+                [36m>[39m
+                  [0mStatus[0m
+                [36m</th>[39m
+                [36m<th[39m
+                  [33mclass[39m=[32m"p-4 font-semibold text-text-muted dark:text-dark-text-tertiary text-sm text-right cursor-pointer hover:text-primary"[39m
+                [36m>[39m
+                  [0mAmount [0m
+                [36m</th>[39m
+                [36m<th[39m
+                  [33mclass[39m=[32m"p-4"[39m
+                [36m/>[39m
+              [36m</tr>[39m
+            [36m</thead>[39m
+            [36m<tbody>[39m
+              [36m<tr[39m
+                [33mclass[39m=[32m"border-b border-gray-50 dark:border-dark-border-primary last:border-0 hover:bg-gray-50/50 dark:hover:bg-dark-bg-hover transition-colors "[39m
+              [36m>[39m
+                [36m<td[39m
+                  [33mclass[39m=[32m"p-4"[39m
+                [36m>[39m
+                  [36m<input[39m
+                    [33mclass[39m=[32m"rounded border-gray-300 text-primary focus:ring-primary"[39m
+                    [33mtype[39m=[32m"checkbox"[39m
+                  [36m/>[39m
+                [36m</td>[39m
+                [36m<td[39m
+                  [33mclass[39m=[32m"p-4 text-[#1e293b] dark:text-white font-medium"[39m
+                [36m>[39m
+                  [0mJan 20, 2026[0m
+                [36m</td>[39m
+                [36m<td[39m
+                  [33mclass[39m=[32m"p-4"[39m
+                [36m>[39m
+                  [36m<div[39m
+                    [33mclass[39m=[32m"flex flex-col"[39m
+                  [36m>[39m
+                    [36m<span[39m
+                      [33mclass[39m=[32m"text-text-main dark:text-dark-text-primary font-bold"[39m
+                    [36m>[39m
+                      [0mStarbucks[0m
+                    [36m</span>[39m
+                    [36m<span[39m
+                      [33mclass[39m=[32m"text-xs text-text-muted dark:text-dark-text-tertiary"[39m
+                    [36m>[39m
+                      [0mStarbucks[0m
+                    [36m</span>[39m
+                  [36m</div>[39m
+                [36m</td>...
+
+Ignored nodes: comments, script, style
+[36m<html[39m
+  [33mclass[39m=[32m""[39m
+  [33mstyle[39m=[32m"overflow: hidden; padding-right: 1024px;"[39m
+[36m>[39m
+  [36m<head />[39m
+  [36m<body>[39m
+    [36m<div[39m
+      [33maria-hidden[39m=[32m"true"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"p-8 pb-32"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4"[39m
+        [36m>[39m
+          [36m<div>[39m
+            [36m<h2[39m
+              [33mclass[39m=[32m"text-3xl font-black text-text-main dark:text-dark-text-primary"[39m
+            [36m>[39m
+              [0mTransactions[0m
+            [36m</h2>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"text-text-muted dark:text-dark-text-secondary mt-1"[39m
+            [36m>[39m
+              [0mManage and categorize your spending[0m
+            [36m</p>[39m
+          [36m</div>[39m
+          [36m<button[39m
+            [33mclass[39m=[32m"bg-primary hover:bg-primary-dark text-white font-bold py-3 px-6 rounded-xl shadow-lg shadow-primary/20 transition-all flex items-center gap-2"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"material-symbols-outlined"[39m
+            [36m>[39m
+              [0madd[0m
+            [36m</span>[39m
+            [0mAdd Transaction[0m
+          [36m</button>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"mb-6 flex gap-4"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"relative flex-1 max-w-2xl"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"[39m
+            [36m>[39m
+              [0msearch[0m
+            [36m</span>[39m
+            [36m<input[39m
+              [33mclass[39m=[32m"w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 dark:border-dark-border-primary bg-white dark:bg-dark-bg-tertiary focus:ring-2 focus:ring-primary outline-none transition-all text-text-main dark:text-dark-text-primary placeholder-gray-400 dark:placeholder-slate-500"[39m
+              [33mplaceholder[39m=[32m"Search by merchant, category, or try 'amount:>50'"[39m
+              [33mtype[39m=[32m"text"[39m
+              [33mvalue[39m=[32m""[39m
+            [36m/>[39m
+          [36m</div>[39m
+          [36m<button[39m
+            [33mclass[39m=[32m"px-4 py-3 rounded-xl border border-gray-200 dark:border-dark-border-primary bg-white dark:bg-dark-bg-tertiary flex items-center gap-2 font-bold hover:bg-gray-50 dark:hover:bg-dark-bg-hover transition-colors text-text-muted dark:text-dark-text-tertiary"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"material-symbols-outlined"[39m
+            [36m>[39m
+              [0mfilter_list[0m
+            [36m</span>[39m
+            [0mFilters[0m
+          [36m</button>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"bg-white dark:bg-dark-bg-secondary rounded-2xl border border-gray-100 dark:border-dark-border-primary shadow-sm overflow-hidden"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"overflow-x-auto"[39m
+          [36m>[39m
+            [36m<table[39m
+              [33mclass[39m=[32m"w-full text-left border-collapse"[39m
+            [36m>[39m
+              [36m<thead>[39m
+                [36m<tr[39m
+                  [33mclass[39m=[32m"bg-gray-50 dark:bg-dark-bg-tertiary/50 border-b border-gray-100 dark:border-dark-border-primary"[39m
+                [36m>[39m
+                  [36m<th[39m
+                    [33mclass[39m=[32m"p-4 w-12"[39m
+                  [36m>[39m
+                    [36m<input[39m
+                      [33mclass[39m=[32m"rounded border-gray-300 text-primary focus:ring-primary"[39m
+                      [33mtype[39m=[32m"checkbox"[39m
+                    [36m/>[39m
+                  [36m</th>[39m
+                  [36m<th[39m
+                    [33mclass[39m=[32m"p-4 font-semibold text-text-muted dark:text-dark-text-tertiary text-sm cursor-pointer hover:text-primary"[39m
+                  [36m>[39m
+                    [0mDate [0m
+                    [0m↓[0m
+                  [36m</th>[39m
+                  [36m<th[39m
+                    [33mclass[39m=[32m"p-4 font-semibold text-text-muted dark:text-dark-text-tertiary text-sm"[39m
+                  [36m>[39m
+                    [0mMerchant[0m
+                  [36m</th>[39m
+                  [36m<th[39m
+                    [33mclass[39m=[32m"p-4 font-semibold text-text-muted dark:text-dark-text-tertiary text-sm"[39m
+                  [36m>[39m
+                    [0mCategory[0m
+                  [36m</th>[39m
+                  [36m<th[39m
+                    [33mclass[39m=[32m"p-4 font-semibold text-text-muted dark:text-dark-text-tertiary text-sm text-center"[39m
+                  [36m>[39m
+                    [0mStatus[0m
+                  [36m</th>[39m
+                  [36m<th[39m
+                    [33mclass[39m=[32m"p-4 font-semibold text-text-muted dark:text-dark-text-tertiary text-sm text-right cursor-pointer hover:text-primary"[39m
+                  [36m>[39m
+                    [0mAmount [0m
+                  [36m</th>[39m
+                  [36m<th[39m
+                    [33mclass[39m=[32m"p-4"[39m
+                  [36m/>[39m
+                [36m</tr>[39m
+              [36m</thead>[39m
+              [36m<tbody>[39m
+                [36m<tr[39m
+                  [33mclass[39m=[32m"border-b border-gray-50 dark:border-dark-border-primary last:border-0 hover:bg-gray-50/50 dark:hover:bg-dark-bg-hover transition-colors "[39m
+                [36m>[39m
+                  [36m<td[39m
+                    [33mclass[39m=[32m"p-4"[39m
+                  [36m>[39m
+                    [36m<input[39m
+                      [33mclass[39m=[32m"rounded border-gray-300 text-primary focus:ring-primary"[39m
+                      [33mtype[39m=[32m"checkbox"[39m
+                    [36m/>[39m
+                  [36m</td>[39m
+                  [36m<td[39m
+                    [33mclass[39m=[32m"p-4 text-[#1e293b] dark:text-white font-medium"[39m
+                  [36m>[39m
+                    [0mJan 20, 2026[0m
+                  [36m</td>[39m
+                  [36m<td[39m
+                    [33mclass[39m=[32m"p-4"[39m
+                  [36m>[39m
+                    [36m<div[39m
+                      [33mclass[39m=[32m"flex flex-col"[39m
+                    [36m>[39m
+                      [36m<span[39m
+                        [33mclass[39m=[32m"text-text-main dark:text-dark-text-primary font-bol...
+[90m [2m❯[22m waitForWrapper node_modules/@testing-library/dom/dist/wait-for.js:[2m163:27[22m[39m
+[36m [2m❯[22m src/features/transactions/__tests__/transactionFlow.test.tsx:[2m37:15[22m[39m
+    [90m 35| [39m
+    [90m 36| [39m        [90m// Verify creation[39m
+    [90m 37| [39m        [35mawait[39m [34mwaitFor[39m(() [33m=>[39m {
+    [90m   | [39m              [31m^[39m
+    [90m 38| [39m            expect(screen.getByText('Test Transaction')).toBeInTheDocu…
+    [90m 39| [39m        })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/features/budgets/__tests__/budgetFlow.test.tsx[2m > [22mBudget Management Flow[2m > [22mcreates budget and tracks spending
+[31m[1mTestingLibraryElementError[22m[39m: Found a label with the text of: /budget name/i, however no form control was found associated to that label. Make sure you're using the "for" attribute or "aria-labelledby" attribute correctly.
+
+Ignored nodes: comments, script, style
+[36m<body[39m
+  [33mstyle[39m=[32m"overflow: hidden;"[39m
+[36m>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"p-8 space-y-8 font-display bg-background-light dark:bg-dark-bg-primary min-h-screen transition-colors"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"flex flex-col md:flex-row justify-between items-start md:items-end gap-6"[39m
+      [36m>[39m
+        [36m<div>[39m
+          [36m<h2[39m
+            [33mclass[39m=[32m"text-3xl font-black text-[#1e293b] dark:text-dark-text-primary tracking-tight"[39m
+          [36m>[39m
+            [0mBudgets[0m
+          [36m</h2>[39m
+          [36m<p[39m
+            [33mclass[39m=[32m"text-[#64748b] dark:text-dark-text-tertiary font-medium mt-1"[39m
+          [36m>[39m
+            [0mManage your spending limits.[0m
+          [36m</p>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"flex gap-4"[39m
+        [36m>[39m
+          [36m<button[39m
+            [33mclass[39m=[32m"bg-[#1e293b] dark:bg-primary-500 text-white dark:text-text-main px-6 py-2.5 rounded-xl font-bold flex items-center gap-2 hover:opacity-90 transition-opacity shadow-lg shadow-black/5"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"material-symbols-outlined"[39m
+            [36m>[39m
+              [0madd[0m
+            [36m</span>[39m
+            [0mNew Budget[0m
+          [36m</button>[39m
+        [36m</div>[39m
+      [36m</div>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"flex flex-col md:flex-row gap-4 bg-white dark:bg-[#1e293b] p-4 rounded-xl border border-gray-100 dark:border-gray-800 shadow-sm"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"flex-1 relative"[39m
+        [36m>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"[39m
+          [36m>[39m
+            [0msearch[0m
+          [36m</span>[39m
+          [36m<input[39m
+            [33mclass[39m=[32m"w-full pl-10 pr-4 py-2 bg-gray-50 dark:bg-dark-bg-tertiary rounded-lg text-sm border-none focus:ring-2 focus:ring-[#10b981] dark:text-dark-text-primary font-medium"[39m
+            [33mplaceholder[39m=[32m"Search budgets..."[39m
+            [33mtype[39m=[32m"text"[39m
+            [33mvalue[39m=[32m""[39m
+          [36m/>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"flex gap-2"[39m
+        [36m>[39m
+          [36m<select[39m
+            [33mclass[39m=[32m"bg-gray-50 dark:bg-dark-bg-tertiary px-4 py-2 rounded-lg text-sm font-bold text-gray-600 dark:text-dark-text-tertiary border-none focus:ring-2 focus:ring-[#10b981]"[39m
+          [36m>[39m
+            [36m<option[39m
+              [33mvalue[39m=[32m"all"[39m
+            [36m>[39m
+              [0mAll Periods[0m
+            [36m</option>[39m
+            [36m<option[39m
+              [33mvalue[39m=[32m"monthly"[39m
+            [36m>[39m
+              [0mMonthly[0m
+            [36m</option>[39m
+            [36m<option[39m
+              [33mvalue[39m=[32m"semester"[39m
+            [36m>[39m
+              [0mSemester[0m
+            [36m</option>[39m
+            [36m<option[39m
+              [33mvalue[39m=[32m"yearly"[39m
+            [36m>[39m
+              [0mYearly[0m
+            [36m</option>[39m
+          [36m</select>[39m
+          [36m<select[39m
+            [33mclass[39m=[32m"bg-gray-50 dark:bg-dark-bg-tertiary px-4 py-2 rounded-lg text-sm font-bold text-gray-600 dark:text-dark-text-tertiary border-none focus:ring-2 focus:ring-[#10b981]"[39m
+          [36m>[39m
+            [36m<option[39m
+              [33mvalue[39m=[32m"progress"[39m
+            [36m>[39m
+              [0mHealth (High to Low)[0m
+            [36m</option>[39m
+            [36m<option[39m
+              [33mvalue[39m=[32m"amount"[39m
+            [36m>[39m
+              [0mAmount (High to Low)[0m
+            [36m</option>[39m
+            [36m<option[39m
+              [33mvalue[39m=[32m"name"[39m
+            [36m>[39m
+              [0mName (A-Z)[0m
+            [36m</option>[39m
+          [36m</select>[39m
+        [36m</div>[39m
+      [36m</div>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"bg-white dark:bg-[#1e293b] p-6 rounded-2xl border border-[#e2e8f0] dark:border-[#334155] shadow-sm space-y-4"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"animate-pulse bg-gray-200 dark:bg-white/5 rounded-md h-4 w-full h-6"[39m
+            [33mstyle[39m=[32m"width: 50%;"[39m
+          [36m/>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"animate-pulse bg-gray-200 dark:bg-white/5 rounded-xl w-full rounded-full"[39m
+            [33mstyle[39m=[32m"height: 10px;"[39m
+          [36m/>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex justify-between"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"animate-pulse bg-gray-200 dark:bg-white/5 rounded-md h-4 w-full "[39m
+              [33mstyle[39m=[32m"width: 20%;"[39m
+            [36m/>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"animate-pulse bg-gray-200 dark:bg-white/5 rounded-md h-4 w-full "[39m
+              [33mstyle[39m=[32m"width: 20%;"[39m
+            [36m/>[39m
+          [36m</div>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"bg-white dark:bg-[#1e293b] p-6 rounded-2xl border border-[#e2e8f0] dark:border-[#334155] shadow-sm space-y-4"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"animate-pulse bg-gray-200 dark:bg-white/5 rounded-md h-4 w-full h-6"[39m
+            [33mstyle[39m=[32m"width: 50%;"[39m
+          [36m/>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"animate-pulse bg-gray-200 dark:bg-white/5 rounded-xl w-full rounded-full"[39m
+            [33mstyle[39m=[32m"height: 10px;"[39m
+          [36m/>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex justify-between"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"animate-pulse bg-gray-200 dark:bg-white/5 rounded-md h-4 w-full "[39m
+              [33mstyle[39m=[32m"width: 20%;"[39m
+            [36m/>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"animate-pulse bg-gray-200 dark:bg-white/5 rounded-md h-4 w-full "[39m
+              [33mstyle[39m=[32m"width: 20%;"[39m
+            [36m/>[39m
+          [36m</div>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"bg-white dark:bg-[#1e2...
+[90m [2m❯[22m Object.getElementError node_modules/@testing-library/dom/dist/config.js:[2m37:19[22m[39m
+[90m [2m❯[22m getAllByLabelText node_modules/@testing-library/dom/dist/queries/label-text.js:[2m108:40[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m52:17[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m95:19[22m[39m
+[36m [2m❯[22m src/features/budgets/__tests__/budgetFlow.test.tsx:[2m21:32[22m[39m
+    [90m 19| [39m        await user.click(screen.getByRole('button', { name: /new budge…
+    [90m 20| [39m
+    [90m 21| [39m        await user.type(screen.getByLabelText(/budget name/i), 'Coffee…
+    [90m   | [39m                               [31m^[39m
+    [90m 22| [39m        [35mawait[39m user[33m.[39m[34mtype[39m(screen[33m.[39m[34mgetByLabelText[39m([36m/budget amount/i[39m)[33m,[39m [32m'50'[39m)[33m;[39m
+    [90m 23| [39m        await user.selectOptions(screen.getByLabelText(/category/i), '…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯[39m[1m[41m Unhandled Errors [49m[22m[31m⎯⎯⎯⎯⎯⎯[39m
+[31m[1m
+Vitest caught 2 unhandled errors during the test run.
+This might cause false positive tests. Resolve unhandled errors to make sure your tests are not affected.[22m[39m
+
+[31m⎯⎯⎯⎯[39m[1m[41m Unhandled Rejection [49m[22m[31m⎯⎯⎯⎯⎯[39m
+[31m[1mInternalError[22m: [MSW] Cannot bypass a request when using the "error" strategy for the "onUnhandledRequest" option.[39m
+[90m [2m❯[22m applyStrategy node_modules/msw/lib/core/utils/request/onUnhandledRequest.mjs:[2m21:15[22m[39m
+[90m [2m❯[22m onUnhandledRequest node_modules/msw/lib/core/utils/request/onUnhandledRequest.mjs:[2m50:5[22m[39m
+[90m [2m❯[22m handleRequest node_modules/msw/lib/core/utils/handleRequest.mjs:[2m31:11[22m[39m
+[90m [2m❯[22m processTicksAndRejections node:internal/process/task_queues:[2m103:5[22m[39m
+[90m [2m❯[22m _Emitter.<anonymous> node_modules/msw/lib/node/index.mjs:[2m41:26[22m[39m
+[90m [2m❯[22m emitAsync node_modules/@mswjs/interceptors/lib/node/chunk-R6T7CL5E.mjs:[2m13:5[22m[39m
+[90m [2m❯[22m node_modules/@mswjs/interceptors/lib/node/chunk-R6T7CL5E.mjs:[2m127:5[22m[39m
+[90m [2m❯[22m until node_modules/@open-draft/until/lib/index.mjs:[2m4:18[22m[39m
+[90m [2m❯[22m handleRequest node_modules/@mswjs/interceptors/lib/node/chunk-R6T7CL5E.mjs:[2m121:18[22m[39m
+[90m [2m❯[22m XMLHttpRequestController.xhrRequestController.onRequest node_modules/@mswjs/interceptors/lib/node/chunk-5V3SIIW2.mjs:[2m776:9[22m[39m
+
+[31mThis error originated in "[1msrc/features/budgets/__tests__/budgetFlow.test.tsx[22m" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.[39m
+[31mThe latest test that might've caused the error is "[1mcreates budget and tracks spending[22m". It might mean one of the following:
+- The error was thrown, while Vitest was running this test.
+- If the error occurred after the test had been completed, this was the last documented test before it was thrown.[39m
+
+[31m⎯⎯⎯⎯[39m[1m[41m Unhandled Rejection [49m[22m[31m⎯⎯⎯⎯⎯[39m
+[31m[1mInternalError[22m: [MSW] Cannot bypass a request when using the "error" strategy for the "onUnhandledRequest" option.[39m
+[90m [2m❯[22m applyStrategy node_modules/msw/lib/core/utils/request/onUnhandledRequest.mjs:[2m21:15[22m[39m
+[90m [2m❯[22m onUnhandledRequest node_modules/msw/lib/core/utils/request/onUnhandledRequest.mjs:[2m50:5[22m[39m
+[90m [2m❯[22m handleRequest node_modules/msw/lib/core/utils/handleRequest.mjs:[2m31:11[22m[39m
+[90m [2m❯[22m runNextTicks node:internal/process/task_queues:[2m64:5[22m[39m
+[90m [2m❯[22m listOnTimeout node:internal/timers:[2m567:9[22m[39m
+[90m [2m❯[22m processTimers node:internal/timers:[2m541:7[22m[39m
+[90m [2m❯[22m _Emitter.<anonymous> node_modules/msw/lib/node/index.mjs:[2m41:26[22m[39m
+[90m [2m❯[22m emitAsync node_modules/@mswjs/interceptors/lib/node/chunk-R6T7CL5E.mjs:[2m13:5[22m[39m
+[90m [2m❯[22m node_modules/@mswjs/interceptors/lib/node/chunk-R6T7CL5E.mjs:[2m127:5[22m[39m
+[90m [2m❯[22m until node_modules/@open-draft/until/lib/index.mjs:[2m4:18[22m[39m
+
+[31mThis error originated in "[1msrc/features/budgets/__tests__/budgetFlow.test.tsx[22m" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.[39m
+[31mThe latest test that might've caused the error is "[1mwarns when budget is exceeded[22m". It might mean one of the following:
+- The error was thrown, while Vitest was running this test.
+- If the error occurred after the test had been completed, this was the last documented test before it was thrown.[39m
+[31m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[39m
+
+
+[2m Test Files [22m [1m[31m3 failed[39m[22m[90m (3)[39m
+[2m      Tests [22m [1m[31m4 failed[39m[22m[2m | [22m[1m[32m4 passed[39m[22m[90m (8)[39m
+[2m     Errors [22m [1m[31m2 errors[39m[22m
+[2m   Start at [22m 12:21:49
+[2m   Duration [22m 8.74s[2m (transform 1.83s, setup 2.30s, import 5.10s, tests 9.08s, environment 3.72s)[22m
+

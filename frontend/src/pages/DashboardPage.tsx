@@ -6,7 +6,8 @@ import { useTransactions } from '../hooks/useTransactions';
 export default function DashboardPage() {
     const user = authService.getCurrentUser();
     const { data: accounts = [], isLoading: accountsLoading } = useAccounts();
-    const { data: transactions = [], isLoading: transactionsLoading } = useTransactions(5);
+    const { data: response, isLoading: transactionsLoading } = useTransactions(5);
+    const transactions = response?.data || [];
 
     const loading = accountsLoading || transactionsLoading;
 
@@ -14,7 +15,7 @@ export default function DashboardPage() {
     const firstName = user?.name?.split(' ')[0] || 'Alex';
 
     return (
-        <div className="p-8 flex flex-col gap-8 max-w-[1400px] mx-auto w-full font-display">
+        <div className="p-8 flex flex-col gap-8 max-w-[1400px] mx-auto w-full font-display bg-background-light dark:bg-dark-bg-primary transition-colors">
             {/* Page Heading */}
             <div className="flex flex-col gap-1">
                 {loading ? (
@@ -24,8 +25,8 @@ export default function DashboardPage() {
                     </div>
                 ) : (
                     <>
-                        <h2 className="text-3xl font-black tracking-tight text-[#101919] dark:text-white">Good morning, {firstName} 👋</h2>
-                        <p className="text-[#578e8d]">Your finances are looking healthy this semester. AI has categorized 12 new expenses.</p>
+                        <h2 className="text-3xl font-black tracking-tight text-text-main dark:text-dark-text-primary">Good morning, {firstName} 👋</h2>
+                        <p className="text-text-muted dark:text-dark-text-secondary">Your finances are looking healthy this semester. AI has categorized 12 new expenses.</p>
                     </>
                 )}
             </div>
@@ -33,7 +34,7 @@ export default function DashboardPage() {
             {/* Stats Row */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {[...Array(4)].map((_, i) => (
-                    <div key={i} className="bg-white dark:bg-white/5 p-6 rounded-2xl border border-[#e9f1f1] dark:border-white/10 shadow-sm hover:shadow-md transition-shadow group">
+                    <div key={i} className="bg-white dark:bg-dark-bg-secondary p-6 rounded-2xl border border-gray-100 dark:border-dark-border-primary shadow-sm hover:shadow-md transition-shadow group">
                         {loading ? (
                             <div className="space-y-4">
                                 <div className="flex justify-between items-start">
@@ -51,7 +52,7 @@ export default function DashboardPage() {
                         ) : (
                             <>
                                 <div className="flex justify-between items-start mb-4">
-                                    <span className="text-xs font-bold text-[#578e8d] uppercase tracking-wider">
+                                    <span className="text-xs font-bold text-text-muted uppercase tracking-wider">
                                         {i === 0 ? 'Total Balance' : i === 1 ? 'Monthly Income' : i === 2 ? 'Monthly Expenses' : 'Net Savings'}
                                     </span>
                                     <div className={`size-8 rounded-lg flex items-center justify-center ${i === 0 ? 'bg-primary/10 text-primary' :
@@ -75,7 +76,7 @@ export default function DashboardPage() {
                                         </p>
                                     </div>
                                     {i === 0 && (
-                                        <div className="w-16 h-8 bg-[#f1f5f5] dark:bg-white/5 rounded flex items-end p-1 gap-1">
+                                        <div className="w-16 h-8 bg-background-light dark:bg-white/5 rounded flex items-end p-1 gap-1">
                                             <div className="w-1/4 bg-primary/40 rounded-t h-[40%]"></div>
                                             <div className="w-1/4 bg-primary/40 rounded-t h-[70%]"></div>
                                             <div className="w-1/4 bg-primary/40 rounded-t h-[55%]"></div>
@@ -92,7 +93,7 @@ export default function DashboardPage() {
             {/* Mid Section Grid */}
             <div className="grid grid-cols-12 gap-6">
                 {/* Spending Breakdown (7 Columns) */}
-                <div className="col-span-12 lg:col-span-7 bg-white dark:bg-white/5 p-6 rounded-2xl border border-[#e9f1f1] dark:border-white/10 shadow-sm">
+                <div className="col-span-12 lg:col-span-7 bg-white dark:bg-dark-bg-secondary p-6 rounded-2xl border border-gray-100 dark:border-dark-border-primary shadow-sm">
                     <div className="flex justify-between items-center mb-8">
                         <h3 className="text-lg font-bold">Spending Breakdown</h3>
                         {!loading && (
@@ -115,7 +116,7 @@ export default function DashboardPage() {
                             <div className="relative size-48 flex items-center justify-center">
                                 <svg className="size-full transform -rotate-90" viewBox="0 0 36 36">
                                     <circle className="dark:stroke-white/5" cx="18" cy="18" fill="transparent" r="16" stroke="#f1f5f5" strokeWidth="4"></circle>
-                                    <circle cx="18" cy="18" fill="transparent" r="16" stroke="#2eb8b5" strokeDasharray="40 100" strokeLinecap="round" strokeWidth="4"></circle>
+                                    <circle cx="18" cy="18" fill="transparent" r="16" stroke="#2563EB" strokeDasharray="40 100" strokeLinecap="round" strokeWidth="4"></circle>
                                     <circle cx="18" cy="18" fill="transparent" r="16" stroke="#fbbf24" strokeDasharray="25 100" strokeDashoffset="-40" strokeLinecap="round" strokeWidth="4"></circle>
                                     <circle cx="18" cy="18" fill="transparent" r="16" stroke="#6366f1" strokeDasharray="15 100" strokeDashoffset="-65" strokeLinecap="round" strokeWidth="4"></circle>
                                     <circle cx="18" cy="18" fill="transparent" r="16" stroke="#f43f5e" strokeDasharray="20 100" strokeDashoffset="-80" strokeLinecap="round" strokeWidth="4"></circle>
@@ -126,32 +127,32 @@ export default function DashboardPage() {
                                 </div>
                             </div>
                             <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
-                                <div className="flex items-center gap-3 p-3 rounded-xl border border-[#e9f1f1] dark:border-white/10">
+                                <div className="flex items-center gap-3 p-3 rounded-xl border border-gray-100 dark:border-white/10">
                                     <div className="size-3 rounded-full bg-primary"></div>
                                     <div className="flex flex-col">
                                         <p className="text-xs font-bold">Food & Drink</p>
                                         <p className="text-[10px] text-[#578e8d]">$580.00 (40%)</p>
                                     </div>
                                 </div>
-                                <div className="flex items-center gap-3 p-3 rounded-xl border border-[#e9f1f1] dark:border-white/10">
+                                <div className="flex items-center gap-3 p-3 rounded-xl border border-gray-100 dark:border-white/10">
                                     <div className="size-3 rounded-full bg-amber-400"></div>
                                     <div className="flex flex-col">
                                         <p className="text-xs font-bold">Academic</p>
-                                        <p className="text-[10px] text-[#578e8d]">$362.50 (25%)</p>
+                                        <p className="text-[10px] text-text-muted">$362.50 (25%)</p>
                                     </div>
                                 </div>
-                                <div className="flex items-center gap-3 p-3 rounded-xl border border-[#e9f1f1] dark:border-white/10">
+                                <div className="flex items-center gap-3 p-3 rounded-xl border border-gray-100 dark:border-white/10">
                                     <div className="size-3 rounded-full bg-indigo-500"></div>
                                     <div className="flex flex-col">
                                         <p className="text-xs font-bold">Housing</p>
-                                        <p className="text-[10px] text-[#578e8d]">$217.50 (15%)</p>
+                                        <p className="text-[10px] text-text-muted">$217.50 (15%)</p>
                                     </div>
                                 </div>
-                                <div className="flex items-center gap-3 p-3 rounded-xl border border-[#e9f1f1] dark:border-white/10">
+                                <div className="flex items-center gap-3 p-3 rounded-xl border border-gray-100 dark:border-white/10">
                                     <div className="size-3 rounded-full bg-rose-500"></div>
                                     <div className="flex flex-col">
                                         <p className="text-xs font-bold">Subscription</p>
-                                        <p className="text-[10px] text-[#578e8d]">$290.00 (20%)</p>
+                                        <p className="text-[10px] text-text-muted">$290.00 (20%)</p>
                                     </div>
                                 </div>
                             </div>
@@ -160,7 +161,7 @@ export default function DashboardPage() {
                 </div>
 
                 {/* Account Snapshot (5 Columns) */}
-                <div className="col-span-12 lg:col-span-5 bg-white dark:bg-white/5 p-6 rounded-2xl border border-[#e9f1f1] dark:border-white/10 shadow-sm flex flex-col">
+                <div className="col-span-12 lg:col-span-5 bg-white dark:bg-dark-bg-secondary p-6 rounded-2xl border border-gray-100 dark:border-dark-border-primary shadow-sm flex flex-col">
                     <div className="flex justify-between items-center mb-6">
                         <h3 className="text-lg font-bold">Accounts Snapshot</h3>
                         {!loading && (
@@ -179,14 +180,14 @@ export default function DashboardPage() {
                                 <div key={account.id} className="flex items-center justify-between p-4 rounded-xl bg-background-light dark:bg-white/5 border border-transparent hover:border-primary/30 transition-all cursor-pointer group">
                                     <div className="flex items-center gap-3">
                                         <div className={`size-10 rounded-lg flex items-center justify-center text-white font-bold text-xs ${account.accountType === 'checking' ? 'bg-blue-600' :
-                                                account.accountType === 'savings' ? 'bg-emerald-600' :
-                                                    account.accountType === 'credit' ? 'bg-rose-600' : 'bg-indigo-600'
+                                            account.accountType === 'savings' ? 'bg-emerald-600' :
+                                                account.accountType === 'credit' ? 'bg-rose-600' : 'bg-indigo-600'
                                             }`}>
                                             {account.name.substring(0, 2).toUpperCase()}
                                         </div>
                                         <div className="flex flex-col">
                                             <p className="text-sm font-bold">{account.name}</p>
-                                            <p className="text-[10px] text-[#578e8d]">•••• {account.accountNumber}</p>
+                                            <p className="text-[10px] text-text-muted">•••• {account.accountNumber}</p>
                                         </div>
                                     </div>
                                     <p className={`text-sm font-black ${account.balance < 0 ? 'text-rose-500' : ''}`}>
@@ -205,10 +206,10 @@ export default function DashboardPage() {
                         </div>
                     ) : (
                         <>
-                            <button className="mt-6 w-full py-3 rounded-xl border border-dashed border-[#d3e4e4] dark:border-white/10 text-xs font-bold text-[#578e8d] hover:border-primary hover:text-primary transition-all flex items-center justify-center gap-2">
+                            <button className="mt-6 w-full py-3 rounded-xl border border-dashed border-gray-300 dark:border-white/10 text-xs font-bold text-text-muted hover:border-primary hover:text-primary transition-all flex items-center justify-center gap-2">
                                 <span className="material-symbols-outlined text-[16px]">add_link</span> Link New Account
                             </button>
-                            <div className="mt-4 flex items-center justify-center gap-1.5 text-[10px] text-[#578e8d]/60 font-medium">
+                            <div className="mt-4 flex items-center justify-center gap-1.5 text-[10px] text-text-muted/60 font-medium">
                                 <span className="material-symbols-outlined text-[12px]">lock</span>
                                 Bank-grade Encryption
                             </div>
@@ -218,18 +219,18 @@ export default function DashboardPage() {
             </div>
 
             {/* Recent Transactions */}
-            <div className="bg-white dark:bg-white/5 rounded-2xl border border-[#e9f1f1] dark:border-white/10 shadow-sm overflow-hidden">
-                <div className="p-6 border-b border-[#e9f1f1] dark:border-white/10 flex justify-between items-center">
+            <div className="bg-white dark:bg-dark-bg-secondary rounded-2xl border border-gray-100 dark:border-dark-border-primary shadow-sm overflow-hidden">
+                <div className="p-6 border-b border-gray-100 dark:border-dark-border-primary flex justify-between items-center">
                     <div className="flex items-center gap-2">
                         <h3 className="text-lg font-bold">Recent Transactions</h3>
-                        <span className="bg-[#f1f5f5] dark:bg-white/10 px-2 py-0.5 rounded text-[10px] font-bold text-[#578e8d]">LATEST 10</span>
+                        <span className="bg-background-light dark:bg-white/10 px-2 py-0.5 rounded text-[10px] font-bold text-text-muted">LATEST 10</span>
                     </div>
                     {!loading && (
                         <div className="flex gap-2">
-                            <button className="px-3 py-1.5 rounded-lg border border-[#e9f1f1] dark:border-white/10 text-xs font-medium flex items-center gap-2 hover:bg-gray-50 dark:hover:bg-white/5">
+                            <button className="px-3 py-1.5 rounded-lg border border-gray-100 dark:border-white/10 text-xs font-medium flex items-center gap-2 hover:bg-gray-50 dark:hover:bg-white/5">
                                 <span className="material-symbols-outlined text-[16px]">filter_list</span> Filter
                             </button>
-                            <button className="px-3 py-1.5 rounded-lg border border-[#e9f1f1] dark:border-white/10 text-xs font-medium flex items-center gap-2 hover:bg-gray-50 dark:hover:bg-white/5">
+                            <button className="px-3 py-1.5 rounded-lg border border-gray-100 dark:border-white/10 text-xs font-medium flex items-center gap-2 hover:bg-gray-50 dark:hover:bg-white/5">
                                 <span className="material-symbols-outlined text-[16px]">download</span> Export
                             </button>
                         </div>
@@ -258,7 +259,7 @@ export default function DashboardPage() {
                         <div className="overflow-x-auto">
                             <table className="w-full text-left border-collapse">
                                 <thead>
-                                    <tr className="text-[10px] font-bold text-[#578e8d] uppercase tracking-wider bg-background-light/50 dark:bg-white/5">
+                                    <tr className="text-[10px] font-bold text-text-muted uppercase tracking-wider bg-background-light/50 dark:bg-white/5">
                                         <th className="px-6 py-4">Date</th>
                                         <th className="px-6 py-4">Description</th>
                                         <th className="px-6 py-4">AI Category</th>
@@ -266,7 +267,7 @@ export default function DashboardPage() {
                                         <th className="px-6 py-4 text-right">Amount</th>
                                     </tr>
                                 </thead>
-                                <tbody className="divide-y divide-[#e9f1f1] dark:divide-white/10">
+                                <tbody className="divide-y divide-gray-100 dark:divide-white/10">
                                     {transactions.length > 0 ? (
                                         transactions.map(transaction => (
                                             <tr key={transaction.id} className="hover:bg-gray-50 dark:hover:bg-white/5 transition-colors group cursor-pointer">
@@ -285,13 +286,13 @@ export default function DashboardPage() {
                                                 </td>
                                                 <td className="px-6 py-4">
                                                     <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold border uppercase tracking-tighter ${transaction.amount > 0
-                                                            ? 'bg-emerald-100 text-emerald-600 border-emerald-200'
-                                                            : 'bg-primary/10 text-primary border-primary/20'
+                                                        ? 'bg-emerald-100 text-emerald-600 border-emerald-200'
+                                                        : 'bg-primary/10 text-primary border-primary/20'
                                                         }`}>
                                                         {transaction.category?.name || 'General'}
                                                     </span>
                                                 </td>
-                                                <td className="px-6 py-4 text-xs font-medium text-[#578e8d]">Primary Account</td>
+                                                <td className="px-6 py-4 text-xs font-medium text-text-muted">Primary Account</td>
                                                 <td className={`px-6 py-4 text-right text-sm font-black ${transaction.amount < 0 ? 'text-rose-500' : 'text-emerald-500'}`}>
                                                     {transaction.amount < 0 ? '-' : '+'}${Math.abs(transaction.amount).toFixed(2)}
                                                 </td>
@@ -308,7 +309,7 @@ export default function DashboardPage() {
                             </table>
                         </div>
                         <div className="p-4 bg-background-light/30 dark:bg-white/5 flex justify-center">
-                            <button className="text-xs font-bold text-[#578e8d] hover:text-primary transition-colors">View All Transactions</button>
+                            <button className="text-xs font-bold text-text-muted hover:text-primary transition-colors">View All Transactions</button>
                         </div>
                     </>
                 )}

@@ -1,28 +1,14 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
-import { authService, loginSchema, type LoginInput } from '../../services/auth.service';
+import { authService, type LoginInput } from '../../services/auth.service';
 import { useAuthStore } from '../../store/authStore';
+import LoginForm from '../../components/LoginForm';
 
 export default function LoginPage() {
     const navigate = useNavigate();
     const setAuth = useAuthStore(state => state.setAuth);
-    const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
-
-    const {
-        register,
-        handleSubmit,
-        formState: { errors },
-    } = useForm<LoginInput>({
-        resolver: zodResolver(loginSchema),
-        defaultValues: {
-            email: '',
-            password: '',
-        },
-    });
 
     const slides = [
         {
@@ -64,15 +50,16 @@ export default function LoginPage() {
     };
 
     return (
-        <div className="flex h-screen w-full flex-row overflow-hidden bg-background-light dark:bg-background-dark font-display antialiased text-text-main">
+        <div className="flex h-screen w-full flex-row overflow-hidden bg-background-light dark:bg-dark-bg-primary font-display antialiased text-text-main dark:text-dark-text-primary">
             {/* Left Side - Visual */}
             <div className="relative hidden lg:flex lg:w-1/2 flex-col justify-between overflow-hidden p-12">
                 <div
                     style={{ backgroundImage: "url('/images/auth-bg.png')" }}
+                    className="absolute inset-0 z-0 bg-cover bg-center"
                 >
                 </div>
                 {/* Abstract Background - Kept Template Colors as requested */}
-                <div className="absolute inset-0 z-10 bg-gradient-to-br from-[#26d99d]/90 to-[#759FDD]/90 mix-blend-multiply"></div>
+                <div className="absolute inset-0 z-10 bg-gradient-to-br from-primary/90 to-secondary/90 mix-blend-multiply"></div>
                 <div className="absolute inset-0 z-10 bg-black/10"></div>
 
                 <div className="relative z-20 flex h-full flex-col justify-center text-white">
@@ -104,128 +91,72 @@ export default function LoginPage() {
             </div>
 
             {/* Right Side - Form */}
-            <div className="flex w-full lg:w-1/2 flex-col items-center justify-center overflow-y-auto overflow-x-hidden bg-background-light dark:bg-background-dark p-6 sm:p-12 lg:p-16 relative">
+            <div className="flex w-full lg:w-1/2 flex-col items-center justify-center overflow-y-auto overflow-x-hidden bg-background-light dark:bg-dark-bg-primary p-6 sm:p-12 lg:p-16 relative">
                 {/* Decorative Blurs - Kept Template Colors as requested */}
-                <div className="pointer-events-none absolute -top-20 -right-20 h-96 w-96 rounded-full bg-[#26d99d]/5 blur-3xl"></div>
-                <div className="pointer-events-none absolute bottom-0 left-0 h-64 w-64 rounded-full bg-[#759FDD]/5 blur-3xl"></div>
+                <div className="pointer-events-none absolute -top-20 -right-20 h-96 w-96 rounded-full bg-primary/5 blur-3xl"></div>
+                <div className="pointer-events-none absolute bottom-0 left-0 h-64 w-64 rounded-full bg-secondary/5 blur-3xl"></div>
 
                 <div className="w-full max-w-[440px] z-10">
                     <div className="mb-10 text-center lg:text-left">
-                        <Link to="/" className="lg:hidden mb-6 flex justify-center hover:scale-105 transition-transform inline-block">
-                            <div className="size-12 bg-gradient-to-br from-primary to-[#259694] rounded-lg flex items-center justify-center text-white shadow-lg shadow-primary/20">
+                        <Link to="/" className="lg:hidden mb-6 flex justify-center hover:scale-105 transition-transform w-fit mx-auto">
+                            <div className="size-12 bg-gradient-to-br from-primary to-primary-dark rounded-lg flex items-center justify-center text-white shadow-lg shadow-primary/20">
                                 <img src="/images/logo.svg" alt="UniFlow Logo" className="w-7 h-7 object-contain brightness-0 invert" />
                             </div>
                         </Link>
-                        <h2 className="text-3xl font-bold tracking-tight text-text-main dark:text-white mb-2">Log in to your account</h2>
-                        <p className="text-text-sub text-base">Welcome back! Please enter your details.</p>
+                        <h2 className="text-3xl font-bold tracking-tight text-text-main dark:text-dark-text-primary mb-2">Log in to your account</h2>
+                        <p className="text-text-muted dark:text-dark-text-secondary text-base">Welcome back! Please enter your details.</p>
                     </div>
 
-                    <form className="flex flex-col gap-5" onSubmit={handleSubmit(onLogin)}>
-                        <div className="flex flex-col gap-2">
-                            <label className="text-sm font-semibold text-text-main dark:text-gray-200" htmlFor="email">Email Address</label>
-                            <div className="relative">
-                                <input
-                                    {...register('email')}
-                                    className={`w-full h-12 pl-4 pr-12 rounded-xl border ${errors.email ? 'border-red-500' : 'border-[#d3e4e4] dark:border-[#3a4b4b]'} bg-[#f9fbfb] dark:bg-[#131f1f] text-text-main dark:text-white placeholder-[#94b3b2] dark:placeholder-[#4a6b6a] focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-normal shadow-sm disabled:opacity-50`}
-                                    id="email"
-                                    placeholder="student@example.com"
-                                    type="email"
-                                    disabled={isLoading}
-                                />
-                                <span className="material-symbols-outlined absolute right-4 top-3.5 text-gray-400 pointer-events-none text-[20px]">mail</span>
-                            </div>
-                            {errors.email && (
-                                <p className="text-xs text-red-500 mt-1 flex items-center gap-1">
-                                    <span className="material-symbols-outlined text-[14px]">error</span>
-                                    {errors.email.message}
-                                </p>
-                            )}
-                        </div>
+                    <LoginForm
+                        onSubmit={onLogin}
+                        isLoading={isLoading}
+                    />
 
-                        <div className="flex flex-col gap-2">
-                            <label className="text-sm font-semibold text-text-main dark:text-gray-200" htmlFor="password">Password</label>
-                            <div className="relative">
-                                <input
-                                    {...register('password')}
-                                    className={`w-full h-12 pl-4 pr-12 rounded-xl border ${errors.password ? 'border-red-500' : 'border-[#d3e4e4] dark:border-[#3a4b4b]'} bg-[#f9fbfb] dark:bg-[#131f1f] text-text-main dark:text-white placeholder-[#94b3b2] dark:placeholder-[#4a6b6a] focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-normal shadow-sm disabled:opacity-50`}
-                                    id="password"
-                                    placeholder="••••••••"
-                                    type={showPassword ? "text" : "password"}
-                                    disabled={isLoading}
-                                />
+                    <div className="mt-6 flex items-center justify-between">
+                        <label className="flex items-center gap-2 cursor-pointer group">
+                            <input
+                                className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary/20 dark:border-dark-border-primary dark:bg-dark-bg-tertiary transition-colors"
+                                type="checkbox"
+                                id="rememberMe"
+                                disabled={isLoading}
+                            />
+                            <span className="text-sm text-text-muted dark:text-dark-text-tertiary group-hover:text-text-main dark:group-hover:text-dark-text-primary transition-colors select-none">Remember me</span>
+                        </label>
+                        <Link className="text-sm font-semibold text-secondary hover:text-secondary/80 transition-colors" to="/forgot-password">Forgot Password?</Link>
+                    </div>
 
-                                <span
-                                    className="material-symbols-outlined absolute right-4 top-3.5 text-gray-400 cursor-pointer hover:text-gray-600 transition-colors text-[20px] select-none"
-                                    onClick={() => setShowPassword(!showPassword)}
-                                >
-                                    {showPassword ? 'visibility_off' : 'visibility'}
-                                </span>
-                            </div>
-                            {errors.password && (
-                                <p className="text-xs text-red-500 mt-1 flex items-center gap-1">
-                                    <span className="material-symbols-outlined text-[14px]">error</span>
-                                    {errors.password.message}
-                                </p>
-                            )}
-                        </div>
+                    <div className="relative flex items-center gap-4 py-6">
+                        <div className="h-px flex-1 bg-gray-200 dark:bg-gray-700"></div>
+                        <span className="text-xs font-medium text-gray-400 uppercase tracking-wider">Or continue with</span>
+                        <div className="h-px flex-1 bg-gray-200 dark:bg-gray-700"></div>
+                    </div>
 
-                        <div className="flex items-center justify-between">
-                            <label className="flex items-center gap-2 cursor-pointer group">
-                                <input
-                                    className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary/20 dark:border-gray-600 dark:bg-gray-800 transition-colors"
-                                    type="checkbox"
-                                    id="rememberMe"
-                                    disabled={isLoading}
-                                />
-                                <span className="text-sm text-text-sub group-hover:text-text-main transition-colors select-none">Remember me</span>
-                            </label>
-                            <Link className="text-sm font-semibold text-secondary hover:text-secondary/80 transition-colors" to="/forgot-password">Forgot Password?</Link>
-                        </div>
-
-                        <button
-                            className="mt-2 relative w-full h-12 rounded-xl bg-gradient-to-r from-primary to-[#259694] text-white font-bold text-base shadow-lg shadow-primary/25 hover:shadow-primary/40 hover:scale-[1.01] active:scale-[0.98] transition-all duration-200 overflow-hidden group disabled:opacity-70 disabled:grayscale disabled:cursor-not-allowed"
-                            type="submit"
-                            disabled={isLoading}
-                        >
-                            <span className="relative z-10 flex items-center justify-center gap-2">
-                                {isLoading ? 'Logging In...' : 'Log In'}
-                                {!isLoading && <span className="material-symbols-outlined text-[20px] group-hover:translate-x-1 transition-transform">arrow_forward</span>}
-                            </span>
+                    <div className="grid grid-cols-2 gap-4">
+                        <button className="flex items-center justify-center gap-2 rounded-lg border border-gray-200 bg-white p-3 text-sm font-semibold text-text-main hover:bg-gray-50 hover:border-gray-300 transition-all dark:bg-dark-bg-tertiary dark:border-dark-border-primary dark:text-dark-text-primary dark:hover:bg-dark-bg-hover" type="button">
+                            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M23.766 12.2764C23.766 11.4607 23.6999 10.6406 23.5588 9.83807H12.24V14.4591H18.7217C18.4528 15.9494 17.5885 17.2678 16.323 18.1056V21.1039H20.19C22.4608 19.0139 23.766 15.9274 23.766 12.2764Z" fill="#4285F4"></path>
+                                <path d="M12.24 24.0008C15.4765 24.0008 18.2059 22.9382 20.1945 21.1039L16.3275 18.1055C15.2517 18.8375 13.8627 19.252 12.2445 19.252C9.11388 19.252 6.45946 17.1399 5.50705 14.3003H1.5166V17.3912C3.55371 21.4434 7.7029 24.0008 12.24 24.0008Z" fill="#34A853"></path>
+                                <path d="M5.50253 14.3003C5.00236 12.8099 5.00236 11.1961 5.50253 9.70575V6.61481H1.5166C-0.18551 10.0056 -0.18551 14.0005 1.5166 17.3912L5.50253 14.3003Z" fill="#FBBC05"></path>
+                                <path d="M12.24 4.74966C13.9509 4.7232 15.6044 5.36697 16.8434 6.54867L20.2695 3.12262C18.1001 1.0855 15.2208 -0.034466 12.24 0.000808666C7.7029 0.000808666 3.55371 2.55822 1.5166 6.61481L5.50253 9.70575C6.45064 6.86173 9.10947 4.74966 12.24 4.74966Z" fill="#EA4335"></path>
+                            </svg>
+                            Google
                         </button>
+                        <button className="flex items-center justify-center gap-2 rounded-lg border border-gray-200 bg-white p-3 text-sm font-semibold text-text-main hover:bg-gray-50 hover:border-gray-300 transition-all dark:bg-dark-bg-tertiary dark:border-dark-border-primary dark:text-dark-text-primary dark:hover:bg-dark-bg-hover" type="button">
+                            <svg className="h-5 w-5 fill-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.09-.08 2.31-.84 3.69-.74 1.51.1 2.65.73 3.4 1.83-3.03 1.83-2.51 6.55.94 7.95-.69 1.76-1.63 3.51-3.11 3.13zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.54 4.54-3.74 4.25z"></path>
+                            </svg>
+                            Apple
+                        </button>
+                    </div>
 
-                        <div className="relative flex items-center gap-4 py-2">
-                            <div className="h-px flex-1 bg-gray-200 dark:bg-gray-700"></div>
-                            <span className="text-xs font-medium text-gray-400 uppercase tracking-wider">Or continue with</span>
-                            <div className="h-px flex-1 bg-gray-200 dark:bg-gray-700"></div>
-                        </div>
+                    <div className="mt-4 text-center">
+                        <p className="text-sm text-text-muted">Don't have an account? <Link to="/signup" className="font-bold text-primary hover:text-primary/80 transition-colors">Sign up</Link></p>
+                    </div>
 
-                        <div className="grid grid-cols-2 gap-4">
-                            <button className="flex items-center justify-center gap-2 rounded-lg border border-gray-200 bg-white p-3 text-sm font-semibold text-text-main hover:bg-gray-50 hover:border-gray-300 transition-all dark:bg-[#252a30] dark:border-gray-700 dark:text-white dark:hover:bg-[#2f353d]" type="button">
-                                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M23.766 12.2764C23.766 11.4607 23.6999 10.6406 23.5588 9.83807H12.24V14.4591H18.7217C18.4528 15.9494 17.5885 17.2678 16.323 18.1056V21.1039H20.19C22.4608 19.0139 23.766 15.9274 23.766 12.2764Z" fill="#4285F4"></path>
-                                    <path d="M12.24 24.0008C15.4765 24.0008 18.2059 22.9382 20.1945 21.1039L16.3275 18.1055C15.2517 18.8375 13.8627 19.252 12.2445 19.252C9.11388 19.252 6.45946 17.1399 5.50705 14.3003H1.5166V17.3912C3.55371 21.4434 7.7029 24.0008 12.24 24.0008Z" fill="#34A853"></path>
-                                    <path d="M5.50253 14.3003C5.00236 12.8099 5.00236 11.1961 5.50253 9.70575V6.61481H1.5166C-0.18551 10.0056 -0.18551 14.0005 1.5166 17.3912L5.50253 14.3003Z" fill="#FBBC05"></path>
-                                    <path d="M12.24 4.74966C13.9509 4.7232 15.6044 5.36697 16.8434 6.54867L20.2695 3.12262C18.1001 1.0855 15.2208 -0.034466 12.24 0.000808666C7.7029 0.000808666 3.55371 2.55822 1.5166 6.61481L5.50253 9.70575C6.45064 6.86173 9.10947 4.74966 12.24 4.74966Z" fill="#EA4335"></path>
-                                </svg>
-                                Google
-                            </button>
-                            <button className="flex items-center justify-center gap-2 rounded-lg border border-gray-200 bg-white p-3 text-sm font-semibold text-text-main hover:bg-gray-50 hover:border-gray-300 transition-all dark:bg-[#252a30] dark:border-gray-700 dark:text-white dark:hover:bg-[#2f353d]" type="button">
-                                <svg className="h-5 w-5 fill-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.09-.08 2.31-.84 3.69-.74 1.51.1 2.65.73 3.4 1.83-3.03 1.83-2.51 6.55.94 7.95-.69 1.76-1.63 3.51-3.11 3.13zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.54 4.54-3.74 4.25z"></path>
-                                </svg>
-                                Apple
-                            </button>
-                        </div>
-
-                        <div className="mt-4 text-center">
-                            <p className="text-sm text-text-sub">Don't have an account? <Link to="/signup" className="font-bold text-primary hover:text-primary/80 transition-colors">Sign up</Link></p>
-                        </div>
-
-                        <div className="mt-4 flex items-center justify-center gap-1.5 text-xs text-gray-400">
-                            <span className="material-symbols-outlined text-[14px]">lock</span>
-                            Your data is encrypted and safe
-                        </div>
-                    </form>
+                    <div className="mt-8 flex items-center justify-center gap-1.5 text-xs text-gray-400">
+                        <span className="material-symbols-outlined text-[14px]">lock</span>
+                        Your data is encrypted and safe
+                    </div>
                 </div>
             </div>
         </div>

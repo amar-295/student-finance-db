@@ -1,19 +1,19 @@
 export default function Footer() {
     return (
-        <footer className="bg-white dark:bg-background-dark border-t border-gray-100 dark:border-gray-800 pt-16 pb-8">
+        <footer className="bg-white dark:bg-dark-bg-primary border-t border-gray-100 dark:border-dark-border-primary pt-16 pb-8 transition-colors">
             <div className="max-w-7xl mx-auto px-6">
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
                     <div className="col-span-2 md:col-span-1 flex flex-col gap-4">
                         <div className="flex items-center gap-2">
                             <img src="/images/logo.svg" alt="UniFlow Logo" className="w-10 h-10 object-contain" />
-                            <span className="text-lg font-bold text-text-main dark:text-white">UniFlow</span>
+                            <span className="text-lg font-bold text-text-main dark:text-dark-text-primary">UniFlow</span>
                         </div>
                         <p className="text-sm text-text-muted pr-4">
                             The all-in-one productivity platform built specifically for the modern student lifestyle.
                         </p>
                     </div>
                     <div>
-                        <h4 className="font-bold text-text-main dark:text-white mb-4">Product</h4>
+                        <h4 className="font-bold text-text-main dark:text-dark-text-primary mb-4">Product</h4>
                         <ul className="space-y-2 text-sm text-text-muted">
                             <li><a className="hover:text-primary transition-colors" href="#">Features</a></li>
                             <li><a className="hover:text-primary transition-colors" href="#">Integrations</a></li>
@@ -22,7 +22,7 @@ export default function Footer() {
                         </ul>
                     </div>
                     <div>
-                        <h4 className="font-bold text-text-main dark:text-white mb-4">Resources</h4>
+                        <h4 className="font-bold text-text-main dark:text-dark-text-primary mb-4">Resources</h4>
                         <ul className="space-y-2 text-sm text-text-muted">
                             <li><a className="hover:text-primary transition-colors" href="#">Student Discounts</a></li>
                             <li><a className="hover:text-primary transition-colors" href="#">Blog</a></li>
@@ -31,7 +31,7 @@ export default function Footer() {
                         </ul>
                     </div>
                     <div>
-                        <h4 className="font-bold text-text-main dark:text-white mb-4">Legal</h4>
+                        <h4 className="font-bold text-text-main dark:text-dark-text-primary mb-4">Legal</h4>
                         <ul className="space-y-2 text-sm text-text-muted">
                             <li><a className="hover:text-primary transition-colors" href="#">Privacy Policy</a></li>
                             <li><a className="hover:text-primary transition-colors" href="#">Terms of Service</a></li>
@@ -39,7 +39,7 @@ export default function Footer() {
                         </ul>
                     </div>
                 </div>
-                <div className="border-t border-gray-100 dark:border-gray-800 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
+                <div className="border-t border-gray-100 dark:border-dark-border-primary pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
                     <p className="text-sm text-text-muted">© {new Date().getFullYear()} StudentLife Inc. All rights reserved.</p>
                     <div className="flex items-center gap-4">
                         <a className="p-2 rounded-full text-text-muted hover:bg-[#1DA1F2] hover:text-white transition-all duration-300" href="#" aria-label="Follow us on Twitter">

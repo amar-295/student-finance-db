@@ -23,6 +23,12 @@ model User {
   passwordHash    String    @map("password_hash")
   name            String
   university      String?
+  graduationYear  Int?      @map("graduation_year")
+  major           String?
+  phone           String?
+  location        String?
+  theme           String    @default("system")
+  dateFormat      String    @default("MM/DD/YYYY") @map("date_format")
   baseCurrency    String    @default("USD") @map("base_currency")
   emailVerified   Boolean   @default(false) @map("email_verified")
   createdAt       DateTime  @default(now()) @map("created_at")
@@ -41,6 +47,7 @@ model User {
   billSplitsCreated     BillSplit[]           @relation("SplitCreator")
   splitParticipations   SplitParticipant[]
   remindersSent         PaymentReminder[]      @relation("SentReminders")
+  splitComments         SplitComment[]
   insights              Insight[]
   notificationSettings  NotificationSettings?
   notifications         Notification[]
@@ -63,6 +70,10 @@ model Account {
   currency      String    @default("USD")
   institution   String?
   accountNumber String?   @map("account_number")
+  color         String    @default("#1e293b")
+  icon          String    @default("account_balance")
+  goalAmount    Decimal?  @map("goal_amount") @db.Decimal(10, 2)
+  goalDate      DateTime? @map("goal_date")
   createdAt     DateTime  @default(now()) @map("created_at")
   updatedAt     DateTime  @updatedAt @map("updated_at")
   deletedAt     DateTime? @map("deleted_at")
@@ -111,6 +122,8 @@ model Transaction {
   currency        String    @default("USD")
   tags            String[]  @default([])
   notes           String?   @db.Text
+  status          String    @default("cleared") // 'pending', 'cleared'
+  receiptUrl      String?   @map("receipt_url")
   aiCategorized   Boolean   @default(false) @map("ai_categorized")
   aiConfidence    Float     @default(0) @map("ai_confidence")
   createdAt       DateTime  @default(now()) @map("created_at")
@@ -134,6 +147,7 @@ model Budget {
   id             String    @id @default(uuid())
   userId         String    @map("user_id")
   categoryId     String    @map("category_id")
+  name           String    @default("Budget")
   amount         Decimal   @db.Decimal(10, 2)
   periodType     String    @map("period") // 'monthly', 'semester', 'yearly'
   startDate      DateTime  @map("start_date")
@@ -215,6 +229,7 @@ model BillSplit {
   group        Group?             @relation(fields: [groupId], references: [id], onDelete: Cascade)
   creator      User               @relation("SplitCreator", fields: [createdBy], references: [id], onDelete: Cascade)
   participants SplitParticipant[]
+  comments     SplitComment[]
 
   @@index([groupId])
   @@index([createdBy])
@@ -242,6 +257,23 @@ model SplitParticipant {
 
   @@unique([splitId, userId])
   @@map("split_participants")
+}
+
+model SplitComment {
+  id        String   @id @default(uuid())
+  splitId   String   @map("split_id")
+  userId    String   @map("user_id")
+  content   String   @db.Text
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  split BillSplit @relation(fields: [splitId], references: [id], onDelete: Cascade)
+  user  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([splitId])
+  @@index([userId])
+  @@map("split_comments")
 }
 
 model PaymentReminder {

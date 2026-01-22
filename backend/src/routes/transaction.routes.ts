@@ -7,6 +7,8 @@ import {
   update,
   remove,
   getSummary,
+  bulkUpdate,
+  bulkDelete,
 } from '../controllers/transaction.controller';
 
 const router = express.Router();
@@ -46,6 +48,20 @@ router.use(authenticate);
  *                     $ref: '#/components/schemas/Transaction'
  */
 router.get('/summary', asyncHandler(getSummary));
+
+/**
+ * @route   PUT /api/transactions/bulk/update
+ * @desc    Bulk update transactions
+ * @access  Private
+ */
+router.put('/bulk/update', asyncHandler(bulkUpdate));
+
+/**
+ * @route   POST /api/transactions/bulk/delete
+ * @desc    Bulk delete transactions
+ * @access  Private
+ */
+router.post('/bulk/delete', asyncHandler(bulkDelete));
 
 /**
  * @swagger

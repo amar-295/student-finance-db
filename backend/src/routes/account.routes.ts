@@ -1,155 +1,66 @@
 import express from 'express';
 import { asyncHandler, authenticate } from '../middleware';
-import { create, getAll, getOne, update, remove } from '../controllers/account.controller';
+import {
+    create,
+    getAll,
+    getOne,
+    update,
+    remove,
+    transfer,
+    getHistory,
+} from '../controllers/account.controller';
 
 const router = express.Router();
 
-// All routes require authentication
 router.use(authenticate);
 
 /**
- * @swagger
- * tags:
- *   name: Accounts
- *   description: Bank account management
- */
-
-/**
- * @swagger
- * /accounts:
- *   post:
- *     summary: Create a new account
- *     tags: [Accounts]
- *     security:
- *       - bearerAuth: []
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - name
- *               - type
- *               - balance
- *             properties:
- *               name:
- *                 type: string
- *               type:
- *                 type: string
- *                 enum: [checking, savings, credit_card, cash, investment, loan, other]
- *               balance:
- *                 type: number
- *               currency:
- *                 type: string
- *     responses:
- *       201:
- *         description: Account created successfully
- *       400:
- *         description: Invalid input
+ * @route   POST /api/accounts
+ * @desc    Create a new account
+ * @access  Private
  */
 router.post('/', asyncHandler(create));
 
 /**
- * @swagger
- * /accounts:
- *   get:
- *     summary: Get all user accounts
- *     tags: [Accounts]
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       200:
- *         description: List of accounts
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 type: object
- *                 properties:
- *                   id:
- *                     type: string
- *                   name:
- *                     type: string
- *                   balance:
- *                     type: number
+ * @route   GET /api/accounts
+ * @desc    Get all accounts
+ * @access  Private
  */
 router.get('/', asyncHandler(getAll));
 
 /**
- * @swagger
- * /accounts/{id}:
- *   get:
- *     summary: Get single account
- *     tags: [Accounts]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         schema:
- *           type: string
- *         required: true
- *         description: Account ID
- *     responses:
- *       200:
- *         description: Account details
- *       404:
- *         description: Account not found
+ * @route   POST /api/accounts/transfer
+ * @desc    Transfer funds between accounts
+ * @access  Private
+ */
+router.post('/transfer', asyncHandler(transfer));
+
+/**
+ * @route   GET /api/accounts/:id
+ * @desc    Get single account
+ * @access  Private
  */
 router.get('/:id', asyncHandler(getOne));
 
 /**
- * @swagger
- * /accounts/{id}:
- *   put:
- *     summary: Update account
- *     tags: [Accounts]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         schema:
- *           type: string
- *         required: true
- *         description: Account ID
- *     requestBody:
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               name:
- *                 type: string
- *               balance:
- *                 type: number
- *     responses:
- *       200:
- *         description: Account updated successfully
+ * @route   PUT /api/accounts/:id
+ * @desc    Update account
+ * @access  Private
  */
 router.put('/:id', asyncHandler(update));
 
 /**
- * @swagger
- * /accounts/{id}:
- *   delete:
- *     summary: Delete account
- *     tags: [Accounts]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         schema:
- *           type: string
- *         required: true
- *         description: Account ID
- *     responses:
- *       200:
- *         description: Account deleted successfully
+ * @route   DELETE /api/accounts/:id
+ * @desc    Delete account
+ * @access  Private
  */
 router.delete('/:id', asyncHandler(remove));
+
+/**
+ * @route   GET /api/accounts/:id/history
+ * @desc    Get account balance history
+ * @access  Private
+ */
+router.get('/:id/history', asyncHandler(getHistory));
 
 export default router;

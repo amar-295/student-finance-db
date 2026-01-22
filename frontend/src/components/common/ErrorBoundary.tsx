@@ -43,7 +43,7 @@ class ErrorBoundary extends Component<Props, State> {
                         <div className="flex flex-col gap-3">
                             <button
                                 onClick={() => window.location.reload()}
-                                className="w-full h-12 rounded-xl bg-gradient-to-r from-primary to-[#259694] text-white font-bold text-base shadow-lg shadow-primary/25 hover:shadow-primary/40 hover:scale-[1.01] transition-all flex items-center justify-center gap-2"
+                                className="w-full h-12 rounded-xl bg-gradient-to-r from-primary to-primary-dark text-white font-bold text-base shadow-lg shadow-primary/25 hover:shadow-primary/40 hover:scale-[1.01] transition-all flex items-center justify-center gap-2"
                             >
                                 <span className="material-symbols-outlined text-[20px]">refresh</span>
                                 Restart Application
