@@ -6,7 +6,9 @@ import { z } from 'zod';
 
 const transactionSchema = z.object({
     description: z.string().min(1, 'Description is required'),
-    amount: z.string().min(1, 'Amount is required'),
+    amount: z.string()
+        .min(1, 'Amount is required')
+        .refine((val) => !isNaN(Number(val)) && Number(val) > 0, 'Amount must be greater than 0'),
     date: z.string().min(1, 'Date is required'),
     accountId: z.string().min(1, 'Account is required'),
     category: z.string().optional(),
