@@ -183,24 +183,44 @@ export const addMemberToGroup = async (userId: string, groupId: string, memberEm
 };
 
 export const removeMemberFromGroup = async (userId: string, groupId: string, memberId: string) => {
-    // Check if group exists and user is creator
-    const group = await prisma.group.findFirst({
-        where: {
-            id: groupId,
-            createdBy: userId,
-        },
+    // Check if group exists
+    const group = await prisma.group.findUnique({
+        where: { id: groupId },
     });
 
     if (!group) {
-        // If not creator, user can only remove themselves
-        if (userId !== memberId) {
-            throw new ApiError(403, 'Only the creator can remove other members');
-        }
+        throw new ApiError(404, 'Group not found');
     }
 
-    // Cannot remove creator
-    if (memberId === group?.createdBy) {
+    // Authorization Check:
+    // 1. Creator can remove anyone (except themselves, handled below)
+    // 2. Members can remove THEMSELVES (leave group)
+    // 3. No one else can remove anyone
+
+    const isCreator = group.createdBy === userId;
+    const isSelfRemoval = userId === memberId;
+
+    if (!isCreator && !isSelfRemoval) {
+        throw new ApiError(403, 'Only the creator can remove other members');
+    }
+
+    // Safety check: Cannot remove the creator
+    if (memberId === group.createdBy) {
         throw new ApiError(400, 'The creator cannot be removed from the group');
+    }
+
+    // Check if member exists in group
+    const member = await prisma.groupMember.findUnique({
+        where: {
+            groupId_userId: {
+                groupId,
+                userId: memberId,
+            },
+        },
+    });
+
+    if (!member || !member.isActive) {
+        throw new ApiError(404, 'User is not an active member of this group');
     }
 
     return await prisma.groupMember.update({

@@ -138,6 +138,8 @@ model Transaction {
   @@index([accountId])
   @@index([categoryId])
   @@index([transactionDate])
+  @@index([mobile_transaction_date])
+  @@index([userId, transactionDate])
   @@index([merchant])
   @@map("transactions")
 }

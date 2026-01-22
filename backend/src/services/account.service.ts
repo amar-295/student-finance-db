@@ -215,62 +215,62 @@ export const transferFunds = async (
  */
 export const getAccountHistory = async (userId: string, accountId: string, days: number = 30) => {
   const account = await getAccountById(userId, accountId);
-  const endDate = new Date();
+
+  // Define time window
+  const endDate = new Date(); // Today
   const startDate = new Date();
   startDate.setDate(startDate.getDate() - days);
+
+  // We need ALL transactions after the start date to calculate history correctly
+  // (Actually, we need all transactions impacting the future if we worked forward, 
+  // but working backward from current balance (which is "now"), we need transactions 
+  // from now back to the start date)
 
   const transactions = await prisma.transaction.findMany({
     where: {
       userId,
       accountId,
       deletedAt: null,
-      transactionDate: { gte: startDate, lte: endDate }
+      transactionDate: {
+        gte: startDate,
+        lte: new Date() // include up to this exact moment 
+      }
     },
-    orderBy: { transactionDate: 'asc' }
+    orderBy: { transactionDate: 'desc' } // Process newest first
   });
 
-  // Calculate history by working backwards/forwards?
-  // Easier: Work backwards from current balance
   const history = [];
   let currentBalance = Number(account.balance);
 
-  // We need all transactions after endDate to adjust current balance back to endDate? 
-  // No, we want history up to today.
-
-  // Strategy:
-  // 1. Get current balance.
-  // 2. Create daily buckets from today back to startDate.
-  // 3. Subtract transactions of that day to get previous day's end balance.
-
-  // We need transactions strictly AFTER the view window to correct the starting point if we worked forward.
-  // Working backward is best.
-
-  // Group txns by day
+  // Map txns by date string YYYY-MM-DD
   const txnsByDay: Record<string, number> = {};
-  transactions.forEach(t => {
-    const day = t.transactionDate.toISOString().split('T')[0];
-    txnsByDay[day] = (txnsByDay[day] || 0) + Number(t.amount);
-  });
 
+  for (const t of transactions) {
+    const dateStr = t.transactionDate.toISOString().split('T')[0];
+    // Transaction amount: + for Income, - for Expense
+    // If we are at End of Day X, and want Start of Day X (or End of Day X-1),
+    // We SUBTRACT the Day X transactions.
+    txnsByDay[dateStr] = (txnsByDay[dateStr] || 0) + Number(t.amount);
+  }
 
-
-  // Actually current balance includes everything.
-  // So balance on Day X = Balance Day X+1 - Txns on Day X+1
-
-  // Let's generate dates
+  // Generate last 'days' days
   for (let i = 0; i < days; i++) {
     const d = new Date();
     d.setDate(d.getDate() - i);
     const dateStr = d.toISOString().split('T')[0];
 
+    // Push current END OF DAY balance
     history.push({
       date: dateStr,
-      balance: currentBalance
+      balance: parseFloat(currentBalance.toFixed(2))
     });
 
-    // Valid only if we subtract today's transactions to get yesterday's close
-    const dayFlow = txnsByDay[dateStr] || 0;
-    currentBalance -= dayFlow;
+    // Adjust balance for the previous day
+    // Current Balance represents "Now". 
+    // To get "Yesterday's Closure", we remove "Today's Net Flow".
+    // If Today Flow = +100, Yesterday was (Balance - 100).
+    const dayNetFlow = txnsByDay[dateStr] || 0;
+    currentBalance -= dayNetFlow;
   }
 
   return history.reverse();
