@@ -419,13 +419,14 @@ const calculateBudgetPeriod = (
             endDate = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 0, 12, 0, 0));
             break;
 
-        case 'semester':
+        case 'semester': {
             // Assume semester is 6 months
             const currentMonth = now.getUTCMonth();
             const semesterStart = currentMonth < 6 ? 0 : 6;
             startDate = new Date(Date.UTC(now.getUTCFullYear(), semesterStart, 1, 12, 0, 0));
             endDate = new Date(Date.UTC(now.getUTCFullYear(), semesterStart + 6, 0, 12, 0, 0));
             break;
+        }
 
         case 'yearly':
             startDate = new Date(Date.UTC(now.getUTCFullYear(), 0, 1, 12, 0, 0));
