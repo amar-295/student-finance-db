@@ -362,7 +362,9 @@ export default function TransactionsPage() {
                             initialData={editingTransaction ? {
                                 ...editingTransaction,
                                 date: editingTransaction.transactionDate?.split('T')[0],
-                                category: editingTransaction.category?.name
+                                category: editingTransaction.category?.name,
+                                type: Number(editingTransaction.amount) > 0 ? 'INCOME' : 'EXPENSE',
+                                amount: Math.abs(Number(editingTransaction.amount))
                             } : undefined}
                             isLoading={createMutation.isPending || updateMutation.isPending}
                             onCancel={() => setIsFormOpen(false)}
