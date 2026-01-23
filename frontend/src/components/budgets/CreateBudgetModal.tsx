@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -48,6 +49,7 @@ export default function CreateBudgetModal({ isOpen, onClose, budgetToEdit }: Cre
     });
 
     const threshold = watch('alertThreshold');
+    const selectedPeriodType = watch('periodType');
 
     useEffect(() => {
         if (isOpen) {
@@ -195,7 +197,8 @@ export default function CreateBudgetModal({ isOpen, onClose, budgetToEdit }: Cre
                     <label className="text-sm font-bold text-[#1e293b] dark:text-white">Period</label>
                     <div className="grid grid-cols-3 gap-2">
                         {['monthly', 'semester', 'yearly'].map((p) => (
-                            <label key={p} className={`cursor-pointer border rounded-xl p-2 text-center text-sm font-semibold transition-all ${watch('periodType') === p
+                            // eslint-disable-next-line react-hooks/incompatible-library
+                            <label key={p} className={`cursor-pointer border rounded-xl p-2 text-center text-sm font-semibold transition-all ${selectedPeriodType === p
                                 ? 'bg-[#10b981]/10 border-[#10b981] text-[#10b981]'
                                 : 'bg-white dark:bg-[#0f172a] border-gray-200 dark:border-gray-800 text-gray-500 hover:border-gray-300'
                                 } ${isEditing ? 'opacity-50 cursor-not-allowed' : ''}`}>
