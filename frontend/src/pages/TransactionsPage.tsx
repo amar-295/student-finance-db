@@ -5,7 +5,6 @@ import { transactionService, type TransactionFilters } from '../services/transac
 import TransactionFiltersPanel from '../components/transactions/TransactionFilters';
 import BulkActionsBar from '../components/transactions/BulkActionsBar';
 import Skeleton from '../components/common/Skeleton';
-import { formatCurrency } from '../utils/format';
 import { toast } from 'sonner';
 import TransactionForm, { type TransactionSubmissionData } from '../components/transactions/TransactionForm';
 import { TransactionRow } from '../components/transactions/TransactionRow';
