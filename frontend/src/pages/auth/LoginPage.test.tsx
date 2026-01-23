@@ -41,6 +41,7 @@ vi.mock('sonner', () => ({
         success: vi.fn(),
         error: vi.fn(),
     },
+    Toaster: () => null,
 }));
 
 describe('LoginPage', () => {
