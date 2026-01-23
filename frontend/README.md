@@ -108,7 +108,7 @@ We maintain a high set of standards for code quality with automated verification
 *   **Success Rate**: ✅ 100%
 
 For a detailed breakdown of test suites and results, see:
-👉 [**TESTING.md**](./TESTING.md)
+👉 [**TESTING.md**](../docs/TESTING.md)
 
 ### Runtime Commands
 ```bash
