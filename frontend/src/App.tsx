@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { Analytics } from '@vercel/analytics/react';
 import { Suspense, lazy } from 'react';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { Toaster } from 'sonner';

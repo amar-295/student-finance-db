@@ -3,7 +3,7 @@ import { render, screen, waitFor } from '@/test/test-utils';
 import userEvent from '@testing-library/user-event';
 import LoginPage from './LoginPage';
 import { authService } from '../../services/auth.service';
-import { useAuthStore } from '../../store/authStore';
+
 
 // Mock dependencies
 vi.mock('../../services/auth.service', async () => {
@@ -20,7 +20,7 @@ vi.mock('../../services/auth.service', async () => {
 // Mock store
 const mockSetAuth = vi.fn();
 vi.mock('../../store/authStore', () => ({
-    useAuthStore: (selector: any) => {
+    useAuthStore: (_selector: any) => {
         // Mock state implementation based on selector usage
         // In LoginPage: useAuthStore(state => state.setAuth)
         // We can just return mockSetAuth for simplicity if we know how it's used,

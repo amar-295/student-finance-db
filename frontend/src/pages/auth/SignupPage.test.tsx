@@ -3,7 +3,7 @@ import { render, screen, waitFor } from '@/test/test-utils';
 import userEvent from '@testing-library/user-event';
 import SignupPage from './SignupPage';
 import { authService } from '../../services/auth.service';
-import { useAuthStore } from '../../store/authStore';
+
 
 // Mock dependencies
 vi.mock('../../services/auth.service', async () => {

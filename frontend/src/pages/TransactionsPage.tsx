@@ -29,7 +29,7 @@ interface TransactionDisplay {
         color: string;
         icon: string;
     };
-    accountId?: number;
+    accountId?: number | string;
     type?: 'INCOME' | 'EXPENSE';
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     [key: string]: any;

@@ -33,7 +33,7 @@ interface Account {
 interface TransactionFormProps {
     onSubmit: (data: TransactionSubmissionData) => void;
     accounts: Account[];
-    initialData?: Partial<TransactionSubmissionData> & Record<string, unknown>;
+    initialData?: Partial<Omit<TransactionSubmissionData, 'accountId'>> & { accountId?: number | string } & Record<string, unknown>;
     isLoading?: boolean;
     onCancel?: () => void;
 }
