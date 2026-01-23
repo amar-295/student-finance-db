@@ -99,18 +99,26 @@ We use a hybrid approach to state management for optimal performance:
 
 ---
 
-## 🧪 Testing (Vitest)
+## 🧪 Testing & Quality Assurance
 
-We use **Vitest** for unit and component testing. It shares the same Vite config, making it practically instant.
+We maintain a high set of standards for code quality with automated verification.
 
+*   **Framework**: Vitest + React Testing Library + MSW
+*   **Total Tests**: 63
+*   **Success Rate**: ✅ 100%
+
+For a detailed breakdown of test suites and results, see:
+👉 [**TESTING.md**](./TESTING.md)
+
+### Runtime Commands
 ```bash
 # Run tests
 npm test
 
-# Open UI Dashboard for tests
+# Open UI Dashboard for interactive testing
 npm run test:ui
 ```
 
-**Key Libraries:**
-*   `@testing-library/react`: Tests components from user perspective.
-*   `msw` (Mock Service Worker): Intercepts network requests to mock backend responses during tests.
+### Coverage
+We cover all critical user flows including **Authentication**, **Transactions**, **Budgets**, **Analytics**, and **Reports**. All network requests are mocked using `msw` to ensure deterministic results.
+
