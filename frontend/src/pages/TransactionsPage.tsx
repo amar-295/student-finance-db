@@ -1,42 +1,68 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useDebounce } from '../hooks/useDebounce';
 import { transactionService, type TransactionFilters } from '../services/transaction.service';
 import TransactionFiltersPanel from '../components/transactions/TransactionFilters';
 import BulkActionsBar from '../components/transactions/BulkActionsBar';
 import Skeleton from '../components/common/Skeleton';
 import { formatCurrency } from '../utils/format';
 import { toast } from 'sonner';
-import TransactionForm from '../components/transactions/TransactionForm';
+import TransactionForm, { type TransactionSubmissionData } from '../components/transactions/TransactionForm';
 import { Dialog, DialogPanel, DialogTitle } from '@headlessui/react';
 import { useMutation } from '@tanstack/react-query';
 
+// Interface matching the backend response for display
+// Extending the inferred type from the service or defining a compatible one
+interface TransactionDisplay {
+    id: string;
+    // transactionDate property seems to be what the UI expects, but service returns 'date'
+    // We need to clarify if we map it or if the service type is wrong.
+    // Based on usage: formatDate(txn.transactionDate)
+    transactionDate: string;
+    merchant?: string;
+    description: string;
+    amount: number;
+    status?: string;
+    aiCategorized?: boolean;
+    category?: {
+        name: string;
+        color: string;
+        icon: string;
+    };
+    accountId?: number;
+    type?: 'INCOME' | 'EXPENSE';
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    [key: string]: any;
+}
 
 export default function TransactionsPage() {
     const queryClient = useQueryClient();
     const [page, setPage] = useState(1);
     const [searchQuery, setSearchQuery] = useState('');
+    const debouncedSearchQuery = useDebounce(searchQuery, 300);
     const [filters, setFilters] = useState<TransactionFilters>({});
     const [showFilters, setShowFilters] = useState(false);
     const [selectedIds, setSelectedIds] = useState<string[]>([]);
     const [sort, setSort] = useState<{ by: string; order: 'asc' | 'desc' }>({ by: 'date', order: 'desc' });
     const [isFormOpen, setIsFormOpen] = useState(false);
-    const [editingTransaction, setEditingTransaction] = useState<any>(null);
+    const [editingTransaction, setEditingTransaction] = useState<TransactionDisplay | null>(null);
 
 
     // Fetch transactions
     const { data, isLoading } = useQuery({
-        queryKey: ['transactions', page, filters, searchQuery, sort],
+        queryKey: ['transactions', page, filters, debouncedSearchQuery, sort],
         queryFn: () => transactionService.getTransactions({
             ...filters,
-            search: searchQuery,
+            search: debouncedSearchQuery,
             page,
             limit: 20,
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             sortBy: sort.by as any,
             sortOrder: sort.order
         })
     });
 
-    const transactions = data?.data || [];
+    const transactions = useMemo(() => data?.data || [], [data]);
     const pagination = data?.pagination;
 
     const toggleSelection = (id: string) => {
@@ -49,7 +75,7 @@ export default function TransactionsPage() {
         if (selectedIds.length === transactions.length) {
             setSelectedIds([]);
         } else {
-            setSelectedIds(transactions.map((t: any) => t.id));
+            setSelectedIds(transactions.map((t) => t.id));
         }
     };
 
@@ -62,7 +88,7 @@ export default function TransactionsPage() {
             toast.success(`Updated ${selectedIds.length} transactions`);
             setSelectedIds([]);
             queryClient.invalidateQueries({ queryKey: ['transactions'] });
-        } catch (error) {
+        } catch {
             toast.error('Failed to update transactions');
         }
     };
@@ -75,12 +101,13 @@ export default function TransactionsPage() {
             toast.success(`Deleted ${selectedIds.length} transactions`);
             setSelectedIds([]);
             queryClient.invalidateQueries({ queryKey: ['transactions'] });
-        } catch (error) {
+        } catch {
             toast.error('Failed to delete transactions');
         }
     };
 
     const createMutation = useMutation({
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         mutationFn: (data: any) => transactionService.createTransaction(data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['transactions'] });
@@ -90,6 +117,7 @@ export default function TransactionsPage() {
     });
 
     const updateMutation = useMutation({
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         mutationFn: ({ id, data }: { id: string; data: any }) => transactionService.updateTransaction(id, data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['transactions'] });
@@ -107,7 +135,7 @@ export default function TransactionsPage() {
         }
     });
 
-    const handleFormSubmit = (data: any) => {
+    const handleFormSubmit = (data: TransactionSubmissionData) => {
         if (editingTransaction) {
             updateMutation.mutate({ id: editingTransaction.id, data });
         } else {
@@ -115,7 +143,7 @@ export default function TransactionsPage() {
         }
     };
 
-    const handleEdit = (txn: any) => {
+    const handleEdit = (txn: TransactionDisplay) => {
         setEditingTransaction(txn);
         setIsFormOpen(true);
     };
@@ -218,7 +246,7 @@ export default function TransactionsPage() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {transactions.map((txn: any) => (
+                                {transactions.map((txn) => (
                                     <tr key={txn.id} className={`border-b border-gray-50 dark:border-dark-border-primary last:border-0 hover:bg-gray-50/50 dark:hover:bg-dark-bg-hover transition-colors ${selectedIds.includes(txn.id) ? 'bg-blue-50/50 dark:bg-blue-500/10' : ''}`}>
                                         <td className="p-4">
                                             <input
@@ -340,6 +368,7 @@ export default function TransactionsPage() {
                                 amount: Math.abs(Number(editingTransaction.amount))
                             } : undefined}
                             isLoading={createMutation.isPending || updateMutation.isPending}
+                            onCancel={() => setIsFormOpen(false)}
                         />
                     </DialogPanel>
                 </div>
