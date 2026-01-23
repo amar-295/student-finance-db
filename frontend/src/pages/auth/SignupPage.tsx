@@ -45,6 +45,7 @@ export default function SignupPage() {
         setIsLoading(true);
         try {
             // Backend doesn't need 'terms'
+
             const { terms, ...registrationData } = data;
             const response = await authService.register(registrationData);
             setAuth(response);

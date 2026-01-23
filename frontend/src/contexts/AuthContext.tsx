@@ -1,9 +1,12 @@
+
 import { createContext, useContext, type ReactNode } from 'react';
 import { useAuthStore } from '../store/authStore';
 
 interface AuthContextType {
     isAuthenticated: boolean;
+
     user: any;
+
     login: (credentials: any) => Promise<void>;
     logout: () => void;
 }
