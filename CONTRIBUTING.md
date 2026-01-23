@@ -102,32 +102,28 @@ We love pull requests! Here's what we're currently looking for:
 
 ### Local Setup
 
+We recommend using **Docker** for the most consistent development environment (especially for the Database and Redis).
+
 ```bash
 # 1. Fork and clone
 git clone https://github.com/amar-295/student-finance-db.git
 cd student-finance-db
 
-# 2. Install backend dependencies
+# 2. Start Infrastructure (Postgres + Redis)
+docker-compose up -d
+
+# 3. Backend Setup
 cd backend
 npm install
-
-# 3. Set up environment
 cp .env.example .env
-# Edit .env with your local credentials
-
-# 4. Set up database
-createdb uniflow_db
-npm run prisma:generate
 npm run prisma:migrate
 npm run prisma:seed
+npm run dev
 
-# 5. Start backend
-npm run dev  # http://localhost:5000
-
-# 6. In new terminal, set up frontend
+# 4. Frontend Setup
 cd ../frontend
 npm install
-npm run dev  # http://localhost:5173
+npm run dev
 ```
 
 ### Running Tests
