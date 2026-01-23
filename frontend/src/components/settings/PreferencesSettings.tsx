@@ -1,4 +1,8 @@
+import { useTheme } from '../../contexts/ThemeContext';
+
 export default function PreferencesSettings() {
+    const { theme: currentTheme, setTheme } = useTheme();
+
     return (
         <div className="max-w-xl animate-fade-in">
             <h2 className="text-2xl font-bold text-[#1e293b] dark:text-white mb-6">Preferences</h2>
@@ -7,18 +11,19 @@ export default function PreferencesSettings() {
                 <div>
                     <h3 className="text-lg font-bold text-[#1e293b] dark:text-white mb-4">Appearance</h3>
                     <div className="grid grid-cols-3 gap-4">
-                        {['light', 'dark', 'system'].map((theme) => (
+                        {(['light', 'dark', 'system'] as const).map((themeOption) => (
                             <button
-                                key={theme}
-                                className={`p-4 rounded-xl border-2 flex flex-col items-center gap-2 transition-all ${theme === 'system'
-                                        ? 'border-primary bg-primary/5 text-primary'
-                                        : 'border-gray-100 dark:border-white/10 hover:border-gray-200 dark:hover:border-white/20'
+                                key={themeOption}
+                                onClick={() => setTheme(themeOption)}
+                                className={`p-4 rounded-xl border-2 flex flex-col items-center gap-2 transition-all ${currentTheme === themeOption
+                                    ? 'border-primary bg-primary/5 text-primary'
+                                    : 'border-gray-100 dark:border-white/10 hover:border-gray-200 dark:hover:border-white/20'
                                     }`}
                             >
                                 <span className="material-symbols-outlined">
-                                    {theme === 'light' ? 'light_mode' : theme === 'dark' ? 'dark_mode' : 'computer'}
+                                    {themeOption === 'light' ? 'light_mode' : themeOption === 'dark' ? 'dark_mode' : 'computer'}
                                 </span>
-                                <span className="capitalize font-medium">{theme}</span>
+                                <span className="capitalize font-medium">{themeOption}</span>
                             </button>
                         ))}
                     </div>
