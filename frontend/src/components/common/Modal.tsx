@@ -32,6 +32,8 @@ export default function Modal({ isOpen, onClose, title, children }: ModalProps) 
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
             <div
                 ref={modalRef}
+                role="dialog"
+                aria-modal="true"
                 className="bg-white dark:bg-[#1e293b] rounded-2xl w-full max-w-md shadow-2xl transform transition-all animate-in fade-in zoom-in-95 duration-200"
             >
                 <div className="flex justify-between items-center p-6 border-b border-gray-100 dark:border-gray-800">

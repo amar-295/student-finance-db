@@ -35,3 +35,10 @@ Object.defineProperty(navigator, 'clipboard', {
 vi.mock('react-apexcharts', () => ({
     default: () => null,
 }));
+
+// MSW Setup
+import { server } from './mocks/server';
+
+beforeAll(() => server.listen({ onUnhandledRequest: 'error' }));
+afterEach(() => server.resetHandlers());
+afterAll(() => server.close());
