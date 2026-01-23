@@ -1,6 +1,7 @@
 import express, { Application } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
+import compression from 'compression';
 import pino from 'pino-http';
 import rateLimit from 'express-rate-limit';
 import config from './config/env';
@@ -27,6 +28,7 @@ const app: Application = express();
 
 // Security middleware
 app.use(helmet()); // Set security HTTP headers
+app.use(compression()); // Compress all routes
 app.use(
   cors({
     origin: config.cors.origin,

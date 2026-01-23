@@ -234,14 +234,16 @@ export const settleParticipantShare = async (userId: string, splitId: string, ta
         }
     });
 
-    // Check if all participants are paid to update main split status
-    const allParticipants = await prisma.splitParticipant.findMany({
-        where: { splitId }
+    // Check if all participants have paid to update bill split status
+    // Optimization: Count unpaid participants instead of fetching all records
+    const unpaidCount = await prisma.splitParticipant.count({
+        where: {
+            splitId,
+            status: { not: 'paid' }
+        },
     });
 
-    // A split is settled if all participants (excluding possibly the creator if they are in the list) are paid
-    // Or simpler: all participants are paid.
-    const allPaid = allParticipants.every(p => p.status === 'paid');
+    const allPaid = unpaidCount === 0;
 
     if (allPaid) {
         await prisma.billSplit.update({
