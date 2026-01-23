@@ -57,6 +57,7 @@ function App() {
             </Routes>
           </Suspense>
         </BrowserRouter>
+        <Analytics />
         <Toaster position="top-right" richColors closeButton expand={false} />
       </ErrorBoundary>
     </ThemeProvider>
