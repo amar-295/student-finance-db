@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useDebounce } from '../hooks/useDebounce';
 import { transactionService, type TransactionFilters } from '../services/transaction.service';
 import TransactionFiltersPanel from '../components/transactions/TransactionFilters';
 import BulkActionsBar from '../components/transactions/BulkActionsBar';
@@ -38,6 +39,7 @@ export default function TransactionsPage() {
     const queryClient = useQueryClient();
     const [page, setPage] = useState(1);
     const [searchQuery, setSearchQuery] = useState('');
+    const debouncedSearchQuery = useDebounce(searchQuery, 300);
     const [filters, setFilters] = useState<TransactionFilters>({});
     const [showFilters, setShowFilters] = useState(false);
     const [selectedIds, setSelectedIds] = useState<string[]>([]);
@@ -48,10 +50,10 @@ export default function TransactionsPage() {
 
     // Fetch transactions
     const { data, isLoading } = useQuery({
-        queryKey: ['transactions', page, filters, searchQuery, sort],
+        queryKey: ['transactions', page, filters, debouncedSearchQuery, sort],
         queryFn: () => transactionService.getTransactions({
             ...filters,
-            search: searchQuery,
+            search: debouncedSearchQuery,
             page,
             limit: 20,
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -60,8 +62,7 @@ export default function TransactionsPage() {
         })
     });
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const transactions: TransactionDisplay[] = (data?.data || []) as any[];
+    const transactions = useMemo(() => data?.data || [], [data]);
     const pagination = data?.pagination;
 
     const toggleSelection = (id: string) => {
