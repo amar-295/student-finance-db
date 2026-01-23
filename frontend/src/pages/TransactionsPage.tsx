@@ -31,7 +31,7 @@ interface TransactionDisplay {
     };
     accountId?: number | string;
     type?: 'INCOME' | 'EXPENSE';
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
     [key: string]: any;
 }
 
@@ -56,7 +56,7 @@ export default function TransactionsPage() {
             search: debouncedSearchQuery,
             page,
             limit: 20,
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
             sortBy: sort.by as any,
             sortOrder: sort.order
         })
@@ -107,7 +107,7 @@ export default function TransactionsPage() {
     };
 
     const createMutation = useMutation({
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
         mutationFn: (data: any) => transactionService.createTransaction(data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['transactions'] });
@@ -117,7 +117,7 @@ export default function TransactionsPage() {
     });
 
     const updateMutation = useMutation({
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
         mutationFn: ({ id, data }: { id: string; data: any }) => transactionService.updateTransaction(id, data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['transactions'] });
