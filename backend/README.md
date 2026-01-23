@@ -1,181 +1,82 @@
-# UniFlow Backend API
+# 🛠️ UniFlow Backend Architecture
 
-Production-grade REST API service powered by **Node.js**, **Express**, **TypeScript**, and **AI**.
+This directory contains the robust Node.js/Express API that powers UniFlow. It is built with scalability, type safety, and maintainability in constant focus.
 
----
+## 🏗️ Architectural Pattern
 
-## 📖 Overview
-
-The UniFlow Backend acts as the central nervous system for the platform. It handles all business logic, data persistence, and third-party integrations (Hugging Face AI, Redis).
-
-### Key Responsibilities
--   **Identity Management**: Secure JWT-based authentication with refresh tokens.
--   **Transaction Processing**: CRUD operations for financial records.
--   **AI Categorization**: Zero-shot classification of merchant names into standardized categories.
--   **Budget Engine**: Real-time spending analysis and alert generation.
--   **Data Integrity**: ACID-compliant transactions via Prisma & PostgreSQL.
--   **Performance**: Redis caching for AI results and rate limiting.
-
----
-
-## 🏗 Architecture
-
-We utilize a **Service-Repository** pattern to ensure separation of concerns and testability.
+We follow a strict **Controller-Service-Repository** separation of concerns.
 
 ```mermaid
 graph LR
-    Client[Client] -->|HTTP| Controller[Controller Layer]
-    Controller -->|DTO| Service[Service Layer]
-    Service -->|Entities| Prisma[Prisma ORM]
-    Service -->|Key-Value| Redis[(Redis Cache)]
-    Service -->|Inference| AI[Hugging Face API]
-    Prisma -->|SQL| DB[(PostgreSQL)]
+    Req[HTTP Request] --> Auth[Auth Middleware]
+    Auth --> Val[Zod Validation]
+    Val --> Ctrl[Controller]
+    Ctrl --> Svc[Service Layer]
+    Svc -->|Cache Hit?| Redis[(Redis)]
+    Svc -->|Cache Miss| DB[(PostgreSQL)]
+    Svc -->|AI| HF[Hugging Face]
 ```
 
-### Layer Breakdown
-1.  **Controllers**: Handle HTTP requests, input validation (Zod), and response formatting.
-2.  **Services**: Contain core business logic (e.g., "calculate monthly budget status").
-3.  **Middleware**: Global error handling, rate limiting, and auth verification.
-4.  **Utils**: Shared helpers for date manipulation, math, etc.
+*   **Controllers (`/controllers`)**: Handle HTTP request parsing, response formatting, and status codes. logic-free.
+*   **Services (`/services`)**: Pure business logic. They know *nothing* about HTTP (req/res). This makes them testable and reusable.
+*   **Prisma Client**: Acts as our Data Access Layer (Repository).
 
 ---
 
-## 🛠 Tech Stack
+## 🧠 AI Categorization Engine
 
-| Component | Technology | Version |
-| :--- | :--- | :--- |
-| **Runtime** | Node.js | v20+ |
-| **Framework** | Express.js | 4.x |
-| **Language** | TypeScript | 5.x |
-| **Database** | PostgreSQL | 15+ |
-| **ORM** | Prisma | 5.x |
-| **Caching** | Redis | 7.x |
-| **Validation** | Zod | 3.x |
-| **Logging** | Pino | 9.x |
-| **Testing** | Jest | 29.x |
+The crown jewel of our backend is the `AICategorizationService`. It uses a multi-tiered strategy to categorize transactions:
 
----
+1.  **Cache Layer (Redis)**:
+    *   We generate a normalized key from the merchant name (e.g., "STARBUCKS #124" -> `cat:starbucks`).
+    *   If found in Redis (24h TTL), return immediately (Sub-millisecond latency).
 
-## 🔧 Environment Variables
+2.  **AI Layer (Hugging Face)**:
+    *   If not cached, we call the `facebook/bart-large-mnli` Zero-Shot Classification model.
+    *   We consider the confidence score. If > 80%, we accept it and cache the result.
 
-The application requires the following environment variables.
-Copy `.env.example` to `.env` to get started.
+3.  **Heuristic Layer (Regex)**:
+    *   If the AI is down, slow, or low confidence, we fall back to a robust Regex map in `src/utils/category-rules.ts`.
+    *   Example: `/uber|lyft/i` -> `Transportation`.
 
-| Variable | Description | Required | Default |
-| :--- | :--- | :--- | :--- |
-| `PORT` | API Port | No | `5000` |
-| `DATABASE_URL` | PostgreSQL Connection String | **Yes** | - |
-| `REDIS_URL` | Redis Connection String | No | `redis://localhost:6379` |
-| `JWT_SECRET` | Secret for Access Tokens | **Yes** | - |
-| `JWT_REFRESH_SECRET` | Secret for Refresh Tokens | **Yes** | - |
-| `JWT_EXPIRES_IN` | Access Token TTL | No | `15m` |
-| `JWT_REFRESH_EXPIRES_IN` | Refresh Token TTL | No | `7d` |
-| `HUGGING_FACE_API_KEY` | For AI Categorization | No* | - |
-| `FRONTEND_URL` | CORS Origin URL | No | `http://localhost:3000` |
-
-> *Note: If `HUGGING_FACE_API_KEY` is omitted, the system falls back to regex-based categorization rules.*
+4.  **Default**:
+    *   If all else fails, category defaults to `Uncategorized` for manual user review.
 
 ---
 
-## 🏃 Local Development
+## 💾 Database Schema (Prisma)
 
-### Option A: Docker (Recommended)
-Spin up the database and Redis without installing them locally.
+Our PostgreSQL database is normalized to 3NF. Key relationships:
+
+*   **User** 1:N **Account** (One user has many bank accounts)
+*   **Account** 1:N **Transaction** (Transactions belong to an account)
+*   **User** 1:N **Budget** (Budgets are personal to a user)
+*   **Budget** 1:1 **Category** (Each budget tracks one specific category)
+
+> See `prisma/schema.prisma` for the exact DDL and type definitions.
+
+---
+
+## 🔒 Security & Performance Features
+
+*   **Rate Limiting**: `express-rate-limit` backed by Redis prevents abuse.
+    *   *Default*: 100 requests per 15 mins per IP.
+*   **Helmet**: Sets secure HTTP headers (HSTS, X-Frame-Options, etc.).
+*   **Compression**: Gzip compression enabled for all JSON responses > 1kb.
+*   **Logging**: `pino-http` provides high-performance structured JSON logging for observability.
+
+---
+
+## 🧪 Running Tests
+
+We use **Jest** with `supertest` for integration testing.
 
 ```bash
-# From project root
-docker-compose up -d db redis
+# Run all tests
+npm test
+
+# Run only AI service tests
+npm test -- services/ai
 ```
 
-### Option B: Manual Setup
-Ensure PostgreSQL and Redis are running locally. Update `.env` with your local credentials.
-
-### Starting the Server
-
-```bash
-# 1. Install dependencies
-npm install
-
-# 2. Run Database Migrations
-npx prisma migrate dev
-
-# 3. Seed Database (Optional)
-npx tsx prisma/seed.ts
-
-# 4. Start Development Server
-npm run dev
-```
-
-The API will be available at `http://localhost:5000`.
-
----
-
-## 💾 Database & Prisma
-
-We use **Prisma** as our ORM. The schema is located at `prisma/schema.prisma`.
-
-### Common Commands
-
-| Command | Description |
-| :--- | :--- |
-| `npx prisma generate` | Regenerate TypeScript types based on schema. |
-| `npx prisma migrate dev` | Create and apply a new migration. |
-| `npx prisma studio` | Open the database GUI in browser. |
-| `npx prisma db push` | Push schema changes without tracking migrations (prototyping). |
-
----
-
-## 🔌 API Endpoints
-
-Full Swagger documentation (if available) would be at `/api-docs`.
-
-### 🔐 Authentication
--   `POST /api/auth/register` - Create new account.
--   `POST /api/auth/login` - Authenticate and receive tokens.
--   `POST /api/auth/refresh` - Refresh access token.
--   `POST /api/auth/logout` - Invalidate tokens.
-
-### 💸 Transactions
--   `GET /api/transactions` - List transactions (pagination + filters).
--   `POST /api/transactions` - Create transaction (triggers AI auto-categorization).
--   `GET /api/transactions/summary` - Get spending statistics.
-
-### 💰 Budgets
--   `GET /api/budgets` - View all active budgets.
--   `GET /api/budgets/status` - Check health (Safe/Warning/Exceeded).
--   `POST /api/budgets/recommend` - Generate AI-based budget limits.
-
----
-
-## 🤖 AI Categorization
-
-The backend utilizes **Hugging Face's Zero-Shot Classification** (`facebook/bart-large-mnli`) to categorize transactions meaningfuly.
-
-**Workflow:**
-1.  User enters: "Payment to STARBUCKS COFFEE #492"
-2.  Backend checks **Redis Cache** for exact match.
-3.  If miss, sends text to **Hugging Face Inference API**.
-4.  AI determines standard category: `Food & Dining`.
-5.  Result is cached in Redis for 24 hours (TTL).
-6.  Transaction is saved with the correct category.
-
-**Fallback Mechanism:**
-If the AI service is down or API key is missing, a **Regex Engine** (`src/services/ai-categorization.service.ts`) takes over to match common patterns locally.
-
----
-
-## 🛡 Security & Logging
-
--   **Rate Limiting**: `express-rate-limit` + `RedisStore` prevents brute force.
--   **Audit Logging**: Critical actions (Login, Payment, Delete) are logged to the `AuditLog` table asynchronously to avoid blocking the main thread.
--   **Error Handling**: Centralized `AppError` class ensures consistent JSON error responses.
-
----
-
-## 📈 Future Improvements
-
--   [ ] **Queue System**: Move email notifications (BullMQ) to background workers.
--   [ ] **WebSockets**: Real-time updates for shared bill splits.
--   [ ] **API Versioning**: Introduce `/api/v2` namespace.
-
----
+> **Note**: Tests require a running Database instance (Docker or Local). They will create/destroy temporary data.

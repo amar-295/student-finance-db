@@ -1,65 +1,71 @@
-# UniFlow Frontend
+# 🎨 UniFlow Frontend Architecture
 
-The frontend application for UniFlow, built with **React 19**, **Vite**, **TypeScript**, and **Tailwind CSS**.
+The frontend is a **Single Page Application (SPA)** built with **React 19** and **Vite**, focusing on performance, accessibility, and pixel-perfect design.
 
-## 🚀 Getting Started
+## 🧱 Directory Structure & Organization
 
-### Prerequisites
-- Node.js 20+
-- Backend server running on port 5000
+We use a **Feature-Based** directory structure (screaming architecture) rather than grouping by file type.
 
-### Installation
-
-```bash
-# Install dependencies
-npm install
-
-# Start development server
-npm run dev
-```
-
-The app will be available at `http://localhost:5173`.
-
-## 🏗 Architecture
-
-### Tech Stack
--   **Build Tool**: Vite 7
--   **Framework**: React 19
--   **Styling**: Tailwind CSS 3.4
--   **State Management**: Zustand (Global Auth), TanStack Query (Server State)
--   **Routing**: React Router 7
--   **Forms**: React Hook Form + Zod
--   **HTTP Client**: Axios
--   **Testing**: Vitest + React Testing Library
-
-### Directory Structure
 ```
 src/
-├── components/     # Reusable UI components
-├── contexts/       # React Context providers (Auth, Theme)
-├── features/       # Feature-based modules (Auth, Budgets, etc.)
-├── hooks/          # Custom React hooks
-├── layouts/        # Page layouts (Dashboard, Auth)
-├── pages/          # Route components
-├── services/       # API integration services
-├── store/          # Global state stores
-└── test/           # Test utilities and setup
+├── features/           # 📦 Domain-Specific Logic
+│   ├── auth/           # Login, Register, ProtectedRoute
+│   ├── dashboard/      # Overview widgets
+│   ├── transactions/   # List, Add, Filter, Search
+│   └── budgets/        # Budget progress bars
+│
+├── components/         # 🧩 Shared/Generic UI
+│   ├── ui/             # Atoms (Button, Input, Card)
+│   └── layout/         # Organisms (Sidebar, Navbar)
+│
+├── hooks/              # 🪝 Global Hooks (useDebounce, useTheme)
+├── lib/                # 🛠️ Utilities (axios instance, formatting)
+└── store/              # 🏪 Global State Stores
 ```
 
-## 🧪 Testing
+---
+
+## ⚡ State Management Strategy
+
+We use a hybrid approach to state management for optimal performance:
+
+1.  **Server State (**`@tanstack/react-query`**)**:
+    *   Handles all async data (Transactions, User Profile).
+    *   Provides automatic caching, background refetching (stale-while-revalidate), and optimistic updates.
+    *   *Why?* Eliminates manual `useEffect` fetching and loading state boilerplate.
+
+2.  **Client State (**`zustand`**)**:
+    *   Handles global UI state that doesn't persist to the DB.
+    *   Examples: `useAuthStore` (User session), `useSidebarStore` (Menu toggle).
+    *   *Why?* Simpler and faster than Redux/Context API for global signals.
+
+3.  **Form State (**`react-hook-form` + `zod`**)**:
+    *   Manages uncontrolled form inputs and validation.
+    *   *Why?* Renders only changed components (high performance) and shares validation logic with backend.
+
+---
+
+## 🎨 Design System & Styling
+
+*   **Tailwind CSS 3.4**: Utility-first styling for rapid development.
+*   **Radix UI / Headless UI**: Unstyled, accessible primitives for complex components (Dialogs, Dropdowns).
+*   **Framer Motion**: Declarative animations for page transitions and micro-interactions.
+*   **Responsive**: Mobile-first breakpoints (`sm`, `md`, `lg`, `xl`).
+
+---
+
+## 🧪 Testing (Vitest)
+
+We use **Vitest** for unit and component testing. It shares the same Vite config, making it practically instant.
 
 ```bash
-# Run unit and integration tests
+# Run tests
 npm test
 
-# Run tests with UI coverage
+# Open UI Dashboard for tests
 npm run test:ui
 ```
 
-## 🌐 Environment Variables
-
-Check `.env.example` for required variables.
-
-```env
-VITE_API_URL=http://localhost:5000/api
-```
+**Key Libraries:**
+*   `@testing-library/react`: Tests components from user perspective.
+*   `msw` (Mock Service Worker): Intercepts network requests to mock backend responses during tests.
