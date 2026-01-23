@@ -191,15 +191,17 @@ export const getTransactions = async (
 
     searchTerms.forEach(term => {
       if (term.includes(':')) {
-        const [key, value] = term.split(':');
+        const parts = term.split(':');
+        const key = parts[0];
+        const value = parts[1] ?? '';
         // Handle comparison operators for amount: amount:>50, amount:<50
-        if (key === 'amount') {
+        if (key === 'amount' && value) {
           if (value.startsWith('>=')) where.amount = { ...where.amount, gte: parseFloat(value.substring(2)) };
           else if (value.startsWith('<=')) where.amount = { ...where.amount, lte: parseFloat(value.substring(2)) };
           else if (value.startsWith('>')) where.amount = { ...where.amount, gt: parseFloat(value.substring(1)) };
           else if (value.startsWith('<')) where.amount = { ...where.amount, lt: parseFloat(value.substring(1)) };
           else where.amount = parseFloat(value);
-        } else if (key === 'category') {
+        } else if (key === 'category' && value) {
           where.category = { name: { contains: value, mode: 'insensitive' } };
         } else if (key === 'merchant') {
           where.merchant = { contains: value, mode: 'insensitive' };

@@ -245,7 +245,7 @@ export const getAccountHistory = async (userId: string, accountId: string, days:
   const txnsByDay: Record<string, number> = {};
 
   for (const t of transactions) {
-    const dateStr = t.transactionDate.toISOString().split('T')[0];
+    const dateStr = t.transactionDate.toISOString().split('T')[0]!;
     // Transaction amount: + for Income, - for Expense
     // If we are at End of Day X, and want Start of Day X (or End of Day X-1),
     // We SUBTRACT the Day X transactions.
@@ -256,7 +256,7 @@ export const getAccountHistory = async (userId: string, accountId: string, days:
   for (let i = 0; i < days; i++) {
     const d = new Date();
     d.setDate(d.getDate() - i);
-    const dateStr = d.toISOString().split('T')[0];
+    const dateStr = d.toISOString().split('T')[0]!;
 
     // Push current END OF DAY balance
     history.push({

@@ -98,14 +98,17 @@ export const detectSubscriptions = async (userId: string) => {
     for (const key in groups) {
         const txs = groups[key];
         // If 2 or more occurrences in 3 months roughly 30 days apart (simplified)
-        if (txs.length >= 2) {
-            subscriptions.push({
-                merchant: txs[0].merchant,
-                amount: Number(txs[0].amount),
-                frequency: 'Monthly',
-                lastPaid: txs[0].transactionDate,
-                estimatedNext: subDays(txs[0].transactionDate, -30) // +30 days
-            });
+        if (txs && txs.length >= 2) {
+            const firstTx = txs[0];
+            if (firstTx) {
+                subscriptions.push({
+                    merchant: firstTx.merchant,
+                    amount: Number(firstTx.amount),
+                    frequency: 'Monthly',
+                    lastPaid: firstTx.transactionDate,
+                    estimatedNext: subDays(firstTx.transactionDate, -30) // +30 days
+                });
+            }
         }
     }
 

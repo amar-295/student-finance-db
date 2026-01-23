@@ -268,7 +268,7 @@ const generateStatisticalInsights = (data: SpendingData): Insight[] => {
   // 4. Frequent merchant insight
   if (data.topMerchants.length > 0) {
     const topMerchant = data.topMerchants[0];
-    if (topMerchant.count >= 5) {
+    if (topMerchant && topMerchant.count >= 5) {
       insights.push({
         id: `frequent-merchant-${Date.now()}`,
         type: "tip",
@@ -291,10 +291,10 @@ const generateAIInsights = async (data: SpendingData): Promise<Insight[]> => {
     const summary = `
 User spent ₹${data.totalSpent.toFixed(0)} this month.
 Top categories: ${Object.entries(data.categoryBreakdown)
-      .sort(([, a], [, b]) => b - a)
-      .slice(0, 3)
-      .map(([cat, amt]) => `${cat}: ₹${amt.toFixed(0)}`)
-      .join(", ")}.
+        .sort(([, a], [, b]) => b - a)
+        .slice(0, 3)
+        .map(([cat, amt]) => `${cat}: ₹${amt.toFixed(0)}`)
+        .join(", ")}.
 This week: ₹${data.weekComparison.thisWeek.toFixed(0)}, Last week: ₹${data.weekComparison.lastWeek.toFixed(0)}.
     `.trim();
 
