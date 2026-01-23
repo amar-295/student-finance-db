@@ -23,6 +23,14 @@ export const handlers = [
         ]);
     }),
 
+    // Accounts
+    http.get('/api/accounts', () => {
+        return HttpResponse.json([
+            { id: '1', name: 'Checking', type: 'CHECKING', balance: 1500, accountNumber: '1234' },
+            { id: '2', name: 'Savings', type: 'SAVINGS', balance: 5000, accountNumber: '5678' },
+        ]);
+    }),
+
     // Authentication
     http.post('/api/auth/login', async ({ request }) => {
         const { email, password } = (await request.json()) as any;

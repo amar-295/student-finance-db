@@ -8,7 +8,7 @@ const prisma: PrismaClient = new PrismaClient({
 const MAX_RETRIES = 5;
 const BASE_DELAY = 1000; // 1 second
 
-const connectWithRetry = async (retries = 0) => {
+export const connectWithRetry = async (retries = 0): Promise<void> => {
   try {
     await prisma.$connect();
     console.log('✅ Database connected successfully');
@@ -23,11 +23,6 @@ const connectWithRetry = async (retries = 0) => {
     process.exit(1);
   }
 };
-
-// Initial connection attempt (only in non-test env to avoid hanging jest)
-if (process.env.NODE_ENV !== 'test') {
-  connectWithRetry();
-}
 
 // Handle graceful shutdown
 process.on('beforeExit', async () => {
