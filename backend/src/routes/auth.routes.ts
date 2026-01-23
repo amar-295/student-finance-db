@@ -1,5 +1,5 @@
 import express from 'express';
-import { asyncHandler, authenticate } from '../middleware';
+import { asyncHandler, authenticate, validate } from '../middleware';
 import {
   register,
   login,
@@ -9,6 +9,14 @@ import {
   logout,
 } from '../controllers/auth.controller';
 import * as PasswordResetController from '../controllers/password-reset.controller';
+import {
+  registerSchema,
+  loginSchema,
+  refreshTokenSchema,
+  updateProfileSchema,
+} from '../types/auth.types';
+import * as PasswordResetTypes from '../types/password-reset.types';
+import { authLimiter, registrationLimiter, passwordResetLimiter } from '../config/rateLimiting';
 
 const router = express.Router();
 
@@ -55,7 +63,7 @@ const router = express.Router();
  *       400:
  *         description: Invalid input or email already exists
  */
-router.post('/register', asyncHandler(register));
+router.post('/register', registrationLimiter, validate(registerSchema), asyncHandler(register));
 
 /**
  * @swagger
@@ -102,7 +110,7 @@ router.post('/register', asyncHandler(register));
  *       401:
  *         description: Invalid credentials
  */
-router.post('/login', asyncHandler(login));
+router.post('/login', authLimiter, validate(loginSchema), asyncHandler(login));
 
 /**
  * @swagger
@@ -127,7 +135,7 @@ router.post('/login', asyncHandler(login));
  *       401:
  *         description: Invalid or expired refresh token
  */
-router.post('/refresh', asyncHandler(refreshToken));
+router.post('/refresh', validate(refreshTokenSchema), asyncHandler(refreshToken));
 
 /**
  * @swagger
@@ -192,11 +200,11 @@ router.get('/me', authenticate, asyncHandler(getMe));
  *       200:
  *         description: Profile updated successfully
  */
-router.put('/me', authenticate, asyncHandler(updateMe));
+router.put('/me', authenticate, validate(updateProfileSchema), asyncHandler(updateMe));
 
 // Password Reset Routes
-router.post('/forgot-password', PasswordResetController.forgotPassword);
-router.post('/verify-reset-token', PasswordResetController.verifyResetToken);
-router.post('/reset-password', PasswordResetController.resetPassword);
+router.post('/forgot-password', passwordResetLimiter, validate(PasswordResetTypes.requestPasswordResetSchema), PasswordResetController.forgotPassword);
+router.post('/verify-reset-token', passwordResetLimiter, validate(PasswordResetTypes.verifyResetTokenSchema), PasswordResetController.verifyResetToken);
+router.post('/reset-password', passwordResetLimiter, validate(PasswordResetTypes.resetPasswordSchema), PasswordResetController.resetPassword);
 
 export default router;

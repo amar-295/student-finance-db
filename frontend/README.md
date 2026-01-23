@@ -70,23 +70,30 @@ frontend/
 
 ---
 
-## ⚡ State Management Strategy
+## ⚡ State Management & Resilience Strategy
 
-We use a hybrid approach to state management for optimal performance:
+We use a hybrid approach to state management for optimal performance and fault tolerance:
 
 1.  **Server State (**`@tanstack/react-query`**)**:
-    *   Handles all async data (Transactions, User Profile).
-    *   Provides automatic caching, background refetching (stale-while-revalidate), and optimistic updates.
-    *   *Why?* Eliminates manual `useEffect` fetching and loading state boilerplate.
+    *   **Resilience**: Configured with exponential backoff retries (2 attempts) to handle network blips gracefully.
+    *   **Deduplication**: `staleTime` set to 2 minutes prevents redundant API calls.
+    *   **Garbage Collection**: 10-minute cache retention for snappy navigation.
+    *   *Why?* Eliminates manual fetching logic and provides "offline-first" feeling.
 
 2.  **Client State (**`zustand`**)**:
-    *   Handles global UI state that doesn't persist to the DB.
-    *   Examples: `useAuthStore` (User session), `useSidebarStore` (Menu toggle).
-    *   *Why?* Simpler and faster than Redux/Context API for global signals.
+    *   Handles global UI state (Sidebar, Theme, User Session).
+    *   *Why?* Micro-sized bundle foot-print compared to Redux.
 
 3.  **Form State (**`react-hook-form` + `zod`**)**:
-    *   Manages uncontrolled form inputs and validation.
-    *   *Why?* Renders only changed components (high performance) and shares validation logic with backend.
+    *   Manages input validation sharing schemas with backend.
+
+---
+
+## 🏎️ Performance & Stability
+
+*   **Error Boundaries**: A global wrapper catches React runtime errors, preventing white screens and offering a "Try Again" recovery.
+*   **Code Splitting**: All pages are lazy-loaded (`React.lazy`), reducing the initial bundle size significantly.
+*   **Loading States**: Global Suspense fallbacks provide immediate visual feedback during navigation.
 
 ---
 

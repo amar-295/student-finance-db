@@ -96,13 +96,23 @@ Our PostgreSQL database is normalized to 3NF. Key relationships:
 
 ---
 
-## 🔒 Security & Performance Features
+## 🔒 Security & Performance Features (Hardened)
 
-*   **Rate Limiting**: `express-rate-limit` backed by Redis prevents abuse.
-    *   *Default*: 100 requests per 15 mins per IP.
-*   **Helmet**: Sets secure HTTP headers (HSTS, X-Frame-Options, etc.).
-*   **Compression**: Gzip compression enabled for all JSON responses > 1kb.
-*   **Logging**: `pino-http` provides high-performance structured JSON logging for observability.
+*   **Rate Limiting**: `express-rate-limit` + Redis prevents DDoS (100 req/15m).
+*   **Helmet**: Sets strict HTTP headers (HSTS, CSP, X-Frame-Options).
+*   **Timeouts**: `connect-timeout` (30s) prevents hanging connection attacks.
+*   **Validation**: Strict `Zod` schemas for all inputs (password strength, email).
+*   **Resiliency**: Production-safe error handling (no stack traces leak).
+
+---
+
+## 🛠️ Utility Scripts
+
+We provide several helper scripts to manage the backend lifecycle:
+
+*   `npm run prisma:seed`: **Populate DB** with a test user and default categories.
+*   `npm run generate-secrets`: **Rotate Keys** by generating new 256-bit JWT secrets.
+*   `./scripts/backup-db.sh`: **Disaster Recovery** script to dump and compress the database.
 
 ---
 

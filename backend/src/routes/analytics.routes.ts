@@ -1,5 +1,5 @@
 import express from 'express';
-import { authenticate, asyncHandler } from '../middleware';
+import { authenticate, asyncHandler, validate } from '../middleware';
 import {
     getOverview,
     getTrends,
@@ -7,6 +7,7 @@ import {
     getMerchants,
     getInsights
 } from '../controllers/analytics.controller';
+import { trendsQuerySchema } from '../types/analytics.types';
 
 const router = express.Router();
 
@@ -25,7 +26,7 @@ router.get('/overview', asyncHandler(getOverview));
  * @desc    Get spending trends
  * @access  Private
  */
-router.get('/trends', asyncHandler(getTrends));
+router.get('/trends', validate(trendsQuerySchema, 'query'), asyncHandler(getTrends));
 
 /**
  * @route   GET /api/analytics/categories

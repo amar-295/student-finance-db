@@ -6,10 +6,10 @@ import { SettingsProvider } from './contexts/SettingsContext';
 import { Toaster } from 'sonner';
 import DashboardLayout from './components/layout/DashboardLayout';
 import ProtectedRoute from './components/ProtectedRoute';
-import ErrorBoundary from './components/common/ErrorBoundary';
+import ErrorBoundary from './components/ErrorBoundary'; // Fixed path
 import LoadingSpinner from './components/common/LoadingSpinner';
 
-// Lazy load pages
+// Lazy load pages - Implements Code Splitting (Issue 30)
 const LandingPage = lazy(() => import('./pages/LandingPage'));
 const LoginPage = lazy(() => import('./pages/auth/LoginPage'));
 const SignupPage = lazy(() => import('./pages/auth/SignupPage'));
@@ -33,7 +33,7 @@ function App() {
       <SettingsProvider>
         <ErrorBoundary>
           <BrowserRouter>
-            <Suspense fallback={<LoadingSpinner />}>
+            <Suspense fallback={<div className="h-screen w-full flex items-center justify-center"><LoadingSpinner /></div>}>
               <Routes>
                 <Route path="/" element={<LandingPage />} />
                 <Route path="/login" element={<LoginPage />} />

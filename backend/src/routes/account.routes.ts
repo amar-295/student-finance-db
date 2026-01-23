@@ -1,5 +1,5 @@
 import express from 'express';
-import { asyncHandler, authenticate } from '../middleware';
+import { asyncHandler, authenticate, validate } from '../middleware';
 import {
     create,
     getAll,
@@ -9,6 +9,13 @@ import {
     transfer,
     getHistory,
 } from '../controllers/account.controller';
+import {
+    createAccountSchema,
+    updateAccountSchema,
+    transferFundsSchema,
+    getHistoryQuerySchema
+} from '../types/account.types';
+import { idParamSchema } from '../types/common.types';
 
 const router = express.Router();
 
@@ -19,7 +26,7 @@ router.use(authenticate);
  * @desc    Create a new account
  * @access  Private
  */
-router.post('/', asyncHandler(create));
+router.post('/', validate(createAccountSchema), asyncHandler(create));
 
 /**
  * @route   GET /api/accounts
@@ -33,34 +40,34 @@ router.get('/', asyncHandler(getAll));
  * @desc    Transfer funds between accounts
  * @access  Private
  */
-router.post('/transfer', asyncHandler(transfer));
+router.post('/transfer', validate(transferFundsSchema), asyncHandler(transfer));
 
 /**
  * @route   GET /api/accounts/:id
  * @desc    Get single account
  * @access  Private
  */
-router.get('/:id', asyncHandler(getOne));
+router.get('/:id', validate(idParamSchema, 'params'), asyncHandler(getOne));
 
 /**
  * @route   PUT /api/accounts/:id
  * @desc    Update account
  * @access  Private
  */
-router.put('/:id', asyncHandler(update));
+router.put('/:id', validate(idParamSchema, 'params'), validate(updateAccountSchema), asyncHandler(update));
 
 /**
  * @route   DELETE /api/accounts/:id
  * @desc    Delete account
  * @access  Private
  */
-router.delete('/:id', asyncHandler(remove));
+router.delete('/:id', validate(idParamSchema, 'params'), asyncHandler(remove));
 
 /**
  * @route   GET /api/accounts/:id/history
  * @desc    Get account balance history
  * @access  Private
  */
-router.get('/:id/history', asyncHandler(getHistory));
+router.get('/:id/history', validate(idParamSchema, 'params'), validate(getHistoryQuerySchema, 'query'), asyncHandler(getHistory));
 
 export default router;

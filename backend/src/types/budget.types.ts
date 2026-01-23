@@ -42,6 +42,13 @@ export const budgetQuerySchema = z.object({
     active: z.string().optional().transform(val => val === 'true'),
 });
 
+// Schema for date range query
+export const dateRangeSchema = z.object({
+    startDate: z.string().optional(),
+    endDate: z.string().optional(),
+    limit: z.string().transform(Number).optional(),
+});
+
 export type CreateBudgetInput = z.infer<typeof createBudgetSchema>;
 export type UpdateBudgetInput = z.infer<typeof updateBudgetSchema>;
 export type BudgetQuery = z.infer<typeof budgetQuerySchema>;

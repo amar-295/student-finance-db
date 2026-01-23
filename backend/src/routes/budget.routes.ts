@@ -1,5 +1,5 @@
 import express from 'express';
-import { asyncHandler, authenticate } from '../middleware';
+import { asyncHandler, authenticate, validate } from '../middleware';
 import {
     create,
     getAll,
@@ -12,6 +12,13 @@ import {
     getTransactions,
     getAnalytics,
 } from '../controllers/budget.controller';
+import {
+    createBudgetSchema,
+    updateBudgetSchema,
+    budgetQuerySchema,
+    dateRangeSchema
+} from '../types/budget.types';
+import { idParamSchema } from '../types/common.types';
 
 const router = express.Router();
 
@@ -44,48 +51,48 @@ router.get('/alerts', asyncHandler(getAlerts));
  * @desc    Get transactions for a specific budget
  * @access  Private
  */
-router.get('/:id/transactions', asyncHandler(getTransactions));
+router.get('/:id/transactions', validate(idParamSchema, 'params'), validate(dateRangeSchema, 'query'), asyncHandler(getTransactions));
 
 /**
  * @route   GET /api/budgets/:id/analytics
  * @desc    Get analytics for a specific budget
  * @access  Private
  */
-router.get('/:id/analytics', asyncHandler(getAnalytics));
+router.get('/:id/analytics', validate(idParamSchema, 'params'), asyncHandler(getAnalytics));
 
 /**
  * @route   POST /api/budgets
  * @desc    Create a new budget
  * @access  Private
  */
-router.post('/', asyncHandler(create));
+router.post('/', validate(createBudgetSchema), asyncHandler(create));
 
 /**
  * @route   GET /api/budgets
  * @desc    Get all budgets (with optional filters)
  * @access  Private
  */
-router.get('/', asyncHandler(getAll));
+router.get('/', validate(budgetQuerySchema, 'query'), asyncHandler(getAll));
 
 /**
  * @route   GET /api/budgets/:id
  * @desc    Get single budget
  * @access  Private
  */
-router.get('/:id', asyncHandler(getOne));
+router.get('/:id', validate(idParamSchema, 'params'), asyncHandler(getOne));
 
 /**
  * @route   PUT /api/budgets/:id
  * @desc    Update budget
  * @access  Private
  */
-router.put('/:id', asyncHandler(update));
+router.put('/:id', validate(idParamSchema, 'params'), validate(updateBudgetSchema), asyncHandler(update));
 
 /**
  * @route   DELETE /api/budgets/:id
  * @desc    Delete budget
  * @access  Private
  */
-router.delete('/:id', asyncHandler(remove));
+router.delete('/:id', validate(idParamSchema, 'params'), asyncHandler(remove));
 
 export default router;

@@ -34,11 +34,18 @@
 *   **Smooth Interactions**: buttery smooth 60fps animations using **Framer Motion**.
 *   **Accessible**: Built with **Headless UI** for screen reader support.
 
-### 🛡️ **Enterprise-Grade Architecture**
-*   **Authentication**: Secure JWT layout with Access (15m) + Refresh Tokens (7d).
-*   **Security**: Rate limiting, Helmet headers, SQL injection protection (Prisma), and encrypted passwords (Bcrypt).
-*   **Performance**: Server-side caching (Redis), Database indexing, and Gzip compression.
-*   **Resiliency**: Comprehensive error handling and **Prometheus** metrics for monitoring.
+### 🛡️ **Enterprise-Grade Security (Hardened)**
+*   **Authentication**: 256-bit JWTs with Access (15m) + Refresh Tokens (7d) and strict issuer validation.
+*   **Protection**: 
+    *   **Rate Limiting**: Redis-backed limits (100 req/15m) guarding against DDoS/Brute Force.
+    *   **Data Integrity**: Strong input validation (Zod) and SQL injection protection (Prisma).
+    *   **Infrastructure**: HTTPS enforcement, HSTS headers (Helmet), and request timeouts.
+*   **Resiliency**: Automated database backups and graceful degradation.
+
+### ⚡ **Resilient Frontend**
+*   **Reliability**: Automatic request retries (exponential backoff) and deduplication (2-minute cache).
+*   **Stability**: Global Error Boundaries prevent white-screen crashes.
+*   **Performance**: Route-based Code Splitting (Lazy Loading) for fast initial paint.
 
 ---
 
@@ -48,12 +55,11 @@ We use a modern, type-safe stack optimized for performance and developer experie
 
 | Layer | Technology | Key Libraries/Tools |
 | :--- | :--- | :--- |
-| **Frontend** | React 19 (Vite 7) | `zustand` (State), `tanstack-query` (Fetching), `react-hook-form` (Forms), `sonner` (Toasts) |
-| **Backend** | Node.js 20 + Express | `zod` (Validation), `pino` (Logging), `swagger-jsdoc` (Docs), `nodemailer` (Email) |
-| **Database** | PostgreSQL 15 | `prisma` (ORM/Schema Management) |
-| **Cache** | Redis 7 | `ioredis` (Client), `express-rate-limit` (Storage) |
-| **Testing** | Vitest + Jest | `msw` (Network Mocks), `supertest` (API Testing), `react-testing-library` |
-| **DevOps** | Docker, GitHub Actions | CI/CD Pipelines, Multi-stage builds |
+| **Frontend** | React 19 (Vite 7) | `zustand` (State), `tanstack-query` (Caching), `react-hook-form` (Forms), `sonner` (Toasts) |
+| **Backend** | Node.js 20 + Express | `zod` (Validation), `pino` (Logging), `helmet` (Security), `connect-timeout` (Resilience) |
+| **Database** | PostgreSQL 15 | `prisma` (ORM), `redis` (Caching & Rate Limiting) |
+| **DevOps** | Docker, GitHub Actions | CI/CD Pipelines, Husky (Pre-commit hooks), Dependabot |
+| **Testing** | Vitest + Jest | `msw` (Network Mocks), `supertest` (API Testing) |
 
 ---
 
@@ -84,7 +90,7 @@ The easiest way to start the infrastructure.
     # Setup .env (see below) or use default
     cp .env.example .env
     npm run prisma:migrate  # Create DB tables
-    npm run prisma:seed     # (Optional) Add dummy data
+    npm run prisma:seed     # 🌱 Populate test data (User: test@example.com / Password123!)
     npm run dev
     ```
 
@@ -112,15 +118,15 @@ The easiest way to start the infrastructure.
 | `DATABASE_URL` | Postgres Connection String | `postgresql://user:pass@localhost:5432/db` | **YES** |
 | `REDIS_URL` | Redis Connection String | `redis://localhost:6379` | No |
 | **Security** | | | |
-| `JWT_SECRET` | Secret for Access Token | `super_secret_key_change_me` | **YES** |
-| `JWT_REFRESH_SECRET` | Secret for Refresh Token | `another_super_secret_key` | **YES** |
+| `JWT_SECRET` | Secret for Access Token | `Use 256-bit generated secret` | **YES** |
+| `JWT_REFRESH_SECRET` | Secret for Refresh Token | `Use 256-bit generated secret` | **YES** |
 | `JWT_EXPIRES_IN` | Access Token Lifetime | `15m` | No |
 | `JWT_REFRESH_EXPIRES_IN` | Refresh Token Lifetime | `7d` | No |
-| **Services** | | | |
-| `HUGGING_FACE_API_KEY` | Hugging Face API Token | `hf_...` | No* |
-| `FRONTEND_URL` | Allowed CORS Origin | `http://localhost:5173` | No |
 
-*> Note: If `HUGGING_FACE_API_KEY` is missing, the backend defaults to basic regex categorization.*
+### Security Note
+For production, always use `npm run generate-secrets` in the backend folder to create secure keys.
+
+---
 
 ### Frontend (`/frontend/.env`)
 
