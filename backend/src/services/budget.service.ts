@@ -444,10 +444,11 @@ const calculateBudgetPeriod = (
     let endDate: Date;
 
     switch (period) {
-        case 'monthly':
+        case 'monthly': {
             startDate = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1, 12, 0, 0));
             endDate = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 0, 12, 0, 0));
             break;
+        }
 
         case 'semester': {
             // Assume semester is 6 months
@@ -458,10 +459,11 @@ const calculateBudgetPeriod = (
             break;
         }
 
-        case 'yearly':
+        case 'yearly': {
             startDate = new Date(Date.UTC(now.getUTCFullYear(), 0, 1, 12, 0, 0));
             endDate = new Date(Date.UTC(now.getUTCFullYear(), 11, 31, 12, 0, 0));
             break;
+        }
     }
 
     return { startDate, endDate };

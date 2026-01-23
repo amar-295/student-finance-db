@@ -119,6 +119,9 @@ export const notFoundHandler = (req: Request, res: Response) => {
 /**
  * Async handler wrapper to catch errors in async route handlers
  */
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+// eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
 export const asyncHandler = (fn: Function) => {
   return (req: Request, res: Response, next: NextFunction) => {
     Promise.resolve(fn(req, res, next)).catch(next);
