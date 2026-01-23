@@ -1,22 +1,12 @@
 import '@testing-library/jest-dom';
-import { cleanup } from '@testing-library/react';
-import { afterEach, vi, beforeAll, afterAll } from 'vitest';
-import { server } from './mocks/server';
+import { vi } from 'vitest';
 
-// MSW Lifecycle
-beforeAll(() => {
-    server.listen({
-        onUnhandledRequest: (req) => {
-            console.warn('UNHANDLED REQUEST:', req.method, req.url);
-        }
-    });
-});
-afterEach(() => {
-    cleanup();
-    server.resetHandlers();
-    localStorage.clear();
-});
-afterAll(() => server.close());
+// Mock ResizeObserver
+global.ResizeObserver = vi.fn().mockImplementation(() => ({
+    observe: vi.fn(),
+    unobserve: vi.fn(),
+    disconnect: vi.fn(),
+}));
 
 // Mock window.matchMedia
 Object.defineProperty(window, 'matchMedia', {
@@ -25,37 +15,23 @@ Object.defineProperty(window, 'matchMedia', {
         matches: false,
         media: query,
         onchange: null,
-        addListener: vi.fn(),
-        removeListener: vi.fn(),
+        addListener: vi.fn(), // deprecated
+        removeListener: vi.fn(), // deprecated
         addEventListener: vi.fn(),
         removeEventListener: vi.fn(),
         dispatchEvent: vi.fn(),
     })),
 });
 
-// Mock IntersectionObserver
-globalThis.IntersectionObserver = class IntersectionObserver {
-    constructor() { }
-    disconnect() { }
-    observe() { }
-    takeRecords() {
-        return [];
-    }
-    unobserve() { }
-} as any;
-
-// Functional localStorage mock
-const stores: Record<string, string> = {};
-globalThis.localStorage = {
-    getItem: (key: string) => stores[key] || null,
-    setItem: (key: string, value: string) => { stores[key] = value; },
-    removeItem: (key: string) => { delete stores[key]; },
-    clear: () => {
-        Object.keys(stores).forEach(key => delete stores[key]);
+// Mock clipboard
+Object.defineProperty(navigator, 'clipboard', {
+    value: {
+        writeText: vi.fn(),
     },
-    length: 0,
-    key: (index: number) => Object.keys(stores)[index] || null,
-} as any;
+    configurable: true,
+});
 
-// Mock scrollTo
-window.scrollTo = vi.fn();
+// Mock ApexCharts (if used in future)
+vi.mock('react-apexcharts', () => ({
+    default: () => null,
+}));

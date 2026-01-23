@@ -15,7 +15,7 @@ let transactions = [
 
 export const handlers = [
     // Categories
-    http.get('/api/categories', () => {
+    http.get('*/api/categories', () => {
         return HttpResponse.json([
             { id: 'c1', name: 'Food & Dining', color: '#EF4444', icon: 'restaurant' },
             { id: 'c2', name: 'Transport', color: '#3B82F6', icon: 'directions_bus' },
@@ -24,7 +24,7 @@ export const handlers = [
     }),
 
     // Accounts
-    http.get('/api/accounts', () => {
+    http.get('*/api/accounts', () => {
         return HttpResponse.json([
             { id: '1', name: 'Checking', type: 'CHECKING', balance: 1500, accountNumber: '1234' },
             { id: '2', name: 'Savings', type: 'SAVINGS', balance: 5000, accountNumber: '5678' },
@@ -32,14 +32,16 @@ export const handlers = [
     }),
 
     // Authentication
-    http.post('/api/auth/login', async ({ request }) => {
+    http.post('*/api/auth/login', async ({ request }) => {
         const { email, password } = (await request.json()) as any;
 
         if (email === 'alex@demo.com' && password === 'DemoPassword123') {
             return HttpResponse.json({
-                user: { id: '1', email, name: 'Alex', firstName: 'Alex' },
-                accessToken: 'mock-token',
-                refreshToken: 'mock-refresh-token',
+                data: {
+                    user: { id: '1', email, name: 'Alex', firstName: 'Alex' },
+                    accessToken: 'mock-token',
+                    refreshToken: 'mock-refresh-token',
+                }
             });
         }
 
@@ -50,14 +52,14 @@ export const handlers = [
     }),
 
     // Transactions
-    http.get('/api/transactions', () => {
+    http.get('*/api/transactions', () => {
         return HttpResponse.json({
             data: transactions,
             pagination: { total: transactions.length, page: 1, limit: 20, totalPages: 1, hasMore: false }
         });
     }),
 
-    http.post('/api/transactions', async ({ request }) => {
+    http.post('*/api/transactions', async ({ request }) => {
         const data = (await request.json()) as any;
         const newTxn = {
             id: Math.random().toString(36).substr(2, 9),
@@ -70,7 +72,7 @@ export const handlers = [
         return HttpResponse.json(newTxn);
     }),
 
-    http.put('/api/transactions/:id', async ({ params, request }) => {
+    http.put('*/api/transactions/:id', async ({ params, request }) => {
         const data = (await request.json()) as any;
         const { id } = params;
         transactions = transactions.map(t => t.id === id ? { ...t, ...data, merchant: data.description || t.merchant, transactionDate: data.date || t.transactionDate } : t);
@@ -78,14 +80,14 @@ export const handlers = [
         return HttpResponse.json(updated);
     }),
 
-    http.delete('/api/transactions/:id', ({ params }) => {
+    http.delete('*/api/transactions/:id', ({ params }) => {
         const { id } = params;
         transactions = transactions.filter(t => t.id !== id);
         return new HttpResponse(null, { status: 204 });
     }),
 
     // Budgets
-    http.get('/api/budgets', () => {
+    http.get('*/api/budgets', () => {
         return HttpResponse.json([
             {
                 id: '1',
@@ -97,7 +99,7 @@ export const handlers = [
         ]);
     }),
 
-    http.get('/api/budgets/status', () => {
+    http.get('*/api/budgets/status', () => {
         return HttpResponse.json([
             {
                 budgetId: '1',
@@ -110,13 +112,13 @@ export const handlers = [
         ]);
     }),
 
-    http.get('/api/budgets/recommend', () => {
+    http.get('*/api/budgets/recommend', () => {
         return HttpResponse.json([
             { category: 'Food & Dining', recommendedBudget: 400, reason: 'Based on your coffee spending' }
         ]);
     }),
 
-    http.post('/api/budgets', async ({ request }) => {
+    http.post('*/api/budgets', async ({ request }) => {
         const data = (await request.json()) as any;
         return HttpResponse.json({
             id: Math.random().toString(36).substr(2, 9),

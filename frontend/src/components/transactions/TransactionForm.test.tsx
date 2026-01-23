@@ -113,4 +113,26 @@ describe('TransactionForm', () => {
         expect(screen.getByLabelText(/description/i)).toHaveValue('Coffee');
         expect(screen.getByLabelText(/amount/i)).toHaveValue(5.50);
     });
+
+    it('handles string accountId in initialData', () => {
+        const transaction = {
+            description: 'Rent',
+            amount: 1000,
+            date: '2026-01-01',
+            accountId: '1', // String accountId
+            category: 'Housing',
+            type: 'EXPENSE' as const,
+        };
+
+        render(
+            <TransactionForm
+                onSubmit={mockOnSubmit}
+                accounts={mockAccounts}
+                initialData={transaction}
+            />
+        );
+
+        // Should correctly match the account with ID 1
+        expect(screen.getByLabelText(/account/i)).toHaveValue('1');
+    });
 });
