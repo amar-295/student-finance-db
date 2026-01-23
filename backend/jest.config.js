@@ -10,7 +10,7 @@ module.exports = {
   restoreMocks: true,
   transform: {
     '^.+\\.tsx?$': ['ts-jest', {
-      tsconfig: 'tsconfig.test.json',
+      tsconfig: 'tsconfig.test.json'
     }],
   },
   setupFilesAfterEnv: ['<rootDir>/tests/setup.ts'],
