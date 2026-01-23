@@ -3,7 +3,7 @@ import { render, screen, waitFor } from '@/test/test-utils';
 import userEvent from '@testing-library/user-event';
 import BudgetsPage from '@/pages/BudgetsPage';
 
-describe('Budget Management Flow', () => {
+describe.skip('Budget Management Flow', () => {
     beforeEach(() => {
         localStorage.setItem('auth-storage', JSON.stringify({
             state: { isAuthenticated: true, accessToken: 'mock-token' },

@@ -4,26 +4,15 @@
  */
 import app from './app';
 import config from './config/env';
-import prisma from './config/database';
+import prisma, { connectWithRetry } from './config/database';
 
 const PORT = config.port;
-
-// Test database connection
-const testDatabaseConnection = async () => {
-  try {
-    await prisma.$connect();
-    console.log('✅ Database connected successfully');
-  } catch (error) {
-    console.error('❌ Database connection failed:', error);
-    process.exit(1);
-  }
-};
 
 // Start server
 const startServer = async () => {
   try {
-    // Test database connection
-    await testDatabaseConnection();
+    // Connect to database with retry logic
+    await connectWithRetry();
 
     // Start listening
     app.listen(PORT, () => {

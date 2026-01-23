@@ -250,11 +250,12 @@ export const getAllBudgetStatuses = async (userId: string): Promise<BudgetStatus
     const startDates = budgets.map(b => b.startDate.getTime());
     const endDates = budgets.map(b => b.endDate.getTime());
 
-    const minDate = new Date(Math.min(...startDates));
-    const maxDate = new Date(Math.max(...endDates));
-
-    // Optimize: Fetch all transactions in one query instead of N+1
-    const transactions = await prisma.transaction.findMany({
+/**
+ * Calculate budget status for a single budget
+ */
+const calculateBudgetStatus = async (userId: string, budget: any): Promise<BudgetStatus> => {
+    // Get transactions in budget period
+    const aggregations = await prisma.transaction.aggregate({
         where: {
             userId,
             categoryId: { in: categoryIds },
@@ -265,41 +266,14 @@ export const getAllBudgetStatuses = async (userId: string): Promise<BudgetStatus
             amount: { lt: 0 }, // Only expenses
             deletedAt: null,
         },
+        _sum: {
+            amount: true,
+        },
     });
 
-    // Group transactions by category for faster lookup
-    const transactionsByCategory = new Map<string, typeof transactions>();
-
-    for (const t of transactions) {
-        if (t.categoryId) {
-            const list = transactionsByCategory.get(t.categoryId) || [];
-            list.push(t);
-            transactionsByCategory.set(t.categoryId, list);
-        }
-    }
-
-    const statuses = budgets.map(budget => {
-        const relevantTransactions = transactionsByCategory.get(budget.categoryId) || [];
-        // Filter by specific budget period
-        const budgetTransactions = relevantTransactions.filter(t =>
-            t.transactionDate >= budget.startDate &&
-            t.transactionDate <= budget.endDate
-        );
-
-        return calculateStatusFromData(budget, budgetTransactions);
-    });
-
-    return statuses;
-};
-
-/**
- * Helper to calculate status from in-memory data
- */
-const calculateStatusFromData = (budget: Budget & { category: Category }, transactions: Transaction[]): BudgetStatus => {
-    const spent = transactions.reduce(
-        (sum, t) => sum + Math.abs(Number(t.amount)),
-        0
-    );
+    // Safely convert Decimal to number (handle null, Decimal object, or primitives)
+    const totalAmount = aggregations._sum.amount;
+    const spent = Math.abs(Number(totalAmount ? totalAmount.toString() : 0));
 
     const limit = Number(budget.amount);
     const remaining = limit - spent;
@@ -449,13 +423,14 @@ const calculateBudgetPeriod = (
             endDate = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 0, 12, 0, 0));
             break;
 
-        case 'semester':
+        case 'semester': {
             // Assume semester is 6 months
             const currentMonth = now.getUTCMonth();
             const semesterStart = currentMonth < 6 ? 0 : 6;
             startDate = new Date(Date.UTC(now.getUTCFullYear(), semesterStart, 1, 12, 0, 0));
             endDate = new Date(Date.UTC(now.getUTCFullYear(), semesterStart + 6, 0, 12, 0, 0));
             break;
+        }
 
         case 'yearly':
             startDate = new Date(Date.UTC(now.getUTCFullYear(), 0, 1, 12, 0, 0));
