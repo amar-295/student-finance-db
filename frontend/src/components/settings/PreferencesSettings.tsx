@@ -1,7 +1,9 @@
 import { useTheme } from '../../contexts/ThemeContext';
+import { useSettings } from '../../contexts/SettingsContext';
 
 export default function PreferencesSettings() {
     const { theme: currentTheme, setTheme } = useTheme();
+    const { currency, dateFormat, updateSettings } = useSettings();
 
     return (
         <div className="max-w-xl animate-fade-in">
@@ -37,7 +39,12 @@ export default function PreferencesSettings() {
                                 <p className="font-bold">Currency</p>
                                 <p className="text-sm text-gray-500">Default currency for all accounts</p>
                             </div>
-                            <select className="bg-transparent font-bold text-primary outline-none">
+                            <select
+                                value={currency}
+                                onChange={(e) => updateSettings({ currency: e.target.value as any })}
+                                className="bg-transparent font-bold text-primary outline-none"
+                                aria-label="Currency"
+                            >
                                 <option value="USD">USD ($)</option>
                                 <option value="EUR">EUR (€)</option>
                                 <option value="GBP">GBP (£)</option>
@@ -49,7 +56,12 @@ export default function PreferencesSettings() {
                                 <p className="font-bold">Date Format</p>
                                 <p className="text-sm text-gray-500">How dates are displayed</p>
                             </div>
-                            <select className="bg-transparent font-bold text-primary outline-none">
+                            <select
+                                value={dateFormat}
+                                onChange={(e) => updateSettings({ dateFormat: e.target.value as any })}
+                                className="bg-transparent font-bold text-primary outline-none"
+                                aria-label="Date Format"
+                            >
                                 <option value="MM/DD/YYYY">MM/DD/YYYY</option>
                                 <option value="DD/MM/YYYY">DD/MM/YYYY</option>
                                 <option value="YYYY-MM-DD">YYYY-MM-DD</option>

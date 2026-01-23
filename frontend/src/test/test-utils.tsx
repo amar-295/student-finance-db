@@ -3,6 +3,7 @@ import { render, type RenderOptions } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import { Toaster } from 'sonner';
 import { ThemeProvider } from '../contexts/ThemeContext';
+import { SettingsProvider } from '../contexts/SettingsContext';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 const createTestQueryClient = () => new QueryClient({
@@ -17,10 +18,12 @@ const AllTheProviders = ({ children }: { children: React.ReactNode }) => {
     return (
         <QueryClientProvider client={createTestQueryClient()}>
             <ThemeProvider>
-                <BrowserRouter>
-                    {children}
-                </BrowserRouter>
-                <Toaster richColors closeButton />
+                <SettingsProvider>
+                    <BrowserRouter>
+                        {children}
+                    </BrowserRouter>
+                    <Toaster richColors closeButton />
+                </SettingsProvider>
             </ThemeProvider>
         </QueryClientProvider>
     );

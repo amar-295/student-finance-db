@@ -74,4 +74,28 @@ describe('Settings Flow', () => {
         await user.click(screen.getByRole('button', { name: /Security/i }));
         expect(screen.getByText(/Security settings coming soon/i)).toBeInTheDocument();
     });
+
+    it('updates currency and date settings', async () => {
+        const user = userEvent.setup();
+        render(<SettingsPage />);
+
+        // Go to preferences
+        await user.click(screen.getByRole('button', { name: /Preferences/i }));
+
+        // Change Currency
+        const currencySelect = screen.getByLabelText(/Currency/i);
+        expect(currencySelect).toHaveValue('USD');
+
+        await user.selectOptions(currencySelect, 'EUR');
+        expect(currencySelect).toHaveValue('EUR');
+        expect(JSON.parse(localStorage.getItem('uniflow-settings') || '{}').currency).toBe('EUR');
+
+        // Change Date Format
+        const dateSelect = screen.getByLabelText(/Date Format/i);
+        expect(dateSelect).toHaveValue('MM/DD/YYYY');
+
+        await user.selectOptions(dateSelect, 'YYYY-MM-DD');
+        expect(dateSelect).toHaveValue('YYYY-MM-DD');
+        expect(JSON.parse(localStorage.getItem('uniflow-settings') || '{}').dateFormat).toBe('YYYY-MM-DD');
+    });
 });
