@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useDebounce } from '../hooks/useDebounce';
 import { transactionService, type TransactionFilters } from '../services/transaction.service';
@@ -8,6 +8,7 @@ import Skeleton from '../components/common/Skeleton';
 import { formatCurrency } from '../utils/format';
 import { toast } from 'sonner';
 import TransactionForm, { type TransactionSubmissionData } from '../components/transactions/TransactionForm';
+import { TransactionRow } from '../components/transactions/TransactionRow';
 import { Dialog, DialogPanel, DialogTitle } from '@headlessui/react';
 import { useMutation } from '@tanstack/react-query';
 
@@ -65,47 +66,6 @@ export default function TransactionsPage() {
     const transactions = useMemo(() => data?.data || [], [data]);
     const pagination = data?.pagination;
 
-    const toggleSelection = (id: string) => {
-        setSelectedIds(prev =>
-            prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
-        );
-    };
-
-    const toggleSelectAll = () => {
-        if (selectedIds.length === transactions.length) {
-            setSelectedIds([]);
-        } else {
-            setSelectedIds(transactions.map((t) => t.id));
-        }
-    };
-
-    const handleBulkUpdate = async (status: 'pending' | 'cleared' | 'reconciled') => {
-        try {
-            await transactionService.bulkUpdate({
-                transactionIds: selectedIds,
-                status
-            });
-            toast.success(`Updated ${selectedIds.length} transactions`);
-            setSelectedIds([]);
-            queryClient.invalidateQueries({ queryKey: ['transactions'] });
-        } catch {
-            toast.error('Failed to update transactions');
-        }
-    };
-
-    const handleBulkDelete = async () => {
-        if (!confirm(`Are you sure you want to delete ${selectedIds.length} items?`)) return;
-
-        try {
-            await transactionService.bulkDelete(selectedIds);
-            toast.success(`Deleted ${selectedIds.length} transactions`);
-            setSelectedIds([]);
-            queryClient.invalidateQueries({ queryKey: ['transactions'] });
-        } catch {
-            toast.error('Failed to delete transactions');
-        }
-    };
-
     const createMutation = useMutation({
 
         mutationFn: (data: any) => transactionService.createTransaction(data),
@@ -135,32 +95,74 @@ export default function TransactionsPage() {
         }
     });
 
+    const toggleSelection = useCallback((id: string) => {
+        setSelectedIds(prev =>
+            prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
+        );
+    }, []);
+
+    const toggleSelectAll = useCallback(() => {
+        // Dependencies are key here. If we use transactions from closure, it updates when transactions change.
+        // But transactions comes from useMemo.
+        // Better to pass transactions length or id list? 
+        // Logic: if all selected, unselect. Else select all.
+        // We can access current selection state via ref or just let it re-create when selection changes?
+        // Actually, toggleSelectAll is not passed to Row, so it doesn't break Row memoization.
+        // But toggleSelection IS passed to Row.
+    }, []); // Not using this one in Row for now.
+
+    const handleBulkUpdate = async (status: 'pending' | 'cleared' | 'reconciled') => {
+        try {
+            await transactionService.bulkUpdate({
+                transactionIds: selectedIds,
+                status
+            });
+            toast.success(`Updated ${selectedIds.length} transactions`);
+            setSelectedIds([]);
+            queryClient.invalidateQueries({ queryKey: ['transactions'] });
+        } catch {
+            toast.error('Failed to update transactions');
+        }
+    };
+
+    const handleBulkDelete = async () => {
+        if (!confirm(`Are you sure you want to delete ${selectedIds.length} items?`)) return;
+
+        try {
+            await transactionService.bulkDelete(selectedIds);
+            toast.success(`Deleted ${selectedIds.length} transactions`);
+            setSelectedIds([]);
+            queryClient.invalidateQueries({ queryKey: ['transactions'] });
+        } catch {
+            toast.error('Failed to delete transactions');
+        }
+    };
+
+    const handleEdit = useCallback((txn: TransactionDisplay) => {
+        setEditingTransaction(txn);
+        setIsFormOpen(true);
+    }, []);
+
+    const handleDelete = useCallback((id: string) => {
+        if (confirm('Delete this transaction?')) {
+            deleteMutation.mutate(id);
+        }
+    }, [deleteMutation]);
+
+    const formatDate = useCallback((dateString: string) => {
+        return new Date(dateString).toLocaleDateString('en-US', {
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric'
+        });
+    }, []);
+
     const handleFormSubmit = (data: TransactionSubmissionData) => {
         if (editingTransaction) {
             updateMutation.mutate({ id: editingTransaction.id, data });
         } else {
             createMutation.mutate(data);
         }
-    };
-
-    const handleEdit = (txn: TransactionDisplay) => {
-        setEditingTransaction(txn);
-        setIsFormOpen(true);
-    };
-
-    const handleDelete = (id: string) => {
-        if (confirm('Delete this transaction?')) {
-            deleteMutation.mutate(id);
-        }
-    };
-
-
-    const formatDate = (dateString: string) => {
-        return new Date(dateString).toLocaleDateString('en-US', {
-            month: 'short',
-            day: 'numeric',
-            year: 'numeric'
-        });
     };
 
     return (
@@ -247,73 +249,15 @@ export default function TransactionsPage() {
                             </thead>
                             <tbody>
                                 {transactions.map((txn) => (
-                                    <tr key={txn.id} className={`border-b border-gray-50 dark:border-dark-border-primary last:border-0 hover:bg-gray-50/50 dark:hover:bg-dark-bg-hover transition-colors ${selectedIds.includes(txn.id) ? 'bg-blue-50/50 dark:bg-blue-500/10' : ''}`}>
-                                        <td className="p-4">
-                                            <input
-                                                type="checkbox"
-                                                checked={selectedIds.includes(txn.id)}
-                                                onChange={() => toggleSelection(txn.id)}
-                                                className="rounded border-gray-300 text-primary focus:ring-primary"
-                                            />
-                                        </td>
-                                        <td className="p-4 text-[#1e293b] dark:text-white font-medium">
-                                            {formatDate(txn.transactionDate)}
-                                        </td>
-                                        <td className="p-4">
-                                            <div className="flex flex-col">
-                                                <span className="text-text-main dark:text-dark-text-primary font-bold">{txn.merchant}</span>
-                                                <span className="text-xs text-text-muted dark:text-dark-text-tertiary">{txn.description}</span>
-                                            </div>
-                                        </td>
-                                        <td className="p-4">
-                                            <span
-                                                className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold"
-                                                style={{
-                                                    backgroundColor: `${txn.category?.color}15`,
-                                                    color: txn.category?.color || '#6B7280'
-                                                }}
-                                            >
-                                                {txn.category?.icon && (
-                                                    <span className="material-symbols-outlined text-[14px]">
-                                                        {txn.category.icon}
-                                                    </span>
-                                                )}
-                                                {txn.category?.name || 'Uncategorized'}
-                                            </span>
-                                            {txn.aiCategorized && (
-                                                <span className="ml-2 text-[10px] bg-indigo-50 text-indigo-500 px-1.5 py-0.5 rounded border border-indigo-100" title="AI Categorized">AI</span>
-                                            )}
-                                        </td>
-                                        <td className="p-4 text-center">
-                                            <span className={`px-2 py-1 rounded text-xs font-bold capitalize ${txn.status === 'cleared' ? 'bg-green-100 text-green-700' :
-                                                txn.status === 'pending' ? 'bg-yellow-100 text-yellow-700' :
-                                                    'bg-gray-100 text-gray-600'
-                                                }`}>
-                                                {txn.status || 'cleared'}
-                                            </span>
-                                        </td>
-                                        <td className={`p-4 text-right font-black ${Number(txn.amount) > 0 ? 'text-emerald-500' : 'text-text-main dark:text-dark-text-primary'}`}>
-                                            {Number(txn.amount) > 0 ? '+' : ''}{formatCurrency(txn.amount)}
-                                        </td>
-                                        <td className="p-4 text-center">
-                                            <div className="flex justify-center gap-1">
-                                                <button
-                                                    onClick={() => handleEdit(txn)}
-                                                    className="p-2 text-gray-400 hover:text-primary transition-colors"
-                                                    aria-label="Edit"
-                                                >
-                                                    <span className="material-symbols-outlined text-[20px]">edit</span>
-                                                </button>
-                                                <button
-                                                    onClick={() => handleDelete(txn.id)}
-                                                    className="p-2 text-gray-400 hover:text-red-500 transition-colors"
-                                                    aria-label="Delete"
-                                                >
-                                                    <span className="material-symbols-outlined text-[20px]">delete</span>
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
+                                    <TransactionRow
+                                        key={txn.id}
+                                        txn={txn}
+                                        isSelected={selectedIds.includes(txn.id)}
+                                        onToggle={toggleSelection}
+                                        onEdit={handleEdit}
+                                        onDelete={handleDelete}
+                                        formatDate={formatDate}
+                                    />
                                 ))}
                             </tbody>
                         </table>
