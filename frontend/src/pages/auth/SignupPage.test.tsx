@@ -3,7 +3,7 @@ import { render, screen, waitFor } from '@/test/test-utils';
 import userEvent from '@testing-library/user-event';
 import SignupPage from './SignupPage';
 import { authService } from '../../services/auth.service';
-
+// Build fix: removed unused useAuthStore import
 
 // Mock dependencies
 vi.mock('../../services/auth.service', async () => {
@@ -55,12 +55,9 @@ describe('SignupPage', () => {
         const user = userEvent.setup();
         render(<SignupPage />);
 
-        // Fill other fields
         await user.type(screen.getByLabelText(/full name/i), 'John Doe');
         await user.type(screen.getByLabelText(/email address/i), 'john@example.com');
         await user.type(screen.getByLabelText(/^password$/i), 'Password123!');
-
-        // Submit without checking terms
         await user.click(screen.getByRole('button', { name: /create account/i }));
 
         await waitFor(() => {
@@ -75,13 +72,11 @@ describe('SignupPage', () => {
 
         render(<SignupPage />);
 
-        // Fill form
         await user.type(screen.getByLabelText(/full name/i), 'John Doe');
         await user.type(screen.getByLabelText(/email address/i), 'john@example.com');
         await user.type(screen.getByLabelText(/^password$/i), 'Password123!');
-        await user.click(screen.getByLabelText(/i agree to the/i)); // Terms checkbox
+        await user.click(screen.getByLabelText(/i agree to the/i));
 
-        // Submit
         await user.click(screen.getByRole('button', { name: /create account/i }));
 
         await waitFor(() => {
@@ -137,15 +132,12 @@ describe('SignupPage', () => {
 
         const passwordInput = screen.getByLabelText(/^password$/i);
 
-        // Initial state - indicators are present
         expect(screen.getByText('8+ Characters')).toBeInTheDocument();
         expect(screen.getByText('1 Number')).toBeInTheDocument();
 
-        // Type strong password
         await user.clear(passwordInput);
         await user.type(passwordInput, 'Strong1!');
 
-        // Verify indicators are present (logic handled by component state)
         expect(screen.getByText('1 Symbol')).toBeInTheDocument();
     });
 });
