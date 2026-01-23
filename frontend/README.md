@@ -2,25 +2,70 @@
 
 The frontend is a **Single Page Application (SPA)** built with **React 19** and **Vite**, focusing on performance, accessibility, and pixel-perfect design.
 
-## 🧱 Directory Structure & Organization
+## 🌊 Frontend Data Flow
 
-We use a **Feature-Based** directory structure (screaming architecture) rather than grouping by file type.
+We use a layered architecture to separate UI from Data Logic.
+
+```mermaid
+graph TD
+    User([User]) -->|Interacts| UI[React Components]
+    UI -->|Triggers| Hook[Custom Hook]
+    
+    subgraph "Data Layer"
+        Hook -->|Read/Write| Query[TanStack Query]
+        Hook -->|Global State| Store[Zustand Store]
+    end
+    
+    Query -->|Fetch| API[Axios Service]
+    API -->|HTTPS| Backend[Backend API]
+    
+    Backend -->|JSON| API
+    API -->|Data| Query
+    Query -->|Cache Update| UI
+```
+
+1.  **UI Layer**: Components (e.g., `TransactionList`) only handle display and user events.
+2.  **Logic Layer**: Custom hooks (e.g., `useTransactions`) abstract away the fetching logic.
+3.  **Cache Layer**: `TanStack Query` manages loading states, caching, and background updates.
+4.  **Service Layer**: `Axios` instances handle the raw HTTP communication (headers, auth tokens).
+
+---
+
+## 📂 Deep Codebase Structure
 
 ```
-src/
-├── features/           # 📦 Domain-Specific Logic
-│   ├── auth/           # Login, Register, ProtectedRoute
-│   ├── dashboard/      # Overview widgets
-│   ├── transactions/   # List, Add, Filter, Search
-│   └── budgets/        # Budget progress bars
-│
-├── components/         # 🧩 Shared/Generic UI
-│   ├── ui/             # Atoms (Button, Input, Card)
-│   └── layout/         # Organisms (Sidebar, Navbar)
-│
-├── hooks/              # 🪝 Global Hooks (useDebounce, useTheme)
-├── lib/                # 🛠️ Utilities (axios instance, formatting)
-└── store/              # 🏪 Global State Stores
+frontend/
+├── src/
+│   ├── assets/             # 🖼️ Static Images, Fonts
+│   │
+│   ├── components/         # 🧩 Reusable UI
+│   │   ├── common/         # Buttons, Inputs, Cards
+│   │   ├── layout/         # Sidebar, Header, Layout Wrappers
+│   │   ├── transactions/   # Transaction-specific Widgets
+│   │   └── styles/         # Shared tailwind classes
+│   │
+│   ├── features/           # 📦 Domain Modules
+│   │   ├── auth/           # Login/Register Logic
+│   │   ├── budgets/        # Budget Logic
+│   │   └── transactions/   # Transaction Logic
+│   │
+│   ├── hooks/              # 🪝 Custom Hooks
+│   │   ├── useAuth.ts
+│   │   ├── useDebounce.ts
+│   │   └── useTheme.ts
+│   │
+│   ├── pages/              # 📄 Route Views
+│   │   ├── DashboardPage.tsx
+│   │   ├── TransactionsPage.tsx
+│   │   └── LoginPage.tsx
+│   │
+│   ├── services/           # 📡 API Connectors
+│   │   ├── api.ts          # Axios Interceptors
+│   │   ├── authService.ts
+│   │   └── transactionService.ts
+│   │
+│   └── store/              # 🏪 Global State
+│       └── useAuthStore.ts # User Session Store
 ```
 
 ---

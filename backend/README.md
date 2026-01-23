@@ -17,9 +17,48 @@ graph LR
     Svc -->|AI| HF[Hugging Face]
 ```
 
-*   **Controllers (`/controllers`)**: Handle HTTP request parsing, response formatting, and status codes. logic-free.
-*   **Services (`/services`)**: Pure business logic. They know *nothing* about HTTP (req/res). This makes them testable and reusable.
-*   **Prisma Client**: Acts as our Data Access Layer (Repository).
+## 📂 Deep Codebase Structure
+
+```
+backend/
+├── prisma/                 # 💾 Database Layer
+│   ├── schema.prisma       # Single source of truth for DB
+│   └── seed.ts             # Demo data population
+│
+├── src/
+│   ├── config/             # ⚙️ Configuration
+│   │   ├── env.ts          # Zod-validated environment vars
+│   │   └── redis.ts        # Redis connection setup
+│   │
+│   ├── controllers/        # 🔌 Traffic Controllers (Req/Res)
+│   │   ├── account.controller.ts
+│   │   ├── ai.controller.ts
+│   │   ├── auth.controller.ts
+│   │   ├── budget.controller.ts
+│   │   └── transaction.controller.ts
+│   │
+│   ├── middleware/         # 🛡️ Request Guardrails
+│   │   ├── auth.middleware.ts
+│   │   ├── error.middleware.ts
+│   │   └── rate-limit.middleware.ts
+│   │
+│   ├── routes/             # 🚦 API Route Definitions
+│   │   ├── auth.routes.ts
+│   │   └── transactions.routes.ts
+│   │
+│   ├── services/           # 🧠 Business Logic (The Core)
+│   │   ├── ai-categorization.service.ts  # Redis + HuggingFace
+│   │   ├── auth.service.ts               # JWT & Password Hash
+│   │   ├── budget.service.ts             # Limits & Alerts
+│   │   └── transaction.service.ts        # Filters & Search
+│   │
+│   ├── utils/              # 🧰 Helpers
+│   │   ├── AppError.ts     # Standardized Error Class
+│   │   └── logger.ts       # Pino JSON Logger
+│   │
+│   ├── app.ts              # Express App Setup
+│   └── server.ts           # Server Entry Point
+```
 
 ---
 

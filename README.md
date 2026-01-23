@@ -143,52 +143,30 @@ This includes:
 
 ---
 
-## 🧪 Testing
-
-We practice **Test-Driven Development (TDD)** where possible.
-
-### Backend Tests (Jest)
-Runs 68+ integration tests covering Auth, Transactions, and Budgets.
-```bash
-cd backend
-npm test
-```
-
-### Frontend Tests (Vitest)
-Runs unit tests for components and hooks using a simulated browser environment.
-```bash
-cd frontend
-npm test
-```
-
----
-
 ## 📂 Project Structure
+
+A high-level overview of the monolithic repository:
 
 ```
 student-finance-db/
-├── .github/              # CI/CD Workflows
-├── backend/              # Express API
-│   ├── prisma/           # DB Schema & Seeds
+├── .github/              # ⚙️ CI/CD Workflows (GitHub Actions)
+│
+├── backend/              # 🔋 Node.js + Express API
+│   ├── prisma/           # 💾 DB Schema & Seeds
 │   ├── src/
-│   │   ├── config/       # Env & Constants
 │   │   ├── controllers/  # Route Handlers
-│   │   ├── middleware/   # Auth, Validation, Error
-│   │   ├── routes/       # API Route Definitions
 │   │   ├── services/     # Business Logic (AI, Auth)
 │   │   └── utils/        # Helpers
 │   └── test/             # Integration Tests
 │
-├── frontend/             # React App
+├── frontend/             # 🎨 React + Vite SPA
 │   ├── src/
 │   │   ├── components/   # Reusable UI (Buttons, Inputs)
-│   │   ├── features/     # Domain Logic (Auth, Budget)
-│   │   ├── hooks/        # Custom React Hooks
-│   │   ├── lib/          # Utils (Axios, ClassNames)
-│   │   └── pages/        # Page Views
+│   │   ├── features/     # Logic Modules (Auth, Budget)
+│   │   └── services/     # API Clients
 │   └── test/             # Setup & Mocks
 │
-└── docker-compose.yml    # Infrastructure
+└── docker-compose.yml    # 🐳 Infrastructure (Postgres + Redis)
 ```
 
 ---
