@@ -61,7 +61,8 @@ export const errorHandler = (
       return res.status(409).json({
         success: false,
         message: 'A record with this value already exists',
-        field: (err.meta?.target as string[])?.[0] || 'unknown',
+        // In production, do not return the specific field name to prevent schema probing
+        field: config.env === 'production' ? undefined : (err.meta?.target as string[])?.[0] || 'unknown',
       });
     }
 

@@ -1,7 +1,6 @@
 import axios from 'axios';
 import { useAuthStore } from '../store/authStore';
-
-const API_URL = '/api/analytics';
+import { API_ENDPOINTS } from '../config/api';
 
 const getAuthHeader = () => {
     const token = useAuthStore.getState().accessToken;
@@ -41,7 +40,7 @@ export interface AIInsight {
 export const analyticsService = {
     async getOverview() {
         const response = await axios.get<{ success: boolean; data: AnalyticsOverview }>(
-            `${API_URL}/overview`,
+            `${API_ENDPOINTS.ANALYTICS_SPENDING}/overview`,
             { headers: getAuthHeader() }
         );
         return response.data.data;
@@ -49,7 +48,7 @@ export const analyticsService = {
 
     async getTrends(period: 'week' | 'month' | 'year') {
         const response = await axios.get<{ success: boolean; data: SpendingTrend[] }>(
-            `${API_URL}/trends`,
+            `${API_ENDPOINTS.ANALYTICS_TRENDS}`,
             { headers: getAuthHeader(), params: { period } }
         );
         return response.data.data;
@@ -57,7 +56,7 @@ export const analyticsService = {
 
     async getCategories() {
         const response = await axios.get<{ success: boolean; data: CategoryBreakdown[] }>(
-            `${API_URL}/categories`,
+            `${API_ENDPOINTS.ANALYTICS_SPENDING}/categories`,
             { headers: getAuthHeader() }
         );
         return response.data.data;
@@ -65,7 +64,7 @@ export const analyticsService = {
 
     async getMerchants() {
         const response = await axios.get<{ success: boolean; data: TopMerchant[] }>(
-            `${API_URL}/merchants`,
+            `${API_ENDPOINTS.ANALYTICS_SPENDING}/merchants`,
             { headers: getAuthHeader() }
         );
         return response.data.data;
@@ -73,7 +72,7 @@ export const analyticsService = {
 
     async getInsights() {
         const response = await axios.get<{ success: boolean; data: AIInsight[] }>(
-            `${API_URL}/ai-insights`,
+            `${API_ENDPOINTS.AI_INSIGHTS}`,
             { headers: getAuthHeader() }
         );
         return response.data.data;

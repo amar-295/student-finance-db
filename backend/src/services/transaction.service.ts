@@ -63,6 +63,18 @@ export const createTransaction = async (
     categoryId = category.id;
     aiCategorized = categorization.aiGenerated;
     aiConfidence = categorization.confidence;
+  } else {
+    // Security Check: Verify category belongs to user or is system
+    const category = await prisma.category.findFirst({
+      where: {
+        id: categoryId,
+        OR: [{ userId }, { isSystem: true }],
+      },
+    });
+
+    if (!category) {
+      throw new NotFoundError('Category not found or you do not have permission to use it');
+    }
   }
 
   // Create transaction and update balance atomically
@@ -324,8 +336,19 @@ export const updateTransaction = async (
         }
       }
     } else if (input.categoryId && input.categoryId !== existing.categoryId) {
+      // Verify usage checking new category
+      const category = await tx.category.findFirst({
+        where: {
+          id: input.categoryId,
+          OR: [{ userId }, { isSystem: true }],
+        }
+      });
+
+      if (!category) {
+        throw new NotFoundError('Category not found or access denied');
+      }
+
       // Amount didn't change, but category might have changed type
-      const category = await tx.category.findUnique({ where: { id: input.categoryId } });
       if (category?.type === 'expense') {
         newAmount = -Math.abs(Number(existing.amount));
       } else if (category?.type === 'income') {
@@ -440,47 +463,85 @@ export const getTransactionSummary = async (
     if (endDate) where.transactionDate.lte = new Date(endDate);
   }
 
-  const transactions = await prisma.transaction.findMany({
+  // Optimize: Use Prisma Aggregations instead of fetching all records
+
+  // 1. Get totals by category ID
+  const categoryStats = await prisma.transaction.groupBy({
+    by: ['categoryId'],
     where,
-    include: {
-      category: true,
-    },
+    _sum: { amount: true },
+    _count: { id: true },
   });
 
-  // Calculate totals based on category type
-  const totalIncome = transactions
-    .filter(t => t.category?.type === 'income')
-    .reduce((sum, t) => sum + Math.abs(Number(t.amount)), 0);
+  // 2. Fetch required categories to get metadata (name, type)
+  // categoryId can be null, filter those out
+  const categoryIds = categoryStats
+    .map(s => s.categoryId)
+    .filter((id): id is string => id !== null);
 
-  const totalExpenses = transactions
-    .filter(t => t.category?.type === 'expense')
-    .reduce((sum, t) => sum + Math.abs(Number(t.amount)), 0);
+  const categories = await prisma.category.findMany({
+    where: { id: { in: categoryIds } }
+  });
 
-  const netCashflow = totalIncome - totalExpenses;
+  const categoryMap = new Map(categories.map(c => [c.id, c]));
 
-  // Group by category
+  // 3. Aggregate results
+  let totalIncome = 0;
+  let totalExpenses = 0;
   const byCategory: Record<string, any> = {};
-  transactions.forEach(t => {
-    const categoryName = t.category?.name || 'Uncategorized';
+
+  // Initialize Uncategorized if needed
+  const uncategorizedStats = categoryStats.find(s => s.categoryId === null);
+  if (uncategorizedStats) {
+    const amount = Number(uncategorizedStats._sum.amount || 0);
+    if (amount > 0) totalIncome += amount;
+    else totalExpenses += Math.abs(amount);
+
+    byCategory['Uncategorized'] = {
+      category: 'Uncategorized',
+      totalAmount: amount,
+      count: uncategorizedStats._count.id,
+      isIncome: amount > 0,
+      color: '#95A5A6'
+    };
+  }
+
+  for (const stat of categoryStats) {
+    if (!stat.categoryId) continue; // Handled above
+
+    const category = categoryMap.get(stat.categoryId);
+    const amount = Number(stat._sum.amount || 0);
+    const count = stat._count.id;
+    const categoryName = category?.name || 'Unknown';
+
+    if (category?.type === 'income') {
+      totalIncome += Math.abs(amount); // Typically positive
+    } else {
+      totalExpenses += Math.abs(amount); // Typically negative, but we want magnitude
+    }
+
     if (!byCategory[categoryName]) {
       byCategory[categoryName] = {
         category: categoryName,
         totalAmount: 0,
         count: 0,
-        transactions: [],
+        isIncome: category?.type === 'income',
+        color: category ? category.color : generateCategoryColor(categoryName)
       };
     }
-    byCategory[categoryName].totalAmount += Number(t.amount);
-    byCategory[categoryName].count += 1;
-    byCategory[categoryName].transactions.push(t.id);
-  });
+
+    byCategory[categoryName].totalAmount += amount;
+    byCategory[categoryName].count += count;
+  }
+
+  const netCashflow = totalIncome - totalExpenses;
 
   return {
     summary: {
       totalIncome,
       totalExpenses,
       netCashflow,
-      transactionCount: transactions.length,
+      transactionCount: await prisma.transaction.count({ where }),
     },
     breakdown: Object.values(byCategory).sort(
       (a: any, b: any) => Math.abs(b.totalAmount) - Math.abs(a.totalAmount)
@@ -546,16 +607,59 @@ export const bulkDeleteTransactions = async (
   userId: string,
   input: BulkDeleteTransactionsInput
 ) => {
-  const results = [];
+  if (!input.transactionIds.length) return { deletedCount: 0, ids: [] };
 
-  for (const id of input.transactionIds) {
-    try {
-      await deleteTransaction(userId, id);
-      results.push(id);
-    } catch (error) {
-      console.error(`Failed to delete transaction ${id}`, error);
+  // Fetch transactions to verify ownership and calculate balance adjustments
+  const transactions = await prisma.transaction.findMany({
+    where: {
+      id: { in: input.transactionIds },
+      userId,
+      deletedAt: null
+    },
+    select: {
+      id: true,
+      amount: true,
+      accountId: true
     }
+  });
+
+  if (transactions.length === 0) {
+    return { deletedCount: 0, ids: [] };
   }
 
-  return { deletedCount: results.length, ids: results };
+  const idsToDelete = transactions.map(t => t.id);
+
+  // Group refund amounts by account
+  const accountAdjustments = new Map<string, number>();
+  for (const t of transactions) {
+    const current = accountAdjustments.get(t.accountId) || 0;
+    // To reverse the transaction, we subtract the amount.
+    // If expense (-100), we decrement by -100 = +100.
+    // If income (+100), we decrement by 100 = -100.
+    // Wait, logic in single delete is: balance: { increment: -Number(transaction.amount) }
+    // So we sum up the NEGATIVE of transaction amounts.
+    accountAdjustments.set(t.accountId, current - Number(t.amount));
+  }
+
+  // Execute updates in transaction
+  await prisma.$transaction(async (tx) => {
+    // 1. Soft delete all
+    await tx.transaction.updateMany({
+      where: { id: { in: idsToDelete } },
+      data: { deletedAt: new Date() }
+    });
+
+    // 2. Update account balances - requires one query per account affected
+    // Usually bulk delete is for the same account, but let's handle multiple
+    for (const [accountId, adjustment] of accountAdjustments.entries()) {
+      if (adjustment !== 0) {
+        await tx.account.update({
+          where: { id: accountId },
+          data: { balance: { increment: adjustment } }
+        });
+      }
+    }
+  });
+
+  return { deletedCount: idsToDelete.length, ids: idsToDelete };
 };

@@ -20,31 +20,35 @@ export const registerUser = async (input: RegisterInput) => {
   // Hash password
   const passwordHash = await hashPassword(input.password);
 
-  // Create user
-  const user = await prisma.user.create({
-    data: {
-      email: input.email,
-      passwordHash,
-      name: input.name,
-      university: input.university,
-      baseCurrency: input.baseCurrency || 'USD',
-    },
-    select: {
-      id: true,
-      email: true,
-      name: true,
-      university: true,
-      baseCurrency: true,
-      emailVerified: true,
-      createdAt: true,
-    },
-  });
+  // Create user and notification settings in a transaction
+  const user = await prisma.$transaction(async (tx) => {
+    const newUser = await tx.user.create({
+      data: {
+        email: input.email,
+        passwordHash,
+        name: input.name,
+        university: input.university,
+        baseCurrency: input.baseCurrency || 'USD',
+      },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        university: true,
+        baseCurrency: true,
+        emailVerified: true,
+        createdAt: true,
+      },
+    });
 
-  // Create default notification settings
-  await prisma.notificationSettings.create({
-    data: {
-      userId: user.id,
-    },
+    // Create default notification settings
+    await tx.notificationSettings.create({
+      data: {
+        userId: newUser.id,
+      },
+    });
+
+    return newUser;
   });
 
   // Generate tokens

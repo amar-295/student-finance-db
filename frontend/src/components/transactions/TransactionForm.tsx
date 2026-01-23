@@ -1,20 +1,19 @@
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
+import type { SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 
 const transactionSchema = z.object({
     description: z.string().min(1, 'Description is required'),
-    amount: z.string()
-        .min(1, 'Amount is required')
-        .pipe(z.coerce.number().gt(0, 'Must be greater than 0')),
+    amount: z.string().min(1, 'Amount is required').refine((val) => Number(val) > 0, 'Amount must be greater than 0'),
     date: z.string().min(1, 'Date is required'),
-    accountId: z.coerce.number().min(1, 'Account is required'),
+    accountId: z.string().min(1, 'Account is required'),
     category: z.string().optional(),
     type: z.enum(['INCOME', 'EXPENSE']),
 });
 
-type TransactionInput = z.infer<typeof transactionSchema>;
+type TransactionFormData = z.infer<typeof transactionSchema>;
 
 interface Account {
     id: number;
@@ -35,14 +34,14 @@ export default function TransactionForm({ onSubmit, accounts, initialData, isLoa
         handleSubmit,
         reset,
         formState: { errors },
-    } = useForm<TransactionInput>({
+    } = useForm<TransactionFormData>({
         resolver: zodResolver(transactionSchema),
         mode: 'onBlur',
         defaultValues: {
             description: '',
-            amount: '' as any,
+            amount: '',
             date: '',
-            accountId: accounts[0]?.id || 0,
+            accountId: String(accounts[0]?.id || ''),
             category: '',
             type: 'EXPENSE',
         },
@@ -50,24 +49,31 @@ export default function TransactionForm({ onSubmit, accounts, initialData, isLoa
 
     useEffect(() => {
         if (initialData) {
-            // Map numeric values back to strings for the form if necessary
             const data = {
-                ...initialData,
+                description: initialData.description || '',
                 amount: initialData.amount?.toString() || '',
+                date: initialData.date || '',
+                accountId: String(initialData.accountId || ''),
+                category: initialData.category || '',
+                type: initialData.type || 'EXPENSE',
             };
             reset(data);
         }
     }, [initialData, reset]);
 
-    const handleFormSubmit = (data: TransactionInput) => {
-        const submissionData = {
-            ...data,
+    const handleFormSubmit: SubmitHandler<TransactionFormData> = (data) => {
+        const submissionData: any = {
+            description: data.description,
             amount: Number(data.amount),
+            date: data.date,
+            accountId: Number(data.accountId),
+            type: data.type,
         };
-        // Remove category from submission if it's empty to match some test expectations
-        if (!submissionData.category) {
-            delete (submissionData as any).category;
+
+        if (data.category) {
+            submissionData.category = data.category;
         }
+
         onSubmit(submissionData);
     };
 

@@ -1,208 +1,366 @@
-import { PrismaClient } from '@prisma/client';
-import { ApiError } from '../utils';
+import prisma from '../config/database';
+import { NotFoundError, BadRequestError, ForbiddenError } from '../utils';
 
-const prisma = new PrismaClient();
-
-interface ParticipantInput {
-    userId: string;
-    amountOwed: number;
+export interface CreateSplitInput {
+    description: string;
+    totalAmount: number;
+    splitType: 'equal' | 'percentage' | 'custom';
+    billDate?: string;
+    participants: {
+        userId: string;
+        amountOwed: number;
+    }[];
+    groupId?: string;
 }
 
-export const createBillSplit = async (
-    creatorId: string,
-    data: {
-        groupId?: string;
-        totalAmount: number;
-        description: string;
-        splitType: 'equal' | 'custom' | 'percentage';
-        participants: ParticipantInput[];
-    }
-) => {
-    const { groupId, totalAmount, description, splitType, participants } = data;
+export interface UpdateSplitPaymentInput {
+    participantId: string;
+    amountPaid: number;
+    paymentMethod?: string;
+    paymentNote?: string;
+}
 
+/**
+ * Create a new bill split
+ */
+export const createBillSplit = async (userId: string, input: CreateSplitInput) => {
     // Validate group membership if groupId provided
-    if (groupId) {
+    if (input.groupId) {
         const isMember = await prisma.groupMember.findFirst({
-            where: { groupId, userId: creatorId, isActive: true },
+            where: { groupId: input.groupId, userId: userId, isActive: true },
         });
         if (!isMember) {
-            throw new ApiError(403, 'You must be a member of the group to create a split in it');
+            throw new ForbiddenError('You must be a member of the group to create a split in it');
         }
     }
 
-    // Calculate amounts based on splitType if equal
-    let processedParticipants = [...participants];
-    if (splitType === 'equal') {
-        const amountPerPerson = Math.floor((totalAmount / participants.length) * 100) / 100;
+    let processedParticipants = input.participants.map(p => ({ ...p }));
+
+    // Calculate amounts based on splitType if equal - Logic from bill-split.service.ts for penny handling
+    if (input.splitType === 'equal') {
+        const amountPerPerson = Math.floor((input.totalAmount / input.participants.length) * 100) / 100;
         let runningSum = 0;
 
-        processedParticipants = participants.map((p, index) => {
-            const isLast = index === participants.length - 1;
+        processedParticipants = input.participants.map((p, index) => {
+            const isLast = index === input.participants.length - 1;
             let share = amountPerPerson;
 
             if (isLast) {
-                // Adjust for penny leakage
-                share = Math.round((totalAmount - runningSum) * 100) / 100;
+                // Adjust for penny leakage on the last person
+                share = Math.round((input.totalAmount - runningSum) * 100) / 100;
             } else {
                 runningSum = Math.round((runningSum + share) * 100) / 100;
             }
 
             return { ...p, amountOwed: share };
         });
-    }
+    } else {
+        // Validate total amount matches participants (original logic)
+        const participantsTotal = processedParticipants.reduce((sum, p) => sum + p.amountOwed, 0);
 
-    // Validate total amount matches sum of participants (for custom/percentage)
-    if (splitType !== 'equal') {
-        const sum = processedParticipants.reduce((acc, p) => acc + p.amountOwed, 0);
-        // Allow for small rounding differences
-        if (Math.abs(sum - totalAmount) > 0.01) {
-            throw new ApiError(400, `Sum of participant amounts (${sum}) does not match total amount (${totalAmount})`);
+        // Allow small floating point difference
+        if (Math.abs(participantsTotal - input.totalAmount) > 0.05) {
+            throw new BadRequestError(`Participants total (${participantsTotal}) must match bill total (${input.totalAmount})`);
         }
     }
 
-    return await prisma.billSplit.create({
+    const split = await prisma.billSplit.create({
         data: {
-            groupId,
-            createdBy: creatorId,
-            totalAmount,
-            description,
-            splitType,
+            createdBy: userId,
+            groupId: input.groupId,
+            description: input.description,
+            totalAmount: input.totalAmount,
+            splitType: input.splitType,
+            billDate: input.billDate ? new Date(input.billDate) : new Date(),
             status: 'pending',
             participants: {
-                create: processedParticipants.map((p) => ({
+                create: processedParticipants.map(p => ({
                     userId: p.userId,
                     amountOwed: p.amountOwed,
-                    status: 'pending',
-                })),
-            },
+                    status: 'pending'
+                }))
+            }
         },
         include: {
             participants: {
                 include: {
                     user: {
-                        select: { id: true, name: true, email: true },
-                    },
-                },
+                        select: {
+                            id: true,
+                            name: true,
+                            email: true
+                        }
+                    }
+                }
             },
             creator: {
-                select: { id: true, name: true, email: true },
-            },
-        },
+                select: {
+                    id: true,
+                    name: true,
+                    email: true
+                }
+            }
+        }
     });
+
+    return split;
 };
 
-export const getUserSplits = async (userId: string, status?: string) => {
-    return await prisma.billSplit.findMany({
+/**
+ * Get all splits for a user (created or participating)
+ */
+export const getUserSplits = async (userId: string) => {
+    const splits = await prisma.billSplit.findMany({
         where: {
             OR: [
                 { createdBy: userId },
-                { participants: { some: { userId } } },
+                {
+                    participants: {
+                        some: { userId }
+                    }
+                }
             ],
-            status: status as any,
+            deletedAt: null
         },
         include: {
             participants: {
                 include: {
                     user: {
-                        select: { id: true, name: true, email: true },
-                    },
-                },
+                        select: {
+                            id: true,
+                            name: true,
+                            email: true
+                        }
+                    }
+                }
             },
             creator: {
-                select: { id: true, name: true, email: true },
-            },
+                select: {
+                    id: true,
+                    name: true,
+                    email: true
+                }
+            }
         },
-        orderBy: { createdAt: 'desc' },
+        orderBy: {
+            createdAt: 'desc'
+        }
     });
+
+    return splits;
 };
 
-export const getSplitById = async (userId: string, splitId: string) => {
+/**
+ * Get single split details
+ */
+export const getBillSplitById = async (userId: string, splitId: string) => {
     const split = await prisma.billSplit.findFirst({
         where: {
             id: splitId,
             OR: [
                 { createdBy: userId },
-                { participants: { some: { userId } } },
+                {
+                    participants: {
+                        some: { userId }
+                    }
+                }
             ],
+            deletedAt: null
         },
         include: {
             participants: {
                 include: {
                     user: {
-                        select: { id: true, name: true, email: true },
-                    },
-                },
+                        select: {
+                            id: true,
+                            name: true,
+                            email: true
+                        }
+                    }
+                }
             },
             creator: {
-                select: { id: true, name: true, email: true },
+                select: {
+                    id: true,
+                    name: true,
+                    email: true
+                }
             },
-            group: true,
-        },
+            group: true
+        }
     });
 
     if (!split) {
-        throw new ApiError(404, 'Bill split not found');
+        throw new NotFoundError('Bill split not found');
     }
 
     return split;
 };
 
-export const recordPayment = async (
-    userId: string,
-    splitId: string,
-    amount: number,
-    note?: string
-) => {
-    const participant = await prisma.splitParticipant.findUnique({
+/**
+ * Settle a participant's share
+ * Usually called by the creator to confirm they received payment
+ */
+export const settleParticipantShare = async (userId: string, splitId: string, targetParticipantUserId: string) => {
+    // Verify the user is the creator of the split
+    const split = await prisma.billSplit.findFirst({
+        where: { id: splitId, createdBy: userId }
+    });
+
+    if (!split) {
+        throw new NotFoundError('Split not found or you do not have permission to settle it');
+    }
+
+    // Find the participant record
+    const participant = await prisma.splitParticipant.findFirst({
         where: {
-            splitId_userId: { splitId, userId },
-        },
+            splitId,
+            userId: targetParticipantUserId
+        }
     });
 
     if (!participant) {
-        throw new ApiError(404, 'You are not a participant in this bill split');
+        throw new NotFoundError('Participant not found in this split');
     }
 
-    if (amount <= 0) {
-        throw new ApiError(400, 'Payment amount must be greater than zero');
-    }
-
-    const newAmountPaid = Number(participant.amountPaid) + amount;
-    const isFullyPaid = newAmountPaid >= Number(participant.amountOwed);
-
-    const updatedParticipant = await prisma.splitParticipant.update({
+    // Update participant status
+    // Using full settlement logic as per original controller requirement
+    await prisma.splitParticipant.update({
         where: { id: participant.id },
         data: {
-            amountPaid: newAmountPaid,
-            status: isFullyPaid ? 'paid' : 'partial',
-            paidAt: isFullyPaid ? new Date() : undefined,
-            paymentNote: note,
-        },
+            status: 'paid',
+            paidAt: new Date(),
+            amountPaid: participant.amountOwed // Assume full payment
+        }
     });
 
-    // Check if all participants have paid to update bill split status
+    // Check if all participants are paid to update main split status
     const allParticipants = await prisma.splitParticipant.findMany({
-        where: { splitId },
+        where: { splitId }
     });
 
-    const allPaid = allParticipants.every((p) => p.status === 'paid');
-    const anyPaid = allParticipants.some((p) => p.status === 'paid' || p.status === 'partial');
+    // A split is settled if all participants (excluding possibly the creator if they are in the list) are paid
+    // Or simpler: all participants are paid.
+    const allPaid = allParticipants.every(p => p.status === 'paid');
 
     if (allPaid) {
         await prisma.billSplit.update({
             where: { id: splitId },
-            data: { status: 'settled', settledAt: new Date() },
+            data: { status: 'settled', settledAt: new Date() }
         });
-    } else if (anyPaid) {
+    } else {
+        // If not all settled but at least one is (which is true here because we just paid one), it is 'partial'
         await prisma.billSplit.update({
             where: { id: splitId },
-            data: { status: 'partial' },
+            data: { status: 'partial' }
         });
     }
 
-    return updatedParticipant;
+    return { message: 'Participant share settled successfully' };
 };
 
+
+/**
+ * Delete a split
+ */
+export const deleteBillSplit = async (userId: string, splitId: string) => {
+    const split = await prisma.billSplit.findFirst({
+        where: { id: splitId, createdBy: userId }
+    });
+
+    if (!split) {
+        throw new NotFoundError('Split not found or permission denied');
+    }
+
+    await prisma.billSplit.update({
+        where: { id: splitId },
+        data: { deletedAt: new Date() }
+    });
+
+    return { message: 'Split deleted successfully' };
+};
+
+/**
+ * Add a comment to a split
+ */
+export const addSplitComment = async (userId: string, splitId: string, content: string) => {
+    // Verify access
+    const split = await prisma.billSplit.findFirst({
+        where: {
+            id: splitId,
+            OR: [
+                { createdBy: userId },
+                { participants: { some: { userId } } }
+            ]
+        }
+    });
+
+    if (!split) {
+        throw new NotFoundError('Split not found or permission denied');
+    }
+
+    const comment = await prisma.splitComment.create({
+        data: {
+            splitId,
+            userId,
+            content
+        },
+        include: {
+            user: {
+                select: {
+                    id: true,
+                    name: true,
+                    email: true
+                }
+            }
+        }
+    });
+
+    return comment;
+};
+
+/**
+ * Get comments for a split
+ */
+export const getSplitComments = async (userId: string, splitId: string) => {
+    // Verify access
+    const split = await prisma.billSplit.findFirst({
+        where: {
+            id: splitId,
+            OR: [
+                { createdBy: userId },
+                { participants: { some: { userId } } }
+            ]
+        }
+    });
+
+    if (!split) {
+        throw new NotFoundError('Split not found or permission denied');
+    }
+
+    const comments = await prisma.splitComment.findMany({
+        where: { splitId },
+        include: {
+            user: {
+                select: {
+                    id: true,
+                    name: true,
+                    email: true
+                }
+            }
+        },
+        orderBy: {
+            createdAt: 'asc'
+        }
+    });
+
+    return comments;
+};
+
+/**
+ * Send a payment reminder
+ * Ported from legacy bill-split.service.ts
+ */
 export const sendReminder = async (creatorId: string, participantId: string, type: 'polite' | 'urgent') => {
     const participant = await prisma.splitParticipant.findUnique({
         where: { id: participantId },
@@ -210,15 +368,15 @@ export const sendReminder = async (creatorId: string, participantId: string, typ
     });
 
     if (!participant) {
-        throw new ApiError(404, 'Participant not found');
+        throw new NotFoundError('Participant not found');
     }
 
     if (participant.split.createdBy !== creatorId) {
-        throw new ApiError(403, 'Only the creator can send reminders');
+        throw new ForbiddenError('Only the creator can send reminders');
     }
 
     if (participant.status === 'paid') {
-        throw new ApiError(400, 'Participant has already paid');
+        throw new BadRequestError('Participant has already paid');
     }
 
     return await prisma.paymentReminder.create({

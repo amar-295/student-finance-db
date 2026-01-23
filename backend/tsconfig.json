@@ -6,6 +6,7 @@
     "lib": [
       "ES2022"
     ],
+    "rootDir": "./src",
     "outDir": "./dist",
     "strict": true,
     "esModuleInterop": true,
@@ -14,11 +15,6 @@
     "resolveJsonModule": true,
     "moduleResolution": "node",
     "baseUrl": ".",
-    "paths": {
-      "@prisma/client": [
-        "src/generated/prisma"
-      ]
-    },
     "allowSyntheticDefaultImports": true,
     "declaration": true,
     "declarationMap": true,
@@ -33,12 +29,13 @@
     ]
   },
   "include": [
-    "src/**/*",
-    "tests/**/*.ts",
-    "prisma/**/*"
+    "src/**/*"
   ],
   "exclude": [
     "node_modules",
-    "dist"
+    "dist",
+    "tests",
+    "**/*.test.ts",
+    "**/*.spec.ts"
   ]
 }

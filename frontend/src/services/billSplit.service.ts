@@ -1,6 +1,5 @@
 import axios from 'axios';
-
-const API_URL = '/api/bill-splits'; // Matches app.ts route
+import { API_ENDPOINTS } from '../config/api';
 
 export interface SplitParticipant {
     id: string;
@@ -64,21 +63,21 @@ const getAuthHeader = () => {
 
 export const billSplitService = {
     async getAllSplits() {
-        const response = await axios.get<{ success: boolean; data: BillSplit[] }>(API_URL, {
+        const response = await axios.get<{ success: boolean; data: BillSplit[] }>(API_ENDPOINTS.BILL_SPLITS, {
             headers: getAuthHeader()
         });
         return response.data.data;
     },
 
     async getSplitById(id: string) {
-        const response = await axios.get<{ success: boolean; data: BillSplit }>(`${API_URL}/${id}`, {
+        const response = await axios.get<{ success: boolean; data: BillSplit }>(`${API_ENDPOINTS.BILL_SPLITS}/${id}`, {
             headers: getAuthHeader()
         });
         return response.data.data;
     },
 
     async createSplit(data: CreateSplitDto) {
-        const response = await axios.post<{ success: boolean; data: BillSplit }>(API_URL, data, {
+        const response = await axios.post<{ success: boolean; data: BillSplit }>(API_ENDPOINTS.BILL_SPLITS, data, {
             headers: getAuthHeader()
         });
         return response.data.data;
@@ -86,7 +85,7 @@ export const billSplitService = {
 
     async settleShare(splitId: string, participantId: string) {
         const response = await axios.put<{ success: boolean; message: string }>(
-            `${API_URL}/${splitId}/settle`,
+            `${API_ENDPOINTS.BILL_SPLITS}/${splitId}/settle`,
             { participantId },
             { headers: getAuthHeader() }
         );
@@ -94,7 +93,7 @@ export const billSplitService = {
     },
 
     async deleteSplit(splitId: string) {
-        const response = await axios.delete<{ success: boolean; message: string }>(`${API_URL}/${splitId}`, {
+        const response = await axios.delete<{ success: boolean; message: string }>(`${API_ENDPOINTS.BILL_SPLITS}/${splitId}`, {
             headers: getAuthHeader()
         });
         return response.data;
@@ -102,7 +101,7 @@ export const billSplitService = {
 
     async addComment(splitId: string, content: string) {
         const response = await axios.post<{ success: boolean; data: SplitComment }>(
-            `${API_URL}/${splitId}/comments`,
+            `${API_ENDPOINTS.BILL_SPLITS}/${splitId}/comments`,
             { content },
             { headers: getAuthHeader() }
         );
@@ -111,7 +110,7 @@ export const billSplitService = {
 
     async getComments(splitId: string) {
         const response = await axios.get<{ success: boolean; data: SplitComment[] }>(
-            `${API_URL}/${splitId}/comments`,
+            `${API_ENDPOINTS.BILL_SPLITS}/${splitId}/comments`,
             { headers: getAuthHeader() }
         );
         return response.data.data;

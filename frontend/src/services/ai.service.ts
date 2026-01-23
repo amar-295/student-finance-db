@@ -1,7 +1,6 @@
 import axios from 'axios';
 import { useAuthStore } from '../store/authStore';
-
-const API_URL = '/api/ai';
+import { API_ENDPOINTS } from '../config/api';
 
 const getAuthHeader = () => {
     const token = useAuthStore.getState().accessToken;
@@ -43,7 +42,7 @@ export interface SpendingPatterns {
 export const aiService = {
     async getInsights() {
         const response = await axios.get<{ success: boolean; data: { score: Omit<HealthScore, 'message'>; message: string } }>(
-            `${API_URL}/insights`,
+            `${API_ENDPOINTS.AI_INSIGHTS}`,
             { headers: getAuthHeader() }
         );
         return {
@@ -54,7 +53,7 @@ export const aiService = {
 
     async getSubscriptions() {
         const response = await axios.get<{ success: boolean; data: Subscription[] }>(
-            `${API_URL}/subscriptions`,
+            `${API_ENDPOINTS.AI_INSIGHTS}/subscriptions`,
             { headers: getAuthHeader() }
         );
         return response.data.data;
@@ -62,7 +61,7 @@ export const aiService = {
 
     async getRecommendations() {
         const response = await axios.get<{ success: boolean; data: Recommendation[] }>(
-            `${API_URL}/recommendations`,
+            `${API_ENDPOINTS.AI_INSIGHTS}/recommendations`,
             { headers: getAuthHeader() }
         );
         return response.data.data;
@@ -70,7 +69,7 @@ export const aiService = {
 
     async getPatterns() {
         const response = await axios.get<{ success: boolean; data: SpendingPatterns }>(
-            `${API_URL}/patterns`,
+            `${API_ENDPOINTS.AI_INSIGHTS}/patterns`,
             { headers: getAuthHeader() }
         );
         return response.data.data;
