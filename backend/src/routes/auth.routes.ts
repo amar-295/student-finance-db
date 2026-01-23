@@ -1,5 +1,5 @@
 import express from 'express';
-import { asyncHandler, authenticate } from '../middleware';
+import { asyncHandler, authenticate, authLimiter } from '../middleware';
 import {
   register,
   login,
@@ -55,7 +55,7 @@ const router = express.Router();
  *       400:
  *         description: Invalid input or email already exists
  */
-router.post('/register', asyncHandler(register));
+router.post('/register', authLimiter, asyncHandler(register));
 
 /**
  * @swagger
@@ -102,7 +102,7 @@ router.post('/register', asyncHandler(register));
  *       401:
  *         description: Invalid credentials
  */
-router.post('/login', asyncHandler(login));
+router.post('/login', authLimiter, asyncHandler(login));
 
 /**
  * @swagger
@@ -195,8 +195,8 @@ router.get('/me', authenticate, asyncHandler(getMe));
 router.put('/me', authenticate, asyncHandler(updateMe));
 
 // Password Reset Routes
-router.post('/forgot-password', PasswordResetController.forgotPassword);
-router.post('/verify-reset-token', PasswordResetController.verifyResetToken);
-router.post('/reset-password', PasswordResetController.resetPassword);
+router.post('/forgot-password', authLimiter, PasswordResetController.forgotPassword);
+router.post('/verify-reset-token', authLimiter, PasswordResetController.verifyResetToken);
+router.post('/reset-password', authLimiter, PasswordResetController.resetPassword);
 
 export default router;
