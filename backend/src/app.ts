@@ -60,6 +60,15 @@ app.use(pino({ logger }));
 // Health check routes
 app.use('/health', healthRoutes);
 
+// Root route
+app.get('/', (_req, res) => {
+  res.status(200).json({
+    message: 'Welcome to Student Finance Dashboard API',
+    documentation: '/api-docs',
+    health: '/health',
+  });
+});
+
 // API routes
 app.use('/api/auth', authRoutes);
 app.use('/api/accounts', accountRoutes);

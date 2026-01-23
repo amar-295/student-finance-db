@@ -253,7 +253,7 @@ export const getAllBudgetStatuses = async (userId: string): Promise<BudgetStatus
  */
 const calculateBudgetStatus = async (userId: string, budget: any): Promise<BudgetStatus> => {
     // Get transactions in budget period
-    const transactions = await prisma.transaction.findMany({
+    const aggregations = await prisma.transaction.aggregate({
         where: {
             userId,
             categoryId: budget.categoryId,
@@ -264,12 +264,14 @@ const calculateBudgetStatus = async (userId: string, budget: any): Promise<Budge
             amount: { lt: 0 }, // Only expenses
             deletedAt: null,
         },
+        _sum: {
+            amount: true,
+        },
     });
 
-    const spent = transactions.reduce(
-        (sum, t) => sum + Math.abs(Number(t.amount)),
-        0
-    );
+    // Safely convert Decimal to number (handle null, Decimal object, or primitives)
+    const totalAmount = aggregations._sum.amount;
+    const spent = Math.abs(Number(totalAmount ? totalAmount.toString() : 0));
 
     const limit = Number(budget.amount);
     const remaining = limit - spent;
@@ -445,13 +447,14 @@ const calculateBudgetPeriod = (
             endDate = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 0, 12, 0, 0));
             break;
 
-        case 'semester':
+        case 'semester': {
             // Assume semester is 6 months
             const currentMonth = now.getUTCMonth();
             const semesterStart = currentMonth < 6 ? 0 : 6;
             startDate = new Date(Date.UTC(now.getUTCFullYear(), semesterStart, 1, 12, 0, 0));
             endDate = new Date(Date.UTC(now.getUTCFullYear(), semesterStart + 6, 0, 12, 0, 0));
             break;
+        }
 
         case 'yearly':
             startDate = new Date(Date.UTC(now.getUTCFullYear(), 0, 1, 12, 0, 0));
