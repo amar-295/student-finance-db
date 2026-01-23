@@ -1,5 +1,5 @@
-import jwt, { SignOptions } from 'jsonwebtoken';
-import config from '../config/env';
+import jwt, { SignOptions, VerifyOptions } from 'jsonwebtoken';
+import jwtConfig from '../config/jwt';
 import { UnauthorizedError } from './errors';
 
 export interface JwtPayload {
@@ -8,31 +8,42 @@ export interface JwtPayload {
 }
 
 /**
- * Generate access token
+ * Generate access token with issuer and audience claims
  */
 export const generateAccessToken = (payload: JwtPayload): string => {
   const options: SignOptions = {
-    expiresIn: config.jwt.expiresIn as any,
+    expiresIn: jwtConfig.expiresIn as any,
+    algorithm: jwtConfig.algorithm,
+    issuer: jwtConfig.issuer,
+    audience: jwtConfig.audience,
   };
-  return jwt.sign(payload, config.jwt.secret as string, options);
+  return jwt.sign(payload, jwtConfig.secret, options);
 };
 
 /**
- * Generate refresh token
+ * Generate refresh token with issuer and audience claims
  */
 export const generateRefreshToken = (payload: JwtPayload): string => {
   const options: SignOptions = {
-    expiresIn: config.jwt.refreshExpiresIn as any,
+    expiresIn: jwtConfig.refreshExpiresIn as any,
+    algorithm: jwtConfig.algorithm,
+    issuer: jwtConfig.issuer,
+    audience: jwtConfig.audience,
   };
-  return jwt.sign(payload, config.jwt.refreshSecret as string, options);
+  return jwt.sign(payload, jwtConfig.refreshSecret, options);
 };
 
 /**
- * Verify access token
+ * Verify access token with issuer and audience validation
  */
 export const verifyAccessToken = (token: string): JwtPayload => {
   try {
-    return jwt.verify(token, config.jwt.secret) as JwtPayload;
+    const options: VerifyOptions = {
+      algorithms: [jwtConfig.algorithm],
+      issuer: jwtConfig.issuer,
+      audience: jwtConfig.audience,
+    };
+    return jwt.verify(token, jwtConfig.secret, options) as JwtPayload;
   } catch (error) {
     if (error instanceof jwt.TokenExpiredError) {
       throw new UnauthorizedError('Token expired');
@@ -45,11 +56,16 @@ export const verifyAccessToken = (token: string): JwtPayload => {
 };
 
 /**
- * Verify refresh token
+ * Verify refresh token with issuer and audience validation
  */
 export const verifyRefreshToken = (token: string): JwtPayload => {
   try {
-    return jwt.verify(token, config.jwt.refreshSecret) as JwtPayload;
+    const options: VerifyOptions = {
+      algorithms: [jwtConfig.algorithm],
+      issuer: jwtConfig.issuer,
+      audience: jwtConfig.audience,
+    };
+    return jwt.verify(token, jwtConfig.refreshSecret, options) as JwtPayload;
   } catch (error) {
     if (error instanceof jwt.TokenExpiredError) {
       throw new UnauthorizedError('Refresh token expired');

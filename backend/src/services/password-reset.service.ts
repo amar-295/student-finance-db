@@ -31,6 +31,10 @@ const hashToken = (token: string): string => {
 export const requestPasswordReset = async (input: RequestPasswordResetInput) => {
   const { email } = input;
 
+  // Add artificial delay to prevent timing attacks
+  const startTime = Date.now();
+  const MIN_RESPONSE_TIME = 200; // milliseconds
+
   // Find user by email
   const user = await prisma.user.findUnique({
     where: { email: email.toLowerCase() },
@@ -39,6 +43,12 @@ export const requestPasswordReset = async (input: RequestPasswordResetInput) => 
   // IMPORTANT: Always return success even if user doesn't exist
   // This prevents email enumeration attacks
   if (!user) {
+    // Ensure minimum response time to prevent timing attacks
+    const elapsed = Date.now() - startTime;
+    if (elapsed < MIN_RESPONSE_TIME) {
+      await new Promise(resolve => setTimeout(resolve, MIN_RESPONSE_TIME - elapsed));
+    }
+
     // Still return success to prevent user enumeration
     return {
       message: 'If an account exists with that email, a password reset link has been sent.',
@@ -76,6 +86,12 @@ export const requestPasswordReset = async (input: RequestPasswordResetInput) => 
   if (process.env.NODE_ENV === 'production' || process.env.ENABLE_EMAIL === 'true') {
     await sendPasswordResetEmail(user.email, resetUrl);
     console.log('📧 Password reset email sent to:', user.email);
+  }
+
+  // Ensure minimum response time to prevent timing attacks
+  const elapsed = Date.now() - startTime;
+  if (elapsed < MIN_RESPONSE_TIME) {
+    await new Promise(resolve => setTimeout(resolve, MIN_RESPONSE_TIME - elapsed));
   }
 
   return {
@@ -139,45 +155,46 @@ export const resetPassword = async (input: ResetPasswordInput) => {
   // Hash the provided token
   const hashedToken = hashToken(token);
 
-  // Find reset record
-  const resetRecord = await prisma.passwordReset.findUnique({
-    where: { token: hashedToken },
+  // Find reset record that hasn't been used
+  const resetRecord = await prisma.passwordReset.findFirst({
+    where: {
+      token: hashedToken,
+      expiresAt: { gt: new Date() },
+      usedAt: null, // CRITICAL: Ensure token hasn't been used
+    },
     include: { user: true },
   });
 
-  // Check if token exists
+  // Check if token exists and is valid
   if (!resetRecord) {
     throw new BadRequestError('Invalid or expired reset token');
-  }
-
-  // Check if token is expired
-  if (new Date() > resetRecord.expiresAt) {
-    // Delete expired token
-    await prisma.passwordReset.delete({
-      where: { id: resetRecord.id },
-    });
-    throw new BadRequestError('Reset token has expired');
   }
 
   // Hash new password
   const passwordHash = await hashPassword(newPassword);
 
-  // Update user password
-  await prisma.user.update({
-    where: { id: resetRecord.userId },
-    data: { passwordHash },
+  // Use transaction to ensure atomicity
+  await prisma.$transaction(async (tx) => {
+    // Update user password
+    await tx.user.update({
+      where: { id: resetRecord.userId },
+      data: { passwordHash },
+    });
+
+    // Mark token as used (single-use enforcement)
+    await tx.passwordReset.update({
+      where: { id: resetRecord.id },
+      data: { usedAt: new Date() },
+    });
+
+    // Invalidate all existing refresh tokens for security
+    // This forces the user to login again with the new password
+    await tx.refreshToken.deleteMany({
+      where: { userId: resetRecord.userId },
+    });
   });
 
-  // Delete the reset token (one-time use)
-  await prisma.passwordReset.delete({
-    where: { id: resetRecord.id },
-  });
-
-  // Optionally: Invalidate all existing sessions/tokens for this user
-  // This forces user to login again with new password
-  await prisma.refreshToken.deleteMany({
-    where: { userId: resetRecord.userId },
-  });
+  console.log(`🔒 Password reset successful for user: ${resetRecord.user.email}`);
 
   return {
     message: 'Password has been reset successfully',

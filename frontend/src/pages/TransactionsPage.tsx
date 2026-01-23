@@ -49,17 +49,24 @@ export default function TransactionsPage() {
 
 
     // Fetch transactions
-    const { data, isLoading } = useQuery({
+    const { data, isLoading, isError, error, refetch } = useQuery({
         queryKey: ['transactions', page, filters, debouncedSearchQuery, sort],
-        queryFn: () => transactionService.getTransactions({
-            ...filters,
-            search: debouncedSearchQuery,
-            page,
-            limit: 20,
-
-            sortBy: sort.by as any,
-            sortOrder: sort.order
-        })
+        queryFn: async () => {
+            try {
+                return await transactionService.getTransactions({
+                    ...filters,
+                    search: debouncedSearchQuery,
+                    page,
+                    limit: 20,
+                    sortBy: sort.by as any,
+                    sortOrder: sort.order
+                });
+            } catch (err) {
+                // Graceful degradation / Error handling
+                console.error("Failed to fetch transactions", err);
+                throw err;
+            }
+        }
     });
 
     const transactions = useMemo(() => data?.data || [], [data]);
@@ -220,6 +227,18 @@ export default function TransactionsPage() {
                         <Skeleton variant="text" width="100%" height={50} />
                         <Skeleton variant="text" width="100%" height={50} />
                         <Skeleton variant="text" width="100%" height={50} />
+                    </div>
+                ) : isError ? (
+                    <div className="p-12 text-center text-gray-500">
+                        <span className="material-symbols-outlined text-4xl mb-2 text-red-500">error</span>
+                        <p className="text-red-500 font-medium mb-2">Failed to load transactions</p>
+                        <p className="text-sm mb-4">{(error as Error)?.message || 'An unexpected error occurred'}</p>
+                        <button
+                            onClick={() => refetch()}
+                            className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors"
+                        >
+                            Try Again
+                        </button>
                     </div>
                 ) : transactions.length > 0 ? (
                     <div className="overflow-x-auto">

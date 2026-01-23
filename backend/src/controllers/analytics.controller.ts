@@ -26,7 +26,7 @@ export const getOverview = async (req: Request, res: Response) => {
  */
 export const getTrends = async (req: Request, res: Response) => {
     const userId = req.user!.userId;
-    const period = (req.query.period as 'week' | 'month' | 'year') || 'month';
+    const { period } = req.query as any;
     const trends = await getSpendingTrends(userId, period);
 
     res.json({

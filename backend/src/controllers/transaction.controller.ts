@@ -9,21 +9,12 @@ import {
   bulkUpdateTransactions,
   bulkDeleteTransactions,
 } from '../services/transaction.service';
-import {
-  createTransactionSchema,
-  updateTransactionSchema,
-  getTransactionsQuerySchema,
-  transactionSummarySchema,
-  bulkUpdateTransactionsSchema,
-  bulkDeleteTransactionsSchema,
-} from '../types/transaction.types';
 
 /**
  * Create a new transaction
  */
 export const create = async (req: Request, res: Response) => {
-  const input = createTransactionSchema.parse(req.body);
-  const transaction = await createTransaction(req.user!.userId, input);
+  const transaction = await createTransaction(req.user!.userId, req.body);
 
   res.status(201).json({
     success: true,
@@ -35,8 +26,7 @@ export const create = async (req: Request, res: Response) => {
  * Get all transactions (paginated & filtered)
  */
 export const getAll = async (req: Request, res: Response) => {
-  const query = getTransactionsQuerySchema.parse(req.query);
-  const result = await getTransactions(req.user!.userId, query);
+  const result = await getTransactions(req.user!.userId, req.query as any);
 
   res.json({
     success: true,
@@ -61,8 +51,7 @@ export const getOne = async (req: Request, res: Response) => {
  * Update transaction
  */
 export const update = async (req: Request, res: Response) => {
-  const input = updateTransactionSchema.parse(req.body);
-  const transaction = await updateTransaction(req.user!.userId, req.params.id as string, input);
+  const transaction = await updateTransaction(req.user!.userId, req.params.id as string, req.body);
 
   res.json({
     success: true,
@@ -86,8 +75,7 @@ export const remove = async (req: Request, res: Response) => {
  * Get transaction summary statistics
  */
 export const getSummary = async (req: Request, res: Response) => {
-  const query = transactionSummarySchema.parse(req.query);
-  const result = await getTransactionSummary(req.user!.userId, query);
+  const result = await getTransactionSummary(req.user!.userId, req.query as any);
 
   res.json({
     success: true,
@@ -99,8 +87,7 @@ export const getSummary = async (req: Request, res: Response) => {
  * Bulk update transactions
  */
 export const bulkUpdate = async (req: Request, res: Response) => {
-  const input = bulkUpdateTransactionsSchema.parse(req.body);
-  const results = await bulkUpdateTransactions(req.user!.userId, input);
+  const results = await bulkUpdateTransactions(req.user!.userId, req.body);
 
   res.json({
     success: true,
@@ -113,8 +100,7 @@ export const bulkUpdate = async (req: Request, res: Response) => {
  * Bulk delete transactions
  */
 export const bulkDelete = async (req: Request, res: Response) => {
-  const input = bulkDeleteTransactionsSchema.parse(req.body);
-  const result = await bulkDeleteTransactions(req.user!.userId, input);
+  const result = await bulkDeleteTransactions(req.user!.userId, req.body);
 
   res.json({
     success: true,

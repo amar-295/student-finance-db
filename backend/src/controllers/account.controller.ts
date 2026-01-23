@@ -8,13 +8,6 @@ import {
   transferFunds,
   getAccountHistory
 } from '../services/account.service';
-import {
-  createAccountSchema,
-  updateAccountSchema,
-  accountIdSchema,
-  transferFundsSchema,
-  getHistoryQuerySchema
-} from '../types/account.types';
 import { logAction } from '../services/audit.service';
 
 /**
@@ -22,8 +15,7 @@ import { logAction } from '../services/audit.service';
  * POST /api/accounts
  */
 export const create = async (req: Request, res: Response) => {
-  const input = createAccountSchema.parse(req.body);
-  const account = await createAccount(req.user!.userId, input);
+  const account = await createAccount(req.user!.userId, req.body);
 
   // Log account creation
   logAction({
@@ -65,8 +57,7 @@ export const getAll = async (req: Request, res: Response) => {
  * GET /api/accounts/:id
  */
 export const getOne = async (req: Request, res: Response) => {
-  const { id } = accountIdSchema.parse(req.params);
-  const account = await getAccountById(req.user!.userId, id);
+  const account = await getAccountById(req.user!.userId, req.params.id as string);
 
   res.status(200).json({
     success: true,
@@ -79,9 +70,7 @@ export const getOne = async (req: Request, res: Response) => {
  * PUT /api/accounts/:id
  */
 export const update = async (req: Request, res: Response) => {
-  const { id } = accountIdSchema.parse(req.params);
-  const input = updateAccountSchema.parse(req.body);
-  const account = await updateAccount(req.user!.userId, id, input);
+  const account = await updateAccount(req.user!.userId, req.params.id as string, req.body);
 
   res.status(200).json({
     success: true,
@@ -95,15 +84,14 @@ export const update = async (req: Request, res: Response) => {
  * DELETE /api/accounts/:id
  */
 export const remove = async (req: Request, res: Response) => {
-  const { id } = accountIdSchema.parse(req.params);
-  const result = await deleteAccount(req.user!.userId, id);
+  const result = await deleteAccount(req.user!.userId, req.params.id as string);
 
   // Log account deletion
   logAction({
     userId: req.user!.userId,
     action: 'delete_account',
     entityType: 'account',
-    entityId: id as string,
+    entityId: req.params.id as string,
     ipAddress: (req.ip as string) || undefined,
     userAgent: Array.isArray(req.headers['user-agent']) ? req.headers['user-agent'][0] : req.headers['user-agent']
   });
@@ -119,8 +107,7 @@ export const remove = async (req: Request, res: Response) => {
  * POST /api/accounts/transfer
  */
 export const transfer = async (req: Request, res: Response) => {
-  const input = transferFundsSchema.parse(req.body);
-  const result = await transferFunds(req.user!.userId, input);
+  const result = await transferFunds(req.user!.userId, req.body);
 
   res.status(200).json({
     success: true,
@@ -134,9 +121,7 @@ export const transfer = async (req: Request, res: Response) => {
  * GET /api/accounts/:id/history
  */
 export const getHistory = async (req: Request, res: Response) => {
-  const { id } = accountIdSchema.parse(req.params);
-  const query = getHistoryQuerySchema.parse(req.query);
-  const history = await getAccountHistory(req.user!.userId, id, query.days);
+  const history = await getAccountHistory(req.user!.userId, req.params.id as string, (req.query as any).days);
 
   res.status(200).json({
     success: true,

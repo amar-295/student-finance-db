@@ -3,7 +3,6 @@ import { render, screen, waitFor } from '@/test/test-utils';
 import userEvent from '@testing-library/user-event';
 import AnalyticsPage from '@/pages/AnalyticsPage';
 import { analyticsService } from '@/services/analytics.service';
-import React from 'react';
 
 // Mock Recharts to render children immediately (avoid sizing issues)
 vi.mock('recharts', async () => {

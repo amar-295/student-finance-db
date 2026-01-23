@@ -7,10 +7,12 @@ export const registerSchema = z.object({
   email: z.string().email('Invalid email address'),
   password: z
     .string({ required_error: 'Password is required' })
-    .min(8, 'Password must be at least 8 characters')
+    .min(12, 'Password must be at least 12 characters')
     .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
-    .regex(/[0-9]/, 'Password must contain at least one number'),
-  name: z.string({ required_error: 'Name is required' }).min(1, 'Name is required').max(100, 'Name is too long'),
+    .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
+    .regex(/[0-9]/, 'Password must contain at least one number')
+    .regex(/[^A-Za-z0-9]/, 'Password must contain at least one special character'),
+  name: z.string({ required_error: 'Name is required' }).min(1, 'Name is required').max(100, 'Name is too long').trim(),
   university: z.string().max(150).optional(),
   baseCurrency: z.string().length(3, 'Currency must be 3-letter ISO code').default('USD'),
 });

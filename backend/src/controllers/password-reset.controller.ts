@@ -1,12 +1,9 @@
-
 import { Request, Response, NextFunction } from 'express';
 import * as PasswordResetService from '../services/password-reset.service';
-import { requestPasswordResetSchema, resetPasswordSchema, verifyResetTokenSchema } from '../types/password-reset.types';
 
 export const forgotPassword = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const input = requestPasswordResetSchema.parse(req.body);
-        const result = await PasswordResetService.requestPasswordReset(input);
+        const result = await PasswordResetService.requestPasswordReset(req.body);
         res.status(200).json({
             success: true,
             ...result,
@@ -18,8 +15,7 @@ export const forgotPassword = async (req: Request, res: Response, next: NextFunc
 
 export const verifyResetToken = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const input = verifyResetTokenSchema.parse(req.body);
-        const result = await PasswordResetService.verifyResetToken(input);
+        const result = await PasswordResetService.verifyResetToken(req.body);
         res.status(200).json({
             success: true,
             message: 'Reset token is valid',
@@ -32,8 +28,7 @@ export const verifyResetToken = async (req: Request, res: Response, next: NextFu
 
 export const resetPassword = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const input = resetPasswordSchema.parse(req.body);
-        const result = await PasswordResetService.resetPassword(input);
+        const result = await PasswordResetService.resetPassword(req.body);
         res.status(200).json({
             success: true,
             message: result.message,

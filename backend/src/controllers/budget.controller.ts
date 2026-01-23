@@ -11,27 +11,13 @@ import {
     getBudgetTransactions,
     getBudgetAnalytics,
 } from '../services/budget.service';
-import {
-    createBudgetSchema,
-    updateBudgetSchema,
-    budgetQuerySchema,
-} from '../types/budget.types';
-import { z } from 'zod';
-
-// Schema for date range query
-const dateRangeSchema = z.object({
-    startDate: z.string().optional(),
-    endDate: z.string().optional(),
-    limit: z.string().transform(Number).optional(),
-});
 
 /**
  * Create budget
  * POST /api/budgets
  */
 export const create = async (req: Request, res: Response) => {
-    const input = createBudgetSchema.parse(req.body);
-    const budget = await createBudget(req.user!.userId, input);
+    const budget = await createBudget(req.user!.userId, req.body);
 
     res.status(201).json({
         success: true,
@@ -45,8 +31,7 @@ export const create = async (req: Request, res: Response) => {
  * GET /api/budgets
  */
 export const getAll = async (req: Request, res: Response) => {
-    const query = budgetQuerySchema.parse(req.query);
-    const budgets = await getUserBudgets(req.user!.userId, query);
+    const budgets = await getUserBudgets(req.user!.userId, req.query as any);
 
     res.status(200).json({
         success: true,
@@ -72,8 +57,7 @@ export const getOne = async (req: Request, res: Response) => {
  * PUT /api/budgets/:id
  */
 export const update = async (req: Request, res: Response) => {
-    const input = updateBudgetSchema.parse(req.body);
-    const budget = await updateBudget(req.user!.userId, req.params.id as string, input);
+    const budget = await updateBudget(req.user!.userId, req.params.id as string, req.body);
 
     res.status(200).json({
         success: true,
@@ -144,12 +128,11 @@ export const getAlerts = async (req: Request, res: Response) => {
 export const getTransactions = async (req: Request, res: Response) => {
     const userId = req.user!.userId;
     const budgetId = req.params.id as string;
-    const query = dateRangeSchema.parse(req.query);
 
     const transactions = await getBudgetTransactions(
         userId,
         budgetId,
-        query
+        req.query as any
     );
 
     res.json({

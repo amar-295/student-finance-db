@@ -5,26 +5,18 @@ import {
   getUserProfile,
   updateUserProfile,
 } from '../services/auth.service';
-import {
-  registerSchema,
-  loginSchema,
-  refreshTokenSchema,
-  updateProfileSchema,
-} from '../types/auth.types';
 import { verifyRefreshToken, generateTokenPair, UnauthorizedError } from '../utils';
 import { blacklistTokenPair, blacklistToken, isTokenBlacklisted } from '../services/tokenBlacklist.service';
 import { logAuthEvent } from '../services/audit.service';
+import { failedLoginTracker } from '../services/failedLoginTracker.service';
 
 /**
  * Register a new user
  * POST /api/auth/register
  */
 export const register = async (req: Request, res: Response) => {
-  // Validate input
-  const input = registerSchema.parse(req.body);
-
   // Register user
-  const result = await registerUser(input);
+  const result = await registerUser(req.body);
 
   res.status(201).json({
     success: true,
@@ -38,20 +30,34 @@ export const register = async (req: Request, res: Response) => {
  * POST /api/auth/login
  */
 export const login = async (req: Request, res: Response) => {
-  // Validate input
-  const input = loginSchema.parse(req.body);
+  const identifier = req.ip || 'unknown';
+  const email = req.body.email;
 
-  // Login user
-  const result = await loginUser(input);
+  try {
+    // Login user
+    const result = await loginUser(req.body);
 
-  // Log successful login
-  logAuthEvent(result.user.id, 'login', req.ip, req.headers['user-agent'] as string);
+    // Clear failed attempts on successful login
+    await failedLoginTracker.clearFailedAttempts(identifier);
+    if (email) {
+      await failedLoginTracker.clearFailedAttempts(`${identifier}:${email}`);
+    }
 
-  res.status(200).json({
-    success: true,
-    message: 'Login successful',
-    data: result,
-  });
+    // Log successful login
+    logAuthEvent(result.user.id, 'login', req.ip, req.headers['user-agent'] as string);
+
+    res.status(200).json({
+      success: true,
+      message: 'Login successful',
+      data: result,
+    });
+  } catch (error) {
+    // Track failed login attempt
+    await failedLoginTracker.recordFailedAttempt(identifier, email);
+
+    // Re-throw the error to be handled by error handler
+    throw error;
+  }
 };
 
 /**
@@ -59,17 +65,16 @@ export const login = async (req: Request, res: Response) => {
  * POST /api/auth/refresh
  */
 export const refreshToken = async (req: Request, res: Response) => {
-  // Validate input
-  const input = refreshTokenSchema.parse(req.body);
+  const { refreshToken: token } = req.body;
 
   // Check if refresh token is blacklisted (Reuse Detection)
-  const isBlacklisted = await isTokenBlacklisted(input.refreshToken);
+  const isBlacklisted = await isTokenBlacklisted(token);
   if (isBlacklisted) {
     throw new UnauthorizedError('Refresh token has been revoked');
   }
 
   // Verify refresh token
-  const payload = verifyRefreshToken(input.refreshToken);
+  const payload = verifyRefreshToken(token);
 
   // Generate new token pair (token rotation)
   const tokens = generateTokenPair({
@@ -78,7 +83,7 @@ export const refreshToken = async (req: Request, res: Response) => {
   });
 
   // Blacklist the old refresh token (Token Invalidation)
-  await blacklistToken(input.refreshToken);
+  await blacklistToken(token);
 
   res.status(200).json({
     success: true,
@@ -106,11 +111,8 @@ export const getMe = async (req: Request, res: Response) => {
  * PUT /api/auth/me
  */
 export const updateMe = async (req: Request, res: Response) => {
-  // Validate input
-  const input = updateProfileSchema.parse(req.body);
-
   // Update profile
-  const user = await updateUserProfile(req.user!.userId, input);
+  const user = await updateUserProfile(req.user!.userId, req.body);
 
   // Log profile update
   logAuthEvent(req.user!.userId, 'update_profile', req.ip, req.headers['user-agent'] as string);
