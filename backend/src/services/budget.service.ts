@@ -1,4 +1,5 @@
 import prisma from '../config/database';
+import { Budget, Transaction, Category } from '@prisma/client';
 import { NotFoundError, BadRequestError } from '../utils';
 import type {
     CreateBudgetInput,
@@ -241,12 +242,13 @@ export const getAllBudgetStatuses = async (userId: string): Promise<BudgetStatus
         },
     });
 
-    const statuses = await Promise.all(
-        budgets.map(budget => calculateBudgetStatus(userId, budget))
-    );
+    if (budgets.length === 0) {
+        return [];
+    }
 
-    return statuses;
-};
+    const categoryIds = budgets.map(b => b.categoryId);
+    const startDates = budgets.map(b => b.startDate.getTime());
+    const endDates = budgets.map(b => b.endDate.getTime());
 
 /**
  * Calculate budget status for a single budget
@@ -256,10 +258,10 @@ const calculateBudgetStatus = async (userId: string, budget: any): Promise<Budge
     const aggregations = await prisma.transaction.aggregate({
         where: {
             userId,
-            categoryId: budget.categoryId,
+            categoryId: { in: categoryIds },
             transactionDate: {
-                gte: budget.startDate,
-                lte: budget.endDate,
+                gte: minDate,
+                lte: maxDate,
             },
             amount: { lt: 0 }, // Only expenses
             deletedAt: null,
@@ -313,7 +315,7 @@ const calculateBudgetStatus = async (userId: string, budget: any): Promise<Budge
             name: budget.category.name,
             color: budget.category.color,
         },
-        period: budget.period,
+        period: budget.periodType || 'monthly',
         limit,
         spent,
         remaining,
