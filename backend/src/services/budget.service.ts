@@ -335,46 +335,72 @@ export const getBudgetRecommendations = async (
     const threeMonthsAgo = new Date();
     threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
 
-    const transactions = await prisma.transaction.findMany({
+    // Optimized implementation using Prisma groupBy
+    // 1. Get total spending per category
+    const spendingStats = await prisma.transaction.groupBy({
+        by: ['categoryId'],
         where: {
             userId,
             transactionDate: { gte: threeMonthsAgo },
             amount: { lt: 0 },
             deletedAt: null,
         },
-        include: {
-            category: true,
+        _sum: {
+            amount: true,
         },
     });
 
-    // Group by category
-    const categorySpending: Record<string, { total: number; months: Set<string>; categoryId: string }> = {};
-
-    transactions.forEach(t => {
-        const categoryName = t.category?.name || 'Other';
-        const categoryId = t.category?.id || '';
-        const monthKey = `${t.transactionDate.getFullYear()}-${t.transactionDate.getMonth()}`;
-
-        if (!categorySpending[categoryName]) {
-            categorySpending[categoryName] = {
-                total: 0,
-                months: new Set(),
-                categoryId,
-            };
-        }
-
-        categorySpending[categoryName].total += Math.abs(Number(t.amount));
-        categorySpending[categoryName].months.add(monthKey);
+    // 2. Get necessary data for month counting and category mapping
+    // We avoid fetching full transaction objects to improve performance
+    const transactionData = await prisma.transaction.findMany({
+        where: {
+            userId,
+            transactionDate: { gte: threeMonthsAgo },
+            amount: { lt: 0 },
+            deletedAt: null,
+        },
+        select: {
+            categoryId: true,
+            transactionDate: true,
+            category: {
+                select: {
+                    name: true,
+                },
+            },
+        },
     });
+
+    // Map category ID to details (Name, Months)
+    const categoryDetails = new Map<string | null, { name: string; months: Set<string> }>();
+
+    for (const t of transactionData) {
+        const categoryId = t.categoryId;
+        const monthKey = `${t.transactionDate.getFullYear()}-${t.transactionDate.getMonth()}`;
+        const categoryName = t.category?.name || 'Other';
+
+        if (!categoryDetails.has(categoryId)) {
+            categoryDetails.set(categoryId, {
+                name: categoryName,
+                months: new Set(),
+            });
+        }
+        categoryDetails.get(categoryId)!.months.add(monthKey);
+    }
 
     // Calculate recommendations
     const recommendations: BudgetRecommendation[] = [];
 
-    for (const [category, data] of Object.entries(categorySpending)) {
-        const monthCount = data.months.size;
+    for (const stat of spendingStats) {
+        const categoryId = stat.categoryId;
+        const details = categoryDetails.get(categoryId);
+
+        if (!details) continue;
+
+        const monthCount = details.months.size;
         if (monthCount === 0) continue;
 
-        const averageMonthly = data.total / monthCount;
+        const total = Math.abs(Number(stat._sum.amount || 0));
+        const averageMonthly = total / monthCount;
 
         // Add 10% buffer for safety
         const recommendedBudget = Math.ceil(averageMonthly * 1.1);
@@ -383,8 +409,8 @@ export const getBudgetRecommendations = async (
         const confidence = Math.min(monthCount / 3, 1); // Max confidence with 3+ months
 
         recommendations.push({
-            category,
-            categoryId: data.categoryId,
+            category: details.name,
+            categoryId: categoryId || '',
             currentSpending: Math.round(averageMonthly),
             recommendedBudget,
             reason: `Based on ${monthCount} month(s) of spending data. Average: ₹${Math.round(averageMonthly)}/month`,
