@@ -272,7 +272,7 @@ export default function DashboardPage() {
                                         transactions.map(transaction => (
                                             <tr key={transaction.id} className="hover:bg-gray-50 dark:hover:bg-white/5 transition-colors group cursor-pointer">
                                                 <td className="px-6 py-4 text-xs font-medium">
-                                                    {new Date(transaction.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                                                    {new Date(transaction.transactionDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
                                                 </td>
                                                 <td className="px-6 py-4">
                                                     <div className="flex items-center gap-3">

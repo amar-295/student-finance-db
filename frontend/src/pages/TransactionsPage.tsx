@@ -336,7 +336,10 @@ export default function TransactionsPage() {
                             accounts={[{ id: 1, name: 'Checking', type: 'CHECKING' }]} // Should ideally come from real accounts
                             initialData={editingTransaction ? {
                                 ...editingTransaction,
-                                date: editingTransaction.transactionDate?.split('T')[0]
+                                date: editingTransaction.transactionDate?.split('T')[0],
+                                category: editingTransaction.category?.name,
+                                type: Number(editingTransaction.amount) > 0 ? 'INCOME' : 'EXPENSE',
+                                amount: Math.abs(Number(editingTransaction.amount))
                             } : undefined}
                             isLoading={createMutation.isPending || updateMutation.isPending}
                         />

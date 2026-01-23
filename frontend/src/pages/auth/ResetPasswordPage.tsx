@@ -1,6 +1,20 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
+// Helper for strength indicators
+const StrengthItem = ({ active, label }: { active: boolean, label: string }) => (
+    <div className="flex items-center gap-2">
+        <div className={`w-4 h-4 rounded-full flex items-center justify-center shrink-0 ${active ? 'bg-emerald-100 dark:bg-emerald-500/20' : 'bg-slate-100 dark:bg-slate-700'}`}>
+            <span className={`material-symbols-outlined text-[10px] ${active ? 'text-emerald-500 font-bold' : 'text-slate-400'}`}>
+                {active ? 'check' : 'close'}
+            </span>
+        </div>
+        <span className={`text-xs font-medium ${active ? 'text-slate-600 dark:text-slate-300' : 'text-slate-500 dark:text-slate-400'}`}>
+            {label}
+        </span>
+    </div>
+);
+
 export default function ResetPasswordPage() {
     const navigate = useNavigate();
     const [formData, setFormData] = useState({
@@ -39,20 +53,6 @@ export default function ResetPasswordPage() {
             navigate('/login');
         }, 1500);
     };
-
-    // Helper for strength indicators
-    const StrengthItem = ({ active, label }: { active: boolean, label: string }) => (
-        <div className="flex items-center gap-2">
-            <div className={`w-4 h-4 rounded-full flex items-center justify-center shrink-0 ${active ? 'bg-emerald-100 dark:bg-emerald-500/20' : 'bg-slate-100 dark:bg-slate-700'}`}>
-                <span className={`material-symbols-outlined text-[10px] ${active ? 'text-emerald-500 font-bold' : 'text-slate-400'}`}>
-                    {active ? 'check' : 'close'}
-                </span>
-            </div>
-            <span className={`text-xs font-medium ${active ? 'text-slate-600 dark:text-slate-300' : 'text-slate-500 dark:text-slate-400'}`}>
-                {label}
-            </span>
-        </div>
-    );
 
     return (
         <div className="font-display bg-[#F9FAFB] dark:bg-background-dark text-slate-900 dark:text-slate-100 antialiased min-h-screen flex items-center justify-center p-4">
