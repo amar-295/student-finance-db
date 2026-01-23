@@ -26,6 +26,9 @@ import { specs } from './config/swagger';
 
 const app: Application = express();
 
+// Trust proxy for Render/Load Balancer
+app.set('trust proxy', 1);
+
 // Security middleware
 app.use(helmet()); // Set security HTTP headers
 app.use(compression()); // Compress all routes
