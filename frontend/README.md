@@ -1,92 +1,65 @@
-# Frontend (Vite + React + TypeScript + Tailwind)
+# UniFlow Frontend
 
-## Setup
+The frontend application for UniFlow, built with **React 19**, **Vite**, **TypeScript**, and **Tailwind CSS**.
+
+## 🚀 Getting Started
+
+### Prerequisites
+- Node.js 20+
+- Backend server running on port 5000
+
+### Installation
 
 ```bash
-cd student-finance-backend/frontend
+# Install dependencies
 npm install
+
+# Start development server
 npm run dev
 ```
 
-## Dev proxy (backend)
+The app will be available at `http://localhost:5173`.
 
-This Vite app proxies:
+## 🏗 Architecture
 
-- `/api` → `http://localhost:5000`
-- `/health` → `http://localhost:5000`
+### Tech Stack
+-   **Build Tool**: Vite 7
+-   **Framework**: React 19
+-   **Styling**: Tailwind CSS 3.4
+-   **State Management**: Zustand (Global Auth), TanStack Query (Server State)
+-   **Routing**: React Router 7
+-   **Forms**: React Hook Form + Zod
+-   **HTTP Client**: Axios
+-   **Testing**: Vitest + React Testing Library
 
-Proxy config lives in `vite.config.ts`.
-
-# React + TypeScript + Vite
-
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
-
-Currently, two official plugins are available:
-
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
-
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### Directory Structure
+```
+src/
+├── components/     # Reusable UI components
+├── contexts/       # React Context providers (Auth, Theme)
+├── features/       # Feature-based modules (Auth, Budgets, etc.)
+├── hooks/          # Custom React hooks
+├── layouts/        # Page layouts (Dashboard, Auth)
+├── pages/          # Route components
+├── services/       # API integration services
+├── store/          # Global state stores
+└── test/           # Test utilities and setup
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## 🧪 Testing
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+```bash
+# Run unit and integration tests
+npm test
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+# Run tests with UI coverage
+npm run test:ui
+```
+
+## 🌐 Environment Variables
+
+Check `.env.example` for required variables.
+
+```env
+VITE_API_URL=http://localhost:5000/api
 ```
