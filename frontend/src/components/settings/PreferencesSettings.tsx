@@ -1,75 +1,20 @@
-import { useTheme } from '../../contexts/ThemeContext';
-import { useSettings } from '../../contexts/SettingsContext';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../ui/card';
+import { Label } from '../ui/label';
 
 export default function PreferencesSettings() {
-    const { theme: currentTheme, setTheme } = useTheme();
-    const { currency, dateFormat, updateSettings } = useSettings();
-
     return (
-        <div className="max-w-xl animate-fade-in">
-            <h2 className="text-2xl font-bold text-[#1e293b] dark:text-white mb-6">Preferences</h2>
-
-            <div className="space-y-8">
-                <div>
-                    <h3 className="text-lg font-bold text-[#1e293b] dark:text-white mb-4">Appearance</h3>
-                    <div className="grid grid-cols-3 gap-4">
-                        {(['light', 'dark', 'system'] as const).map((themeOption) => (
-                            <button
-                                key={themeOption}
-                                onClick={() => setTheme(themeOption)}
-                                className={`p-4 rounded-xl border-2 flex flex-col items-center gap-2 transition-all ${currentTheme === themeOption
-                                    ? 'border-primary bg-primary/5 text-primary'
-                                    : 'border-gray-100 dark:border-white/10 hover:border-gray-200 dark:hover:border-white/20'
-                                    }`}
-                            >
-                                <span className="material-symbols-outlined">
-                                    {themeOption === 'light' ? 'light_mode' : themeOption === 'dark' ? 'dark_mode' : 'computer'}
-                                </span>
-                                <span className="capitalize font-medium">{themeOption}</span>
-                            </button>
-                        ))}
-                    </div>
+        <Card>
+            <CardHeader>
+                <CardTitle>Preferences</CardTitle>
+                <CardDescription>Customize your experience.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+                <div className="flex items-center justify-between">
+                    <Label>Dark Mode</Label>
+                    {/* Toggle would go here */}
+                    <div className="h-6 w-11 bg-muted rounded-full relative"><div className="h-5 w-5 bg-background rounded-full absolute top-0.5 left-0.5 shadow-sm" /></div>
                 </div>
-
-                <div>
-                    <h3 className="text-lg font-bold text-[#1e293b] dark:text-white mb-4">Regional</h3>
-                    <div className="space-y-4">
-                        <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-white/5 rounded-xl">
-                            <div>
-                                <p className="font-bold">Currency</p>
-                                <p className="text-sm text-gray-500">Default currency for all accounts</p>
-                            </div>
-                            <select
-                                value={currency}
-                                onChange={(e) => updateSettings({ currency: e.target.value as any })}
-                                className="bg-transparent font-bold text-primary outline-none"
-                                aria-label="Currency"
-                            >
-                                <option value="USD">USD ($)</option>
-                                <option value="EUR">EUR (€)</option>
-                                <option value="GBP">GBP (£)</option>
-                                <option value="INR">INR (₹)</option>
-                            </select>
-                        </div>
-                        <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-white/5 rounded-xl">
-                            <div>
-                                <p className="font-bold">Date Format</p>
-                                <p className="text-sm text-gray-500">How dates are displayed</p>
-                            </div>
-                            <select
-                                value={dateFormat}
-                                onChange={(e) => updateSettings({ dateFormat: e.target.value as any })}
-                                className="bg-transparent font-bold text-primary outline-none"
-                                aria-label="Date Format"
-                            >
-                                <option value="MM/DD/YYYY">MM/DD/YYYY</option>
-                                <option value="DD/MM/YYYY">DD/MM/YYYY</option>
-                                <option value="YYYY-MM-DD">YYYY-MM-DD</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+            </CardContent>
+        </Card>
     );
 }

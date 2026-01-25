@@ -1,94 +1,90 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-  darkMode: 'class',
-  content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
+  darkMode: ["class"],
+  content: [
+    './pages/**/*.{ts,tsx}',
+    './components/**/*.{ts,tsx}',
+    './app/**/*.{ts,tsx}',
+    './src/**/*.{ts,tsx}',
+  ],
   theme: {
+    container: {
+      center: true,
+      padding: "2rem",
+      screens: {
+        "2xl": "1400px",
+      },
+    },
     extend: {
       colors: {
+        border: "hsl(var(--border))",
+        input: "hsl(var(--input))",
+        ring: "hsl(var(--ring))",
+        background: "hsl(var(--background))",
+        foreground: "hsl(var(--foreground))",
         primary: {
-          50: '#f0f9ff',
-          DEFAULT: '#2563EB', // blue-600
-          100: '#e0f2fe',
-          200: '#bae6fd',
-          300: '#7dd3fc',
-          400: '#38bdf8',
-          500: '#0ea5e9',
-          600: '#0284c7',
-          700: '#0369a1',
-          800: '#075985',
-          900: '#0c4a6e',
-          light: '#60A5FA', // blue-400
-          dark: '#1D4ED8', // blue-700
+          DEFAULT: "hsl(var(--primary))",
+          foreground: "hsl(var(--primary-foreground))",
         },
-        // Dark mode specific colors
-        dark: {
-          bg: {
-            primary: '#0F172A',    // slate-900
-            secondary: '#1E293B',  // slate-800
-            tertiary: '#334155',   // slate-700
-            hover: '#475569',      // slate-600
-          },
-          text: {
-            primary: '#F1F5F9',    // slate-100
-            secondary: '#CBD5E1',  // slate-300
-            tertiary: '#94A3B8',   // slate-400
-          },
-          border: {
-            primary: '#334155',    // slate-700
-            secondary: '#475569',  // slate-600
-          }
+        secondary: {
+          DEFAULT: "hsl(var(--secondary))",
+          foreground: "hsl(var(--secondary-foreground))",
         },
-        secondary: '#64748B', // slate-500
-        success: '#22C55E', // green-500
-        warning: '#EAB308', // yellow-500
-        danger: '#EF4444', // red-500
-        background: {
-          light: '#F9FAFB', // gray-50
-          dark: '#0F172A', // slate-900
+        destructive: {
+          DEFAULT: "hsl(var(--destructive))",
+          foreground: "hsl(var(--destructive-foreground))",
         },
-        surface: {
-          light: '#FFFFFF',
-          dark: '#1E293B', // slate-800
+        muted: {
+          DEFAULT: "hsl(var(--muted))",
+          foreground: "hsl(var(--muted-foreground))",
         },
-        text: {
-          main: '#111827', // gray-900
-          muted: '#6B7280', // gray-500
-          inverted: '#FFFFFF'
+        accent: {
+          DEFAULT: "hsl(var(--accent))",
+          foreground: "hsl(var(--accent-foreground))",
         },
-        // Legacy support mapping
-        'background-light': '#F9FAFB',
-        'background-dark': '#0F172A',
-        'text-main': '#111827',
-        'text-muted': '#6B7280',
-        'card-white': '#FFFFFF',
+        popover: {
+          DEFAULT: "hsl(var(--popover))",
+          foreground: "hsl(var(--popover-foreground))",
+        },
+        card: {
+          DEFAULT: "hsl(var(--card))",
+          foreground: "hsl(var(--card-foreground))",
+        },
       },
-      backgroundColor: {
-        'card-light': '#FFFFFF',
-        'card-dark': '#1E293B',
-      },
-      transitionProperty: {
-        'colors': 'color, background-color, border-color, text-decoration-color, fill, stroke',
-      },
-      animation: {
-        'theme-transition': 'theme-transition 0.3s ease-in-out',
-      },
-      keyframes: {
-        'theme-transition': {
-          '0%': { opacity: '0.8' },
-          '100%': { opacity: '1' },
-        }
+      borderRadius: {
+        lg: "var(--radius)",
+        md: "calc(var(--radius) - 2px)",
+        sm: "calc(var(--radius) - 4px)",
       },
       fontFamily: {
-        display: ['Inter', 'system-ui', 'sans-serif'],
-        body: ['Inter', 'system-ui', 'sans-serif'],
-        mono: ['JetBrains Mono', 'monospace'],
+        sans: ['Inter', '"Plus Jakarta Sans"', 'sans-serif'],
       },
-      boxShadow: {
-        soft: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
-        glow: '0 0 15px rgba(37, 99, 235, 0.3)',
+      keyframes: {
+        "accordion-down": {
+          from: { height: 0 },
+          to: { height: "var(--radix-accordion-content-height)" },
+        },
+        "accordion-up": {
+          from: { height: "var(--radix-accordion-content-height)" },
+          to: { height: 0 },
+        },
+        float: {
+          '0%, 100%': { transform: 'translateY(0)' },
+          '50%': { transform: 'translateY(-10px)' },
+        },
+        shimmer: {
+          '0%, 100%': { opacity: 0.4 },
+          '50%': { opacity: 0.7 },
+        },
+      },
+      animation: {
+        "accordion-down": "accordion-down 0.2s ease-out",
+        "accordion-up": "accordion-up 0.2s ease-out",
+        float: 'float 5s ease-in-out infinite',
+        shimmer: 'shimmer 2s ease-in-out infinite',
       },
     },
   },
-  plugins: [],
+  plugins: [require("tailwindcss-animate")],
 }
 

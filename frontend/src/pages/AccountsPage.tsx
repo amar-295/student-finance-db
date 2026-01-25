@@ -1,4 +1,4 @@
-import Skeleton from '../components/common/Skeleton';
+import { Skeleton } from '../components/ui/skeleton';
 import { useAccounts } from '../hooks/useAccounts';
 
 import { useState } from 'react';
@@ -90,7 +90,7 @@ export default function AccountsPage() {
                     <div>
                         <p className="text-text-muted text-sm font-medium mb-1">Total Assets</p>
                         {loading ? (
-                            <Skeleton variant="text" width="60%" className="h-9" />
+                            <Skeleton className="h-9 w-[60%]" />
                         ) : (
                             <p className="text-3xl font-bold text-text-main dark:text-dark-text-primary group-hover:text-primary transition-colors">{formatCurrency(totalAssets)}</p>
                         )}
@@ -110,7 +110,7 @@ export default function AccountsPage() {
                     <div>
                         <p className="text-text-muted text-sm font-medium mb-1">Total Liabilities</p>
                         {loading ? (
-                            <Skeleton variant="text" width="60%" className="h-9" />
+                            <Skeleton className="h-9 w-[60%]" />
                         ) : (
                             <p className="text-3xl font-bold text-text-main dark:text-dark-text-primary group-hover:text-rose transition-colors">{formatCurrency(totalLiabilities)}</p>
                         )}
@@ -135,7 +135,7 @@ export default function AccountsPage() {
                         <div>
                             <p className="text-white/60 text-sm font-medium mb-1">Net Worth</p>
                             {loading ? (
-                                <Skeleton variant="text" width="60%" className="h-9 bg-white/20" />
+                                <Skeleton className="h-9 w-[60%] bg-white/20" />
                             ) : (
                                 <p className="text-3xl font-bold text-white tracking-tight">{formatCurrency(netWorth)}</p>
                             )}
@@ -150,18 +150,18 @@ export default function AccountsPage() {
                     // Skeleton List
                     [...Array(3)].map((_, i) => (
                         <div key={i} className="group relative bg-surface-light dark:bg-dark-bg-secondary rounded-2xl p-5 border border-transparent flex flex-col md:flex-row items-center gap-6">
-                            <Skeleton variant="rect" width={56} height={56} className="rounded-2xl shrink-0" />
+                            <Skeleton className="h-14 w-14 rounded-2xl shrink-0" />
                             <div className="flex-grow w-full space-y-2">
-                                <Skeleton variant="text" width="150px" className="h-6" />
-                                <Skeleton variant="text" width="100px" className="h-4" />
+                                <Skeleton className="h-6 w-[150px]" />
+                                <Skeleton className="h-4 w-[100px]" />
                             </div>
                             <div className="flex flex-col items-center md:items-end gap-2 shrink-0">
-                                <Skeleton variant="text" width="60px" />
-                                <Skeleton variant="text" width="120px" className="h-8" />
+                                <Skeleton className="w-[60px]" />
+                                <Skeleton className="h-8 w-[120px]" />
                             </div>
                             <div className="flex items-center gap-3 shrink-0">
-                                <Skeleton variant="rect" width={80} height={36} className="rounded-lg" />
-                                <Skeleton variant="circle" width={36} height={36} />
+                                <Skeleton className="h-9 w-20 rounded-lg" />
+                                <Skeleton className="h-9 w-9 rounded-full" />
                             </div>
                         </div>
                     ))

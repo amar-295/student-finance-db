@@ -2,10 +2,10 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { billSplitService } from '../services/billSplit.service';
 import type { BillSplit } from '../services/billSplit.service';
-import CreateSplitModal from '../components/splits/CreateSplitModal';
+import CreateSplitModal from '@components/splits/CreateSplitModal';
 import { formatCurrency } from '../utils/format';
 import { useAuthStore } from '../store/authStore';
-import Skeleton from '../components/common/Skeleton';
+import { Skeleton } from '../components/ui/skeleton';
 
 export default function BillSplitsPage() {
     const user = useAuthStore(state => state.user);
@@ -127,8 +127,8 @@ export default function BillSplitsPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {[1, 2, 3].map(i => (
                         <div key={i} className="bg-white dark:bg-[#1e293b] p-6 rounded-2xl h-[200px]">
-                            <Skeleton variant="text" width="60%" className="h-6 mb-4" />
-                            <Skeleton variant="rect" height={100} className="rounded-xl" />
+                            <Skeleton className="h-6 w-[60%] mb-4" />
+                            <Skeleton className="h-[100px] w-full rounded-xl" />
                         </div>
                     ))}
                 </div>
