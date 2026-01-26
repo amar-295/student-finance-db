@@ -1,4 +1,4 @@
-import { useNavigate, useLocation, Link } from 'react-router-dom';
+import { useLocation, Link } from 'react-router-dom';
 import { Home, Receipt, PlusCircle, PieChart, User } from 'lucide-react';
 import { motion } from 'framer-motion';
 

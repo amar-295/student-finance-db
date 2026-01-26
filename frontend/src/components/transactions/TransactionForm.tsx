@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
-import { Select } from '@headlessui/react'; // Or native select if preferred, using native for simplicity
 import { transactionService } from '../../services/transaction.service';
 import { toast } from 'sonner';
 import { useDebounce } from '../../hooks/useDebounce';
@@ -49,7 +48,7 @@ export default function TransactionForm({ onCancel, onSubmit, isLoading, initial
                 try {
                     const predictedCategory = await transactionService.predictCategory(debouncedMerchant);
                     if (predictedCategory !== 'Uncategorized') {
-                        setFormData(prev => {
+                        setFormData((prev: any) => {
                             // Only update if category is still empty or user hasn't manually selected one?
                             // For this demo, let's just update and notify.
                             if (prev.category !== predictedCategory) {
@@ -89,7 +88,7 @@ export default function TransactionForm({ onCancel, onSubmit, isLoading, initial
                             id="merchant"
                             placeholder="e.g. Starbucks, Uber, Salary"
                             value={formData.merchant}
-                            onChange={(e) => setFormData(prev => ({ ...prev, merchant: e.target.value }))}
+                            onChange={(e) => setFormData((prev: any) => ({ ...prev, merchant: e.target.value }))}
                             autoFocus
                             required
                         />
@@ -114,7 +113,7 @@ export default function TransactionForm({ onCancel, onSubmit, isLoading, initial
                         step="0.01"
                         placeholder="0.00"
                         value={formData.amount}
-                        onChange={(e) => setFormData(prev => ({ ...prev, amount: e.target.value }))}
+                        onChange={(e) => setFormData((prev: any) => ({ ...prev, amount: e.target.value }))}
                         required
                     />
                 </div>
@@ -125,7 +124,7 @@ export default function TransactionForm({ onCancel, onSubmit, isLoading, initial
                         id="type"
                         className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                         value={formData.type}
-                        onChange={(e) => setFormData(prev => ({ ...prev, type: e.target.value }))}
+                        onChange={(e) => setFormData((prev: any) => ({ ...prev, type: e.target.value }))}
                     >
                         <option value="EXPENSE">Expense</option>
                         <option value="INCOME">Income</option>
@@ -138,7 +137,7 @@ export default function TransactionForm({ onCancel, onSubmit, isLoading, initial
                         id="category"
                         placeholder="e.g. Food, Transport"
                         value={formData.category}
-                        onChange={(e) => setFormData(prev => ({ ...prev, category: e.target.value }))}
+                        onChange={(e) => setFormData((prev: any) => ({ ...prev, category: e.target.value }))}
                     />
                 </div>
 
@@ -148,7 +147,7 @@ export default function TransactionForm({ onCancel, onSubmit, isLoading, initial
                         id="date"
                         type="date"
                         value={formData.date}
-                        onChange={(e) => setFormData(prev => ({ ...prev, date: e.target.value }))}
+                        onChange={(e) => setFormData((prev: any) => ({ ...prev, date: e.target.value }))}
                         required
                     />
                 </div>
@@ -159,7 +158,7 @@ export default function TransactionForm({ onCancel, onSubmit, isLoading, initial
                         id="account"
                         className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                         value={formData.accountId}
-                        onChange={(e) => setFormData(prev => ({ ...prev, accountId: e.target.value }))}
+                        onChange={(e) => setFormData((prev: any) => ({ ...prev, accountId: e.target.value }))}
                         required
                     >
                         <option value="" disabled>Select Account</option>

@@ -3,11 +3,14 @@ import { Analytics } from '@vercel/analytics/react';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { SettingsProvider } from './contexts/SettingsContext';
 import { Toaster } from 'sonner';
-import { Suspense, lazy } from 'react';
+import { Suspense, lazy, useEffect } from 'react';
 import { Skeleton } from './components/ui/skeleton';
 
 // Lazy load pages
-const LandingPage = lazy(() => import('./pages/LandingPage'));
+import LandingPage from './pages/LandingPage';
+
+// Lazy load pages
+// const LandingPage = lazy(() => import('./pages/LandingPage')); // Static import for LCP
 const DashboardLayout = lazy(() => import('./components/layout/DashboardLayout'));
 const DashboardPage = lazy(() => import('./pages/DashboardPage'));
 const BudgetsPage = lazy(() => import('./pages/BudgetsPage'));
@@ -21,6 +24,21 @@ const PageLoader = () => (
 );
 
 function App() {
+  // Dynamic Meta: Simulation of high-engagement notifications
+  useEffect(() => {
+    const originalTitle = document.title;
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        document.title = "UniFlow (1) - Your Finance";
+      } else {
+        document.title = originalTitle;
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
+  }, []);
+
   return (
     <ThemeProvider>
       <SettingsProvider>
@@ -37,7 +55,7 @@ function App() {
             </Routes>
           </Suspense>
         </BrowserRouter>
-        <Analytics />
+        {import.meta.env.PROD && <Analytics />}
         <Toaster position="top-right" richColors closeButton expand={false} />
       </SettingsProvider>
     </ThemeProvider>

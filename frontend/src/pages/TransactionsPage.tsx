@@ -12,9 +12,8 @@ import { TransactionRow } from '../components/transactions/TransactionRow';
 import { Dialog, DialogPanel, DialogTitle } from '@headlessui/react';
 import { Card } from '../components/ui/card';
 import { Button } from '../components/ui/button';
-import { Input } from '../components/ui/input';
 import { ScrollSection } from '../components/ui/scroll-section';
-import { Search, Filter, Plus, AlertCircle } from 'lucide-react';
+import { Filter, Plus, AlertCircle } from 'lucide-react';
 import { TransactionSearch } from '../components/transactions/TransactionSearch';
 import { EmptyTransactions } from '../components/transactions/EmptyTransactions';
 
@@ -37,7 +36,10 @@ interface TransactionDisplay {
     [key: string]: any;
 }
 
+import { useUserTiming } from '../hooks/useUserTiming';
+
 export default function TransactionsPage() {
+    useUserTiming("TransactionsPage");
     const queryClient = useQueryClient();
     const [page, setPage] = useState(1);
     const [searchQuery, setSearchQuery] = useState('');
@@ -213,7 +215,12 @@ export default function TransactionsPage() {
             <ScrollSection animation="fade-up" delay={0.1}>
                 <div className="flex gap-4 items-start">
                     <div className="relative flex-1 max-w-2xl z-10">
-                        <TransactionSearch transactions={transactions} onResultSelect={(txn: any) => handleEdit(txn)} />
+                        <TransactionSearch
+                            transactions={transactions}
+                            onResultSelect={(txn: any) => handleEdit(txn)}
+                            value={searchQuery}
+                            onChange={(val: string) => setSearchQuery(val)}
+                        />
                     </div>
                     <Button
                         variant={Object.keys(filters).length > 0 ? "default" : "outline"}

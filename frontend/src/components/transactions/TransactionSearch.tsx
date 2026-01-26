@@ -1,5 +1,5 @@
 import Fuse from 'fuse.js';
-import { useMemo, useState, useEffect } from 'react';
+import { useMemo, useState } from 'react';
 import { Search, X } from 'lucide-react';
 import { Input } from '../ui/input';
 import { TransactionItem } from './TransactionItem';

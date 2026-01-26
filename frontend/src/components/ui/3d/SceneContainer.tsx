@@ -9,7 +9,11 @@ interface SceneContainerProps {
 
 export function SceneContainer({ children, className, cameraPosition = [0, 0, 5] }: SceneContainerProps) {
     return (
-        <div className={className || "h-full w-full absolute inset-0 -z-10"}>
+        <div
+            className={className || "h-full w-full absolute inset-0 -z-10"}
+            role="img"
+            aria-label="3D Atmospheric Background"
+        >
             <Canvas
                 camera={{ position: cameraPosition, fov: 50 }}
                 gl={{

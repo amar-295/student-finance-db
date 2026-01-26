@@ -2,10 +2,9 @@ import { useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import confetti from 'canvas-confetti';
-import { Trophy, TrendingUp, Target, Award } from 'lucide-react';
+import { Trophy, Target, Award } from 'lucide-react';
 import { transactionService } from '../services/transaction.service';
 import { budgetService } from '../services/budget.service';
-import { useAuthStore } from '../store/authStore';
 
 export const useAchievements = () => {
     // We need some stats to check achievements
@@ -32,7 +31,7 @@ export const useAchievements = () => {
                     description: 'Added your very first transaction.',
                     icon: Award,
                     color: 'text-blue-500',
-                    condition: () => transactions.results?.length >= 1 || transactions.data?.length >= 1 // Handle diff API shapes
+                    condition: () => transactions.data?.length >= 1 // Handle diff API shapes
                 },
                 {
                     id: 'budget-setter',

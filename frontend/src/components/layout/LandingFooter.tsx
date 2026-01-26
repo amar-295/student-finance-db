@@ -11,14 +11,13 @@ export function LandingFooter() {
                             <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-white font-bold">U</div>
                             <span className="font-bold text-xl tracking-tight">UniFlow</span>
                         </Link>
-                        <p className="text-muted-foreground mb-6 max-w-sm leading-relaxed">
-                            The ultimate financial companion for university students.
-                            Secure, intelligent, and designed to help you thrive.
+                        <p className="text-muted-foreground mb-6 max-w-sm leading-relaxed font-medium">
+                            Engineered for financial command. UniFlow empowers students with institutional-grade insights to build a foundation for long-term wealth.
                         </p>
                         <div className="flex gap-4">
-                            <a href="#" className="p-2 rounded-full border border-border hover:bg-muted transition-colors text-muted-foreground hover:text-primary"><Twitter className="h-5 w-5" /></a>
-                            <a href="#" className="p-2 rounded-full border border-border hover:bg-muted transition-colors text-muted-foreground hover:text-primary"><Github className="h-5 w-5" /></a>
-                            <a href="#" className="p-2 rounded-full border border-border hover:bg-muted transition-colors text-muted-foreground hover:text-primary"><Linkedin className="h-5 w-5" /></a>
+                            <a href="#" aria-label="Twitter" className="p-2 rounded-full border border-border hover:bg-muted transition-colors text-muted-foreground hover:text-primary"><Twitter className="h-5 w-5" /></a>
+                            <a href="#" aria-label="GitHub" className="p-2 rounded-full border border-border hover:bg-muted transition-colors text-muted-foreground hover:text-primary"><Github className="h-5 w-5" /></a>
+                            <a href="#" aria-label="LinkedIn" className="p-2 rounded-full border border-border hover:bg-muted transition-colors text-muted-foreground hover:text-primary"><Linkedin className="h-5 w-5" /></a>
                         </div>
                     </div>
                     <div>
@@ -49,18 +48,19 @@ export function LandingFooter() {
                         </ul>
                     </div>
                 </div>
-                <div className="flex flex-col md:flex-row justify-between items-center pt-8 border-t border-border/50 text-sm text-muted-foreground">
+                <div className="flex flex-col md:flex-row justify-between items-center pt-8 border-t border-border/50 text-xs font-medium text-muted-foreground uppercase tracking-widest">
                     <div className="flex flex-col md:flex-row gap-4 md:gap-8 items-center">
-                        <p>© 2026 UniFlow Finance Inc. All rights reserved.</p>
+                        <p>© 2026 UniFlow Finance Inc. • Engineered for Students</p>
                         <div className="flex gap-6">
-                            <a href="#" className="hover:text-foreground transition-colors">Privacy Policy</a>
-                            <a href="#" className="hover:text-foreground transition-colors">Terms of Service</a>
-                            <a href="#" className="hover:text-foreground transition-colors">Cookie Policy</a>
+                            <a href="#" className="hover:text-primary transition-colors">Privacy</a>
+                            <a href="#" className="hover:text-primary transition-colors">Terms</a>
+                            <a href="#" className="hover:text-primary transition-colors">Cookies</a>
                         </div>
                     </div>
-                    <div className="mt-4 md:mt-0 flex items-center gap-2">
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500/80 animate-pulse"></span>
-                        <span className="text-xs font-medium opacity-80">System Status: Operational</span>
+                    <div className="mt-4 md:mt-0 flex items-center gap-4">
+                        <span className="inline-flex items-center rounded-full bg-muted px-2.5 py-0.5 text-[10px] font-black uppercase tracking-tighter text-muted-foreground border border-border/50">
+                            v1.0.4-stable
+                        </span>
                     </div>
                 </div>
             </div>

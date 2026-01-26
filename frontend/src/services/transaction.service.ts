@@ -77,10 +77,15 @@ export const transactionService = {
         if (f.sortBy) params.append('sortBy', f.sortBy);
         if (f.sortOrder) params.append('sortOrder', f.sortOrder);
 
+        performance.mark('api-transactions-start');
         const response = await axios.get<PaginatedResponse<Transaction>>(API_ENDPOINTS.TRANSACTIONS, {
             headers: getAuthHeader(),
             params
         });
+        performance.mark('api-transactions-end');
+        try {
+            performance.measure('API:getTransactions', 'api-transactions-start', 'api-transactions-end');
+        } catch (e) { }
         return response.data;
     },
 

@@ -2,22 +2,29 @@ import { ScrollSection } from '../../components/ui/scroll-section';
 
 const faqs = [
     {
-        q: "Is UniFlow really free?",
-        a: "Yes! The core features—budgeting, expense tracking, and basic analytics—are 100% free for students. We only charge for advanced team collaboration and enterprise features."
+        q: "How does UniFlow connect to my bank?",
+        a: "We use institutional-grade API connectors with read-only access. Your credentials never touch our servers, and we use local-first encryption keys to ensure your data stays private and secure."
     },
     {
-        q: "Is my data safe?",
-        a: "Absolutely. We use bank-grade AES-256 encryption for all sensitive data. We don't sell your data to advertisers, ever. Your privacy is our product."
+        q: "What happens if a roommate doesn't pay?",
+        a: "UniFlow's Shared Bills system provides transparent tracking and automated reminders. While we don't enforce payments, the clear ledger removes the 'forgotten bill' friction from roommate relationships."
     },
     {
-        q: "Can I export my data?",
-        a: "Yes, you can export your entire transaction history to CSV or JSON formats at any time. Your data portability is guaranteed with a single click in your settings."
+        q: "Is my data truly private?",
+        a: "Absolutely. Our business model is based on subscriptions, not surveillance. We never sell data to advertisers, and our core calculation logic is open-source for public verification on GitHub."
+    },
+    {
+        q: "Can I use it for my student organization?",
+        a: "Yes! Our University tier is designed specifically for bulk licenses and student org treasurers. Contact our sales team for custom onboarding and management dashboards."
     }
 ];
 
 export function FAQ() {
     return (
-        <section id="faq" className="py-24 md:py-32 relative overflow-hidden bg-muted/20">
+        <section id="faq" className="py-24 md:py-32 relative overflow-hidden">
+            <div className="absolute top-0 left-0 w-full">
+                <div className="divider-glow opacity-30" />
+            </div>
             <div className="container px-4 md:px-6 max-w-3xl mx-auto">
                 <ScrollSection animation="fade-up">
                     <div className="text-center mb-16">

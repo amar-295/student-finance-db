@@ -83,6 +83,10 @@ export default {
         float: 'float 5s ease-in-out infinite',
         shimmer: 'shimmer 2s ease-in-out infinite',
       },
+      boxShadow: {
+        'glow': '0 0 15px -3px hsl(var(--primary) / 0.3)',
+        'glow-lg': '0 0 25px -5px hsl(var(--primary) / 0.4)',
+      },
     },
   },
   plugins: [require("tailwindcss-animate")],

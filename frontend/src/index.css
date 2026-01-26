@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+/* Fonts are loaded via index.html for better performance (preconnect + non-blocking) */
 
 @tailwind base;
 @tailwind components;
@@ -15,15 +15,15 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    --primary: 249 72% 52%;
-    /* Indigo 600-ish */
+    --primary: 249 72% 48%;
+    /* Indigo 600-ish - Darkened for A11y */
     --primary-foreground: 210 40% 98%;
 
     --secondary: 210 40% 96.1%;
     --secondary-foreground: 222.2 47.4% 11.2%;
 
     --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted-foreground: 215.4 16.3% 40%;
 
     --accent: 210 40% 96.1%;
     --accent-foreground: 222.2 47.4% 11.2%;
@@ -81,10 +81,33 @@
     }
   }
 
-  /* Premium Scrollbar Styling */
+  @keyframes gradient-x {
+
+    0%,
+    100% {
+      background-size: 200% 200%;
+      background-position: left center;
+    }
+
+    50% {
+      background-size: 200% 200%;
+      background-position: right center;
+    }
+  }
+
+  .animate-gradient-x {
+    animation: gradient-x 15s ease infinite;
+  }
+
+  /* Modern SaaS Scrollbar */
+  body {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--muted-foreground) / 0.2) transparent;
+  }
+
   ::-webkit-scrollbar {
-    width: 10px;
-    height: 10px;
+    width: 6px;
+    height: 6px;
   }
 
   ::-webkit-scrollbar-track {
@@ -92,20 +115,45 @@
   }
 
   ::-webkit-scrollbar-thumb {
-    background: hsl(var(--muted));
-    border-radius: 20px;
-    border: 3px solid transparent;
-    background-clip: content-box;
-    transition: background 0.3s ease;
+    background: hsl(var(--muted-foreground) / 0.2);
+    border-radius: 100px;
+    transition: background 0.2s ease;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background: hsl(var(--primary) / 0.5);
-    background-clip: content-box;
+    background: hsl(var(--primary) / 0.6);
+  }
+
+  .dark ::-webkit-scrollbar-thumb {
+    background: hsl(var(--muted-foreground) / 0.15);
   }
 
   .dark ::-webkit-scrollbar-thumb:hover {
-    background: hsl(var(--primary) / 0.3);
+    background: hsl(var(--primary) / 0.4);
+  }
+
+  .text-glow-lg {
+    text-shadow: 0 0 40px hsl(var(--primary) / 0.4);
+  }
+
+  .divider-glow {
+    position: relative;
+    height: 1px;
+    width: 100%;
+    background: linear-gradient(90deg, transparent 0%, hsl(var(--border) / 0.8) 50%, transparent 100%);
+  }
+
+  .border-glass {
+    border: 1px solid hsl(var(--primary) / 0.1);
+    background: linear-gradient(135deg, hsl(var(--background) / 0.4) 0%, hsl(var(--background) / 0.1) 100%);
+    backdrop-filter: blur(12px);
+  }
+
+  /* Dark Mode Specific Overrides */
+  .dark .border-glass {
+    border: 1px solid hsl(var(--primary) / 0.2);
+    /* Higher contrast for dark mode */
+    background: linear-gradient(135deg, hsl(var(--secondary) / 0.3) 0%, hsl(var(--background) / 0.2) 100%);
   }
 }
 

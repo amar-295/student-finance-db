@@ -1,5 +1,5 @@
-import { ArrowUpRight, ArrowDownRight, Calendar } from 'lucide-react';
-import { Button } from '../ui/button';
+import { Calendar } from 'lucide-react';
+
 
 export const TransactionItem = ({ transaction, onSelect }: any) => {
     return (

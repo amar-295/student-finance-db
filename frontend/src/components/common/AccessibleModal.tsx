@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+// @ts-ignore
 import FocusTrap from 'focus-trap-react';
 import { X } from 'lucide-react';
 import { Button } from '../ui/button';

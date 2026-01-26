@@ -1,32 +1,33 @@
 import { ScrollSection } from '../../components/ui/scroll-section';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../../components/ui/card';
 import { Shield, PieChart, Smartphone, Users } from 'lucide-react';
+import { cn } from '../../lib/utils';
 
 const features = [
     {
-        title: "Smart Budgeting",
-        description: "Set monthly limits and track expenses with AI-powered categorization.",
+        title: "Strategic Wealth",
+        description: "Set intelligent limits and track expenses with AI-powered, student-first categorization.",
         icon: PieChart,
         colSpan: "col-span-1 md:col-span-2",
         bg: "bg-gradient-to-br from-indigo-500/10 to-purple-500/10"
     },
     {
-        title: "Bill Splitting",
-        description: "Easily split rent, utilities, and groceries with roommates.",
+        title: "Team Settlement",
+        description: "Zero-friction bill splitting. Manage rent, utilities, and groceries without the social stress.",
         icon: Users,
         colSpan: "col-span-1",
         bg: "bg-gradient-to-br from-blue-500/10 to-cyan-500/10"
     },
     {
-        title: "Bank Encryption",
-        description: "Your data is secured with AES-256 bit encryption standard.",
+        title: "Protocol Security",
+        description: "Institutional-grade AES-256 local encryption. Your data stays invisible to us.",
         icon: Shield,
         colSpan: "col-span-1",
         bg: "bg-gradient-to-br from-emerald-500/10 to-teal-500/10"
     },
     {
-        title: "Mobile First",
-        description: "Manage your finances on the go with our dedicated mobile experience.",
+        title: "On-Campus Speed",
+        description: "High-fidelity mobile experience designed for managing finances on the move.",
         icon: Smartphone,
         colSpan: "col-span-1 md:col-span-2",
         bg: "bg-gradient-to-br from-orange-500/10 to-red-500/10"
@@ -46,9 +47,9 @@ export function Features() {
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 auto-rows-[300px]">
                     {features.map((feature, i) => (
-                        <ScrollSection key={i} className={feature.colSpan} animation="scale-up" delay={i * 0.1}>
-                            <Card className={`h-full border border-border/40 relative overflow-hidden group transition-all duration-300 hover:border-primary/30 hover:shadow-md ${feature.bg}`}>
-                                <div className="absolute inset-0 bg-background/50 transition-colors group-hover:bg-background/30" />
+                        <ScrollSection key={i} className={feature.colSpan} animation="mask-reveal" delay={i * 0.1}>
+                            <Card className={cn("h-full relative overflow-hidden group transition-all duration-500 hover:shadow-2xl hover:shadow-primary/5 hover:border-primary/30 hover:bg-background/40 dark:hover:bg-primary/10 dark:hover:shadow-primary/20 border-glass", feature.bg)}>
+                                <div className="absolute inset-0 bg-background/20 transition-colors group-hover:bg-background/10" />
                                 <CardHeader className="relative z-10">
                                     <div className="w-12 h-12 rounded-lg bg-background border border-border/50 flex items-center justify-center mb-4 shadow-sm transition-transform duration-300 group-hover:-translate-y-1">
                                         <feature.icon className="w-6 h-6 text-primary" />

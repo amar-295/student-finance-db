@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { transactionService } from '../services/transaction.service';
-import type { CreateTransactionDTO, Transaction } from '../services/transaction.service';
+import type { Transaction } from '../services/transaction.service';
 import { toast } from 'sonner';
 import confetti from 'canvas-confetti';
 
@@ -18,7 +18,7 @@ export const useCreateTransaction = () => {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: (data: CreateTransactionDTO) => transactionService.createTransaction(data),
+        mutationFn: (data: Partial<Transaction>) => transactionService.createTransaction(data),
         onMutate: async (newTransaction) => {
             // Cancel any outgoing refetches (so they don't overwrite our optimistic update)
             await queryClient.cancelQueries({ queryKey: ['transactions'] });
@@ -56,7 +56,7 @@ export const useCreateTransaction = () => {
         },
         onSuccess: () => {
             // Calculate center of window for confetti
-            const end = Date.now() + 1000;
+            // Calculate center of window for confetti
 
             // Confetti explosion!
             confetti({

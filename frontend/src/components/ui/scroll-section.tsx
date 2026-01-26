@@ -1,13 +1,10 @@
-import { useRef, useEffect } from "react";
-import { gsap } from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-
-gsap.registerPlugin(ScrollTrigger);
+import { motion, type Variants } from "framer-motion";
+import { useUserTiming } from "../../hooks/useUserTiming";
 
 interface ScrollSectionProps {
     children: React.ReactNode;
     className?: string;
-    animation?: "fade-up" | "slide-left" | "scale-up";
+    animation?: "fade-up" | "slide-left" | "scale-up" | "mask-reveal";
     delay?: number;
 }
 
@@ -17,44 +14,43 @@ export function ScrollSection({
     animation = "fade-up",
     delay = 0,
 }: ScrollSectionProps) {
-    const ref = useRef<HTMLDivElement>(null);
+    useUserTiming("ScrollSection", className); // Use className as distinct ID if available, or just generic
 
-    useEffect(() => {
-        const el = ref.current;
-        if (!el) return;
-
-        let fromVars: gsap.TweenVars = { opacity: 0, y: 30 };
-        let toVars: gsap.TweenVars = { opacity: 1, y: 0, duration: 1, ease: "sine.out", delay };
-
-        if (animation === "slide-left") {
-            fromVars = { opacity: 0, x: -30 };
-            toVars = { opacity: 1, x: 0, duration: 1, ease: "sine.out", delay };
-        } else if (animation === "scale-up") {
-            fromVars = { opacity: 0, scale: 0.96 };
-            toVars = { opacity: 1, scale: 1, duration: 0.8, ease: "sine.out", delay };
+    const variants: Record<string, Variants> = {
+        "fade-up": {
+            hidden: { opacity: 0, y: 30 },
+            visible: { opacity: 1, y: 0 }
+        },
+        "slide-left": {
+            hidden: { opacity: 0, x: -30 },
+            visible: { opacity: 1, x: 0 }
+        },
+        "scale-up": {
+            hidden: { opacity: 0, scale: 0.96 },
+            visible: { opacity: 1, scale: 1 }
+        },
+        "mask-reveal": {
+            hidden: { opacity: 0, y: 60, scale: 0.95 },
+            visible: { opacity: 1, y: 0, scale: 1 }
         }
+    };
 
-        gsap.fromTo(
-            el,
-            fromVars,
-            {
-                ...toVars,
-                scrollTrigger: {
-                    trigger: el,
-                    start: "top 85%",
-                    toggleActions: "play none none none",
-                },
-            }
-        );
-
-        return () => {
-            // Cleanup if needed, though ScrollTrigger handles most
-        };
-    }, [animation, delay]);
+    const selectedVariant = variants[animation] || variants["fade-up"];
 
     return (
-        <div ref={ref} className={className}>
+        <motion.div
+            className={className}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-10%" }} // Trigger a bit earlier/later depending on preference, margin -10% means trigger when 10% in view? No, margin affects viewport. Using default or 'once' mimics GSAP 'play none none none'.
+            variants={selectedVariant}
+            transition={{
+                duration: 0.8,
+                delay: delay,
+                ease: [0.21, 0.47, 0.32, 0.98] // Smooth ease
+            }}
+        >
             {children}
-        </div>
+        </motion.div>
     );
 }

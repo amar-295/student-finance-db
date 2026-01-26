@@ -13,7 +13,7 @@ import {
     Plus
 } from 'lucide-react';
 import { useTheme } from '../../contexts/ThemeContext';
-import { Dialog, DialogContent } from '@radix-ui/react-dialog'; // Assuming we have or will treat it as a primitive, or use Command.Dialog directly if headless
+// We can style cmdk using standard CSS or Tailwind classes on the primitives.
 
 // We can style cmdk using standard CSS or Tailwind classes on the primitives.
 // Since we don't have a pre-built shadcn "command" component yet, I will build a self-contained one 
