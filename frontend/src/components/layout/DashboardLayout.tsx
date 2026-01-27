@@ -8,6 +8,7 @@ import { useState } from 'react';
 import { ShortcutsHelp } from '../ui/shortcuts-help';
 import { useSmartNotifications } from '../../hooks/useSmartNotifications';
 import { useAchievements } from '../../hooks/useAchievements';
+import { SEO } from '../common/SEO';
 
 export default function DashboardLayout() {
     const navigate = useNavigate();
@@ -29,6 +30,7 @@ export default function DashboardLayout() {
 
     return (
         <div className="flex h-screen overflow-hidden bg-background">
+            <SEO title="Dashboard" />
             <Sidebar />
             <div className="flex flex-1 flex-col overflow-hidden">
                 <Header />

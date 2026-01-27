@@ -4,4 +4,4 @@ Disallow: /dashboard/
 Disallow: /settings/
 Disallow: /api/
 
-Sitemap: https://student-finance-db.com/sitemap.xml
+Sitemap: https://student-finance-db.vercel.app/sitemap.xml

@@ -27,7 +27,7 @@
                 },
                 {
                     "key": "Content-Security-Policy",
-                    "value": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https: blob:; connect-src 'self' https://api.student-finance-db.com; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; require-trusted-types-for 'script';"
+                    "value": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https: blob:; connect-src 'self' https://student-finance-db.onrender.com; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; require-trusted-types-for 'script';"
                 }
             ]
         }
