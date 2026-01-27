@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { aiService } from '../services/ai.service';
-import Skeleton from '../components/common/Skeleton';
+import { Skeleton } from '../components/ui/skeleton';
 import { formatCurrency } from '../utils/format';
 
 export default function InsightsPage() {
@@ -29,10 +29,10 @@ export default function InsightsPage() {
     if (isLoading) {
         return (
             <div className="p-8 space-y-8 bg-[#f8fafc] dark:bg-[#0f172a] min-h-screen">
-                <Skeleton variant="rect" height={200} className="rounded-3xl" />
+                <Skeleton className="h-[200px] w-full rounded-3xl" />
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <Skeleton variant="rect" height={300} className="rounded-2xl" />
-                    <Skeleton variant="rect" height={300} className="rounded-2xl" />
+                    <Skeleton className="h-[300px] w-full rounded-2xl" />
+                    <Skeleton className="h-[300px] w-full rounded-2xl" />
                 </div>
             </div>
         );

@@ -15,7 +15,7 @@ import {
 } from 'recharts';
 import { analyticsService } from '../services/analytics.service';
 import { formatCurrency } from '../utils/format';
-import Skeleton from '../components/common/Skeleton';
+import { Skeleton } from '../components/ui/skeleton';
 
 const COLORS = ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'];
 
@@ -53,14 +53,14 @@ export default function AnalyticsPage() {
         return (
             <div className="p-8 space-y-8 bg-[#f8fafc] dark:bg-[#0f172a] min-h-screen">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <Skeleton variant="rect" height={120} className="rounded-2xl" />
-                    <Skeleton variant="rect" height={120} className="rounded-2xl" />
-                    <Skeleton variant="rect" height={120} className="rounded-2xl" />
+                    <Skeleton className="h-[120px] w-full rounded-2xl" />
+                    <Skeleton className="h-[120px] w-full rounded-2xl" />
+                    <Skeleton className="h-[120px] w-full rounded-2xl" />
                 </div>
-                <Skeleton variant="rect" height={300} className="rounded-2xl" />
+                <Skeleton className="h-[300px] w-full rounded-2xl" />
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <Skeleton variant="rect" height={300} className="rounded-2xl" />
-                    <Skeleton variant="rect" height={300} className="rounded-2xl" />
+                    <Skeleton className="h-[300px] w-full rounded-2xl" />
+                    <Skeleton className="h-[300px] w-full rounded-2xl" />
                 </div>
             </div>
         );

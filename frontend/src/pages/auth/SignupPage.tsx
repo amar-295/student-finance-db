@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 import { z } from 'zod';
 import { authService, registerSchema } from '../../services/auth.service';
 import { useAuthStore } from '../../store/authStore';
+import { SEO } from '../../components/common/SEO';
 
 const signupSchema = registerSchema.extend({
     terms: z.literal(true, {
@@ -60,6 +61,7 @@ export default function SignupPage() {
 
     return (
         <div className="font-display bg-white dark:bg-dark-bg-primary text-text-main dark:text-dark-text-primary min-h-screen flex flex-col lg:flex-row selection:bg-primary/30 transition-colors">
+            <SEO title="Create Account" description="Join UniFlow today and start mastering your student finances." />
             {/* Left Side - Abstract & Testimonials */}
             <div className="hidden lg:flex lg:w-1/2 relative bg-dark-bg-secondary overflow-hidden items-center justify-center p-12">
                 <div className="absolute inset-0 bg-gradient-to-br from-primary/90 via-primary-dark/80 to-secondary/40 mix-blend-multiply"></div>

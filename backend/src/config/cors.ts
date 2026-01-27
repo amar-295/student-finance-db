@@ -6,10 +6,9 @@ import config from './env';
  */
 const allowedOrigins = process.env.NODE_ENV === 'production'
     ? [
-        // Production domains (update these with your actual production URLs)
-        process.env.FRONTEND_URL || 'https://app.uniflow.com',
-        'https://uniflow.com',
-        'https://www.uniflow.com',
+        // Production domains
+        process.env.FRONTEND_URL || 'https://student-finance-db.vercel.app',
+        'https://student-finance-db.vercel.app',
     ]
     : [
         // Development/local origins

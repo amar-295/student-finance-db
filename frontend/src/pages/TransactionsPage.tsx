@@ -1,23 +1,25 @@
 import { useState, useMemo, useCallback } from 'react';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
+import { useAutoAnimate } from '@formkit/auto-animate/react'; // New
 import { useDebounce } from '../hooks/useDebounce';
 import { transactionService, type TransactionFilters } from '../services/transaction.service';
 import TransactionFiltersPanel from '../components/transactions/TransactionFilters';
 import BulkActionsBar from '../components/transactions/BulkActionsBar';
-import Skeleton from '../components/common/Skeleton';
+import { Skeleton } from '../components/ui/skeleton';
 import { toast } from 'sonner';
 import TransactionForm, { type TransactionSubmissionData } from '../components/transactions/TransactionForm';
 import { TransactionRow } from '../components/transactions/TransactionRow';
 import { Dialog, DialogPanel, DialogTitle } from '@headlessui/react';
-import { useMutation } from '@tanstack/react-query';
+import { Card } from '../components/ui/card';
+import { Button } from '../components/ui/button';
+import { ScrollSection } from '../components/ui/scroll-section';
+import { Filter, Plus, AlertCircle } from 'lucide-react';
+import { TransactionSearch } from '../components/transactions/TransactionSearch';
+import { EmptyTransactions } from '../components/transactions/EmptyTransactions';
 
 // Interface matching the backend response for display
-// Extending the inferred type from the service or defining a compatible one
 interface TransactionDisplay {
     id: string;
-    // transactionDate property seems to be what the UI expects, but service returns 'date'
-    // We need to clarify if we map it or if the service type is wrong.
-    // Based on usage: formatDate(txn.transactionDate)
     transactionDate: string;
     merchant?: string;
     description: string;
@@ -31,11 +33,13 @@ interface TransactionDisplay {
     };
     accountId?: number | string;
     type?: 'INCOME' | 'EXPENSE';
-
     [key: string]: any;
 }
 
+import { useUserTiming } from '../hooks/useUserTiming';
+
 export default function TransactionsPage() {
+    useUserTiming("TransactionsPage");
     const queryClient = useQueryClient();
     const [page, setPage] = useState(1);
     const [searchQuery, setSearchQuery] = useState('');
@@ -47,9 +51,10 @@ export default function TransactionsPage() {
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [editingTransaction, setEditingTransaction] = useState<TransactionDisplay | null>(null);
 
+    const [tableParent] = useAutoAnimate(); // AutoAnimate hook
 
     // Fetch transactions
-    const { data, isLoading, isError, error, refetch } = useQuery({
+    const { data, isLoading, isError, refetch } = useQuery({
         queryKey: ['transactions', page, filters, debouncedSearchQuery, sort],
         queryFn: async () => {
             try {
@@ -62,7 +67,6 @@ export default function TransactionsPage() {
                     sortOrder: sort.order
                 });
             } catch (err) {
-                // Graceful degradation / Error handling
                 console.error("Failed to fetch transactions", err);
                 throw err;
             }
@@ -73,7 +77,6 @@ export default function TransactionsPage() {
     const pagination = data?.pagination;
 
     const createMutation = useMutation({
-
         mutationFn: (data: any) => transactionService.createTransaction(data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['transactions'] });
@@ -83,7 +86,6 @@ export default function TransactionsPage() {
     });
 
     const updateMutation = useMutation({
-
         mutationFn: ({ id, data }: { id: string; data: any }) => transactionService.updateTransaction(id, data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['transactions'] });
@@ -108,14 +110,8 @@ export default function TransactionsPage() {
     }, []);
 
     const toggleSelectAll = useCallback(() => {
-        // Dependencies are key here. If we use transactions from closure, it updates when transactions change.
-        // But transactions comes from useMemo.
-        // Better to pass transactions length or id list? 
-        // Logic: if all selected, unselect. Else select all.
-        // We can access current selection state via ref or just let it re-create when selection changes?
-        // Actually, toggleSelectAll is not passed to Row, so it doesn't break Row memoization.
-        // But toggleSelection IS passed to Row.
-    }, []); // Not using this one in Row for now.
+        // Logic intentionally simple for now
+    }, []);
 
     const handleBulkUpdate = async (status: 'pending' | 'cleared' | 'reconciled') => {
         try {
@@ -150,10 +146,36 @@ export default function TransactionsPage() {
     }, []);
 
     const handleDelete = useCallback((id: string) => {
-        if (confirm('Delete this transaction?')) {
+        // 1. Snapshot and Optimistic Update
+        const previousTransactions = queryClient.getQueryData(['transactions', page, filters, debouncedSearchQuery, sort]);
+
+        queryClient.setQueryData(['transactions', page, filters, debouncedSearchQuery, sort], (old: any) => {
+            if (!old) return old;
+            return {
+                ...old,
+                data: old.data.filter((t: any) => t.id !== id)
+            };
+        });
+
+        // 2. Defer API call
+        const timeoutId = setTimeout(() => {
             deleteMutation.mutate(id);
-        }
-    }, [deleteMutation]);
+        }, 4000);
+
+        // 3. Show Toast with Undo
+        toast('Transaction deleted', {
+            description: 'This item has been removed.',
+            action: {
+                label: 'Undo',
+                onClick: () => {
+                    clearTimeout(timeoutId);
+                    queryClient.setQueryData(['transactions', page, filters, debouncedSearchQuery, sort], previousTransactions);
+                    toast.success('Restored transaction');
+                },
+            },
+            duration: 4000,
+        });
+    }, [queryClient, deleteMutation, page, filters, debouncedSearchQuery, sort]);
 
     const formatDate = useCallback((dateString: string) => {
         return new Date(dateString).toLocaleDateString('en-US', {
@@ -172,41 +194,44 @@ export default function TransactionsPage() {
     };
 
     return (
-        <div className="p-8 pb-32">
-            <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
-                <div>
-                    <h2 className="text-3xl font-black text-text-main dark:text-dark-text-primary">Transactions</h2>
-                    <p className="text-text-muted dark:text-dark-text-secondary mt-1">Manage and categorize your spending</p>
+        <div className="p-8 pb-32 space-y-6">
+            <ScrollSection animation="fade-up">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div>
+                        <h2 className="text-3xl font-bold tracking-tight text-foreground">Transactions</h2>
+                        <p className="text-muted-foreground mt-1">Manage and categorize your spending</p>
+                    </div>
+                    <Button
+                        onClick={() => { setEditingTransaction(null); setIsFormOpen(true); }}
+                        className="shadow-glow"
+                    >
+                        <Plus className="mr-2 h-4 w-4" />
+                        Add Transaction
+                    </Button>
                 </div>
-                <button
-                    onClick={() => { setEditingTransaction(null); setIsFormOpen(true); }}
-                    className="bg-primary hover:bg-primary-dark text-white font-bold py-3 px-6 rounded-xl shadow-lg shadow-primary/20 transition-all flex items-center gap-2"
-                >
-                    <span className="material-symbols-outlined">add</span>
-                    Add Transaction
-                </button>
-            </div>
+            </ScrollSection>
 
             {/* Search & Filter Bar */}
-            <div className="mb-6 flex gap-4">
-                <div className="relative flex-1 max-w-2xl">
-                    <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">search</span>
-                    <input
-                        type="text"
-                        placeholder="Search by merchant, category, or try 'amount:>50'"
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 dark:border-dark-border-primary bg-white dark:bg-dark-bg-tertiary focus:ring-2 focus:ring-primary outline-none transition-all text-text-main dark:text-dark-text-primary placeholder-gray-400 dark:placeholder-slate-500"
-                    />
+            <ScrollSection animation="fade-up" delay={0.1}>
+                <div className="flex gap-4 items-start">
+                    <div className="relative flex-1 max-w-2xl z-10">
+                        <TransactionSearch
+                            transactions={transactions}
+                            onResultSelect={(txn: any) => handleEdit(txn)}
+                            value={searchQuery}
+                            onChange={(val: string) => setSearchQuery(val)}
+                        />
+                    </div>
+                    <Button
+                        variant={Object.keys(filters).length > 0 ? "default" : "outline"}
+                        onClick={() => setShowFilters(true)}
+                        className="gap-2 h-12"
+                    >
+                        <Filter className="h-4 w-4" />
+                        Filters
+                    </Button>
                 </div>
-                <button
-                    onClick={() => setShowFilters(true)}
-                    className={`px-4 py-3 rounded-xl border border-gray-200 dark:border-dark-border-primary bg-white dark:bg-dark-bg-tertiary flex items-center gap-2 font-bold hover:bg-gray-50 dark:hover:bg-dark-bg-hover transition-colors ${Object.keys(filters).length > 0 ? 'text-primary border-primary' : 'text-text-muted dark:text-dark-text-tertiary'}`}
-                >
-                    <span className="material-symbols-outlined">filter_list</span>
-                    Filters
-                </button>
-            </div>
+            </ScrollSection>
 
             {/* Filters Sidebar */}
             {showFilters && (
@@ -221,107 +246,123 @@ export default function TransactionsPage() {
             )}
 
             {/* Data Table */}
-            <div className="bg-white dark:bg-dark-bg-secondary rounded-2xl border border-gray-100 dark:border-dark-border-primary shadow-sm overflow-hidden">
-                {isLoading ? (
-                    <div className="p-8 space-y-4">
-                        <Skeleton variant="text" width="100%" height={50} />
-                        <Skeleton variant="text" width="100%" height={50} />
-                        <Skeleton variant="text" width="100%" height={50} />
-                    </div>
-                ) : isError ? (
-                    <div className="p-12 text-center text-gray-500">
-                        <span className="material-symbols-outlined text-4xl mb-2 text-red-500">error</span>
-                        <p className="text-red-500 font-medium mb-2">Failed to load transactions</p>
-                        <p className="text-sm mb-4">{(error as Error)?.message || 'An unexpected error occurred'}</p>
-                        <button
-                            onClick={() => refetch()}
-                            className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors"
-                        >
-                            Try Again
-                        </button>
-                    </div>
-                ) : transactions.length > 0 ? (
+            <ScrollSection animation="fade-up" delay={0.2}>
+                <Card className="overflow-hidden border-border/50">
                     <div className="overflow-x-auto">
                         <table className="w-full text-left border-collapse">
-                            <thead>
-                                <tr className="bg-gray-50 dark:bg-dark-bg-tertiary/50 border-b border-gray-100 dark:border-dark-border-primary">
+                            <thead className="bg-muted/50 text-xs uppercase text-muted-foreground font-semibold">
+                                <tr>
                                     <th className="p-4 w-12">
                                         <input
                                             type="checkbox"
-                                            checked={selectedIds.length === transactions.length && transactions.length > 0}
+                                            checked={selectedIds.length === (transactions?.length || 0) && (transactions?.length || 0) > 0}
                                             onChange={toggleSelectAll}
-                                            className="rounded border-gray-300 text-primary focus:ring-primary"
+                                            className="rounded border-input bg-background text-primary focus:ring-primary"
                                         />
                                     </th>
-                                    <th className="p-4 font-semibold text-text-muted dark:text-dark-text-tertiary text-sm cursor-pointer hover:text-primary" onClick={() => setSort({ by: 'date', order: sort.order === 'asc' ? 'desc' : 'asc' })}>
-                                        Date {sort.by === 'date' && (sort.order === 'asc' ? '↑' : '↓')}
+                                    <th className="p-4 cursor-pointer hover:text-primary transition-colors" onClick={() => setSort({ by: 'date', order: sort.order === 'asc' ? 'desc' : 'asc' })}>
+                                        Date
                                     </th>
-                                    <th className="p-4 font-semibold text-text-muted dark:text-dark-text-tertiary text-sm">Merchant</th>
-                                    <th className="p-4 font-semibold text-text-muted dark:text-dark-text-tertiary text-sm">Category</th>
-                                    <th className="p-4 font-semibold text-text-muted dark:text-dark-text-tertiary text-sm text-center">Status</th>
-                                    <th className="p-4 font-semibold text-text-muted dark:text-dark-text-tertiary text-sm text-right cursor-pointer hover:text-primary" onClick={() => setSort({ by: 'amount', order: sort.order === 'asc' ? 'desc' : 'asc' })}>
-                                        Amount {sort.by === 'amount' && (sort.order === 'asc' ? '↑' : '↓')}
+                                    <th className="p-4">Merchant</th>
+                                    <th className="p-4">Category</th>
+                                    <th className="p-4 text-center">Status</th>
+                                    <th className="p-4 text-right cursor-pointer hover:text-primary transition-colors" onClick={() => setSort({ by: 'amount', order: sort.order === 'asc' ? 'desc' : 'asc' })}>
+                                        Amount
                                     </th>
                                     <th className="p-4"></th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                {transactions.map((txn) => (
-                                    <TransactionRow
-                                        key={txn.id}
-                                        txn={txn}
-                                        isSelected={selectedIds.includes(txn.id)}
-                                        onToggle={toggleSelection}
-                                        onEdit={handleEdit}
-                                        onDelete={handleDelete}
-                                        formatDate={formatDate}
-                                    />
-                                ))}
+                            <tbody ref={tableParent} className="divide-y divide-border/50">
+                                {isLoading ? (
+                                    <>
+                                        {[...Array(5)].map((_, i) => (
+                                            <tr key={i} className="border-b border-border/30">
+                                                <td className="p-4"><Skeleton className="h-4 w-4 mx-auto" /></td>
+                                                <td className="p-4"><Skeleton className="h-4 w-24" /></td>
+                                                <td className="p-4">
+                                                    <div className="space-y-1">
+                                                        <Skeleton className="h-4 w-32" />
+                                                        <Skeleton className="h-3 w-48" />
+                                                    </div>
+                                                </td>
+                                                <td className="p-4"><Skeleton className="h-6 w-24 rounded-full" /></td>
+                                                <td className="p-4 text-center"><Skeleton className="h-4 w-16 mx-auto" /></td>
+                                                <td className="p-4 text-right"><Skeleton className="h-4 w-20 ml-auto" /></td>
+                                                <td className="p-4"><Skeleton className="h-8 w-8 ml-auto" /></td>
+                                            </tr>
+                                        ))}
+                                    </>
+                                ) : isError ? (
+                                    <tr>
+                                        <td colSpan={7} className="p-12 text-center text-muted-foreground">
+                                            <AlertCircle className="mx-auto h-10 w-10 text-destructive mb-2" />
+                                            <p className="font-medium text-destructive mb-2">Failed to load transactions</p>
+                                            <Button variant="outline" onClick={() => refetch()}>Try Again</Button>
+                                        </td>
+                                    </tr>
+                                ) : transactions.length > 0 ? (
+                                    transactions.map((txn: any) => (
+                                        <TransactionRow
+                                            key={txn.id}
+                                            txn={txn}
+                                            isSelected={selectedIds.includes(txn.id)}
+                                            onToggle={toggleSelection}
+                                            onEdit={handleEdit}
+                                            onDelete={handleDelete}
+                                            formatDate={formatDate}
+                                            className="opacity-100" // Removed animation mess for now, using tableParent
+                                        />
+                                    ))
+                                ) : (
+                                    <tr>
+                                        <td colSpan={7} className="p-2">
+                                            <EmptyTransactions onAddTransaction={() => {
+                                                setEditingTransaction(null);
+                                                setIsFormOpen(true);
+                                            }} />
+                                        </td>
+                                    </tr>
+                                )}
                             </tbody>
                         </table>
                     </div>
-                ) : (
-                    <div className="p-12 text-center text-gray-500">
-                        <span className="material-symbols-outlined text-4xl mb-2 opacity-50">search_off</span>
-                        <p>No transactions found matching your criteria.</p>
-                    </div>
-                )}
 
-                {/* Pagination */}
-                {pagination && pagination.totalPages > 1 && (
-                    <div className="p-4 border-t border-gray-100 dark:border-white/10 flex justify-center gap-2">
-                        <button
-                            disabled={page === 1}
-                            onClick={() => setPage(p => p - 1)}
-                            className="px-4 py-2 rounded-lg border border-gray-200 dark:border-white/10 disabled:opacity-50"
-                        >
-                            Previous
-                        </button>
-                        <span className="px-4 py-2 text-sm font-bold text-gray-500 self-center">
-                            Page {page} of {pagination.totalPages}
-                        </span>
-                        <button
-                            disabled={!pagination.hasMore}
-                            onClick={() => setPage(p => p + 1)}
-                            className="px-4 py-2 rounded-lg border border-gray-200 dark:border-white/10 disabled:opacity-50"
-                        >
-                            Next
-                        </button>
-                    </div>
-                )}
-            </div>
+                    {/* Pagination */}
+                    {pagination && pagination.totalPages > 1 && (
+                        <div className="p-4 border-t flex justify-center gap-2">
+                            <Button
+                                variant="outline"
+                                disabled={page === 1}
+                                onClick={() => setPage(p => p - 1)}
+                            >
+                                Previous
+                            </Button>
+                            <span className="px-4 py-2 text-sm font-medium self-center">
+                                Page {page} of {pagination.totalPages}
+                            </span>
+                            <Button
+                                variant="outline"
+                                disabled={!pagination.hasMore}
+                                onClick={() => setPage(p => p + 1)}
+                            >
+                                Next
+                            </Button>
+                        </div>
+                    )}
+                </Card>
+            </ScrollSection>
 
             {/* Transaction Form Modal */}
             <Dialog open={isFormOpen} onClose={() => setIsFormOpen(false)} className="relative z-50">
-                <div className="fixed inset-0 bg-black/30 backdrop-blur-sm" aria-hidden="true" />
+                <div className="fixed inset-0 bg-black/40 backdrop-blur-sm" aria-hidden="true" />
                 <div className="fixed inset-0 flex items-center justify-center p-4">
-                    <DialogPanel className="mx-auto max-w-xl w-full rounded-2xl bg-white dark:bg-dark-bg-secondary p-8 shadow-2xl">
-                        <DialogTitle className="text-2xl font-black mb-6 dark:text-white">
+                    <DialogPanel className="mx-auto max-w-xl w-full rounded-2xl bg-background p-8 shadow-2xl border">
+                        <DialogTitle className="text-2xl font-bold mb-6">
                             {editingTransaction ? 'Edit Transaction' : 'New Transaction'}
                         </DialogTitle>
                         <TransactionForm
                             onSubmit={handleFormSubmit}
-                            accounts={[{ id: 1, name: 'Checking', type: 'CHECKING' }]} // Should ideally come from real accounts
+                            accounts={[{ id: 1, name: 'Checking', type: 'CHECKING' }]}
                             initialData={editingTransaction ? {
                                 ...editingTransaction,
                                 date: editingTransaction.transactionDate?.split('T')[0],

@@ -77,10 +77,15 @@ export const transactionService = {
         if (f.sortBy) params.append('sortBy', f.sortBy);
         if (f.sortOrder) params.append('sortOrder', f.sortOrder);
 
+        performance.mark('api-transactions-start');
         const response = await axios.get<PaginatedResponse<Transaction>>(API_ENDPOINTS.TRANSACTIONS, {
             headers: getAuthHeader(),
             params
         });
+        performance.mark('api-transactions-end');
+        try {
+            performance.measure('API:getTransactions', 'api-transactions-start', 'api-transactions-end');
+        } catch (e) { }
         return response.data;
     },
 
@@ -169,6 +174,21 @@ export const transactionService = {
                     }
                 ]);
             }, 800);
+        });
+    },
+
+    async predictCategory(merchant: string): Promise<string> {
+        // Mock AI prediction
+        return new Promise((resolve) => {
+            setTimeout(() => {
+                const lower = merchant.toLowerCase();
+                if (lower.includes('starbucks') || lower.includes('coffee') || lower.includes('mcdonalds')) return resolve('Food & Dining');
+                if (lower.includes('uber') || lower.includes('lyft') || lower.includes('shell') || lower.includes('gas')) return resolve('Transportation');
+                if (lower.includes('amazon') || lower.includes('walmart') || lower.includes('target')) return resolve('Shopping');
+                if (lower.includes('netflix') || lower.includes('spotify') || lower.includes('cinema')) return resolve('Entertainment');
+                if (lower.includes('salary') || lower.includes('deposit')) return resolve('Income');
+                resolve('Uncategorized');
+            }, 300); // Fast response
         });
     }
 };

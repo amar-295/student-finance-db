@@ -3,7 +3,9 @@ import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { authService, type LoginInput } from '../../services/auth.service';
 import { useAuthStore } from '../../store/authStore';
-import LoginForm from '../../components/LoginForm';
+import LoginForm from '../../components/auth/LoginForm';
+import Background3D from '../../components/ui/Background3D';
+import { SEO } from '../../components/common/SEO';
 
 export default function LoginPage() {
     const navigate = useNavigate();
@@ -51,16 +53,14 @@ export default function LoginPage() {
 
     return (
         <div className="flex h-screen w-full flex-row overflow-hidden bg-background-light dark:bg-dark-bg-primary font-display antialiased text-text-main dark:text-dark-text-primary">
+            <SEO title="Login" description="Log in to your UniFlow account to manage your finances." />
             {/* Left Side - Visual */}
             <div className="relative hidden lg:flex lg:w-1/2 flex-col justify-between overflow-hidden p-12">
-                <div
-                    style={{ backgroundImage: "url('/images/auth-bg.png')" }}
-                    className="absolute inset-0 z-0 bg-cover bg-center"
-                >
+                <div className="absolute inset-0 z-0">
+                    <Background3D />
                 </div>
-                {/* Abstract Background - Kept Template Colors as requested */}
-                <div className="absolute inset-0 z-10 bg-gradient-to-br from-primary/90 to-secondary/90 mix-blend-multiply"></div>
-                <div className="absolute inset-0 z-10 bg-black/10"></div>
+                {/* Overlay gradient - reduced opacity to show 3D */}
+                <div className="absolute inset-0 z-10 bg-gradient-to-br from-primary/20 to-secondary/20 backdrop-blur-[1px]"></div>
 
                 <div className="relative z-20 flex h-full flex-col justify-center text-white">
                     <Link to="/" className="mb-6 size-12 bg-white/20 backdrop-blur-md rounded-xl flex items-center justify-center border border-white/30 shadow-xl hover:scale-105 transition-transform">

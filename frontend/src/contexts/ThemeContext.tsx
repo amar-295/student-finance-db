@@ -48,7 +48,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
         // Remove transition class after animation
         setTimeout(() => {
             root.classList.remove('theme-transitioning');
-        }, 300);
+        }, 150);
     }, []);
 
     // Effect to handle theme changes and system preference updates

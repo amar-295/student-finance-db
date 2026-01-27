@@ -6,7 +6,7 @@ import { billSplitService } from '../services/billSplit.service';
 import { useAuthStore } from '../store/authStore';
 import { formatCurrency } from '../utils/format';
 import SplitSettlementModal from '../components/splits/SplitSettlementModal';
-import Skeleton from '../components/common/Skeleton';
+import { Skeleton } from '../components/ui/skeleton';
 
 export default function SplitDetailsPage() {
     const { id } = useParams<{ id: string }>();
@@ -48,9 +48,9 @@ export default function SplitDetailsPage() {
 
     if (isSplitLoading) {
         return (
-            <div className="p-8 space-y-8 bg-[#f8fafc] dark:bg-[#0f172a] min-h-screen">
-                <Skeleton variant="rect" height={200} className="rounded-2xl" />
-                <Skeleton variant="rect" height={400} className="rounded-2xl" />
+            <div className="p-8 space-y-8 bg-background min-h-screen">
+                <Skeleton className="h-[200px] w-full rounded-2xl" />
+                <Skeleton className="h-[400px] w-full rounded-2xl" />
             </div>
         );
     }
